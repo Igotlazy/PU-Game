@@ -55,7 +55,7 @@ public class Unit : MonoBehaviour {
         PathRequestManager.RequestPath(transform.position, targetPos, OnPathFound);
     }
 
-	public void OnPathFound(Vector3[] newPath, bool pathSuccessful)
+	public void OnPathFound(Vector3[] newPath, bool pathSuccessful) //Loads script with relevant path data should the path return successful. 
     {
         hasSuccessfulPath = pathSuccessful;
 
@@ -63,8 +63,6 @@ public class Unit : MonoBehaviour {
         {
 			path = newPath;
 			targetIndex = 0;
-			//StopCoroutine("FollowPath");
-			//StartCoroutine("FollowPath");
 		}
 	}
 

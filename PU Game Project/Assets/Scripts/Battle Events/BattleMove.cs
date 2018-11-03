@@ -37,6 +37,10 @@ public class BattleMove : BattleEvent {
     {
         bEventMonoBehaviour.StopCoroutine(FollowPath());
     }
+    protected override void BattleEventFinishImpl()
+    {
+
+    }
 
 
 
@@ -69,6 +73,9 @@ public class BattleMove : BattleEvent {
         moveTargetScript.currentNode = GridGen.instance.NodeFromWorldPoint(lastPosition); //So the player knows which Node they're on. 
         moveTargetScript.currentNode.IsOccupied = true; //Sets last Node to now be Occupied.
 
-        IsFinished = true;
+        DrawIndicators.instance.ClearTileMatStates(true, true, true);
+        ClickSelection.instance.DrawMoveZone();
+
+        BattleEventFinish();
     }
 }

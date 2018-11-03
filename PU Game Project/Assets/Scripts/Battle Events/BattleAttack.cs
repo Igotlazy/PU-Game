@@ -40,6 +40,10 @@ public class BattleAttack : BattleEvent {
     {
         bEventMonoBehaviour.StopCoroutine(FireAttack());
     }
+    protected override void BattleEventFinishImpl()
+    {
+
+    }
 
 
     IEnumerator FireAttack()
@@ -91,6 +95,7 @@ public class BattleAttack : BattleEvent {
         }
 
         GameObject.Destroy(spawnedProj);
-        IsFinished = true;
+
+        BattleEventFinish();
     } 
 }

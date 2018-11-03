@@ -85,6 +85,14 @@ public abstract class BattleEvent : IBattleEventControllable {
     }
     protected abstract void BattleEventCancelImpl();
 
+    public virtual void BattleEventFinish()
+    {
+        BattleEventFinishImpl();
+        IsFinished = true;
+    }
+    protected abstract void BattleEventFinishImpl();
+
+
 
 
 

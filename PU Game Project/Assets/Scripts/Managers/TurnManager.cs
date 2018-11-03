@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using System.Linq; //Gives List.Last
+using MHA.UserInterface;
 
 public class TurnManager : MonoBehaviour {
 
@@ -34,7 +35,7 @@ public class TurnManager : MonoBehaviour {
         set
         {
             currentBattlePhase = value;
-            BattlePhaseChange(currentBattlePhase);
+            BattlePhaseInitiation(currentBattlePhase);
             Debug.Log("BattleStateSet: " + value);
             if (value != BattlePhase.ActionPhase) //Action Phase CANNOT be set directly. Must use the set up function as it requires the Resolve Group.
             {
@@ -45,18 +46,19 @@ public class TurnManager : MonoBehaviour {
 
     public List<GameObject> activePlayers = new List<GameObject>();
     public List<GameObject> finishedPlayers = new List<GameObject>();
-    public int activeSizeCount;
-    private bool teamTracker;
+
+    [Tooltip("True = Ally Team, False = Enemy Team")]
+    public bool teamTracker;
     public int turnCounter = 1;
 
     public List<CinemachineVirtualCamera> unitCameraList = new List<CinemachineVirtualCamera>();
     public CinemachineVirtualCamera currentCamera;
 
     public static TurnManager instance;
-    
+
     public List<List<BattleEvent>> battleResolveBranches = new List<List<BattleEvent>>();
     public List<BattleEvent> currentResolveBranch = new List<BattleEvent>();
-    private BattleEvent currentBattleEvent; 
+    private BattleEvent currentBattleEvent;
     public BattleEvent CurrentBattleEvent { get { return currentBattleEvent; } } //For other things to be able to know what's currently being resolved. 
 
     public List<BattleEvent> battleResolveAddList = new List<BattleEvent>();
@@ -69,17 +71,17 @@ public class TurnManager : MonoBehaviour {
         instance = this;
     }
 
-    void Start ()
+    void Start()
     {
-        foreach(GameObject currentPlayer in ReferenceObjects.UnitList)
+        foreach (GameObject currentPlayer in ReferenceObjects.UnitList)
         {
             unitCameraList.Add(currentPlayer.GetComponent<Unit>().unitCamera);
         }
 
         CurrentBattlePhase = BattlePhase.MatchStart;
-	}
-	
-	void Update ()
+    }
+
+    void Update()
     {
         //DEBUG
         if (Input.GetKeyDown(KeyCode.Return))
@@ -94,7 +96,7 @@ public class TurnManager : MonoBehaviour {
     {
         foreach (CinemachineVirtualCamera vCam in unitCameraList)
         {
-            if(vCam != selectedCamera)
+            if (vCam != selectedCamera)
             {
                 vCam.Priority = 10;
             }
@@ -105,15 +107,16 @@ public class TurnManager : MonoBehaviour {
 
 
 
-    public void BattlePhaseChange(BattlePhase chosenState) //Skeleton for method calls upon specific Phase change. 
+    public void BattlePhaseInitiation(BattlePhase chosenState) //Skeleton for method calls upon specific Phase change. 
     {
         switch (chosenState)
         {
             case (BattlePhase.MatchStart):
+                StartCoroutine(MatchStartManager());
                 break;
 
             case (BattlePhase.TurnStart):
-                StartStateSetup();
+                StartCoroutine(TurnStartManager());
                 break;
 
             case (BattlePhase.PlayerInput):
@@ -127,49 +130,10 @@ public class TurnManager : MonoBehaviour {
                 break;
 
             case (BattlePhase.TurnEnd):
+                StartCoroutine(TurnEndManager());
                 break;
         }
     }
-
-
-    public void StartStateSetup() 
-    {
-        TeamSwitch();
-    }
-
-    public void TeamSwitch()
-    {
-        teamTracker = !teamTracker;
-
-        if (teamTracker)
-        {
-            activePlayers = ReferenceObjects.UnitAllyList;
-        }
-        else
-        {
-            activePlayers = ReferenceObjects.UnitEnemyList;
-        }
-
-        finishedPlayers.Clear();
-        activeSizeCount = activePlayers.Count;
-    }
-
-    public void SetPlayerAsFinished(GameObject finishedPlayer) //Keeps track of when a player runs out of moves.
-    {
-        if (activePlayers.Contains(finishedPlayer))
-        {
-            activePlayers.Remove(finishedPlayer);
-        }
-        if (!finishedPlayers.Contains(finishedPlayer))
-        {
-            finishedPlayers.Add(finishedPlayer);
-        }
-        if(finishedPlayers.Count == activeSizeCount)
-        {
-            Debug.Log("TURN END - ALL PLAYERS FINISHED");
-        }
-    }
-
 
     public void NextMainBattlePhase() //Progresses through the Main Battle Phases. Action Phase is a separate branch coming off and then returns to the Input Phases.
     {
@@ -215,6 +179,94 @@ public class TurnManager : MonoBehaviour {
         }
     }
 
+    public IEnumerator MatchStartManager()
+    {
+        yield return new WaitForSeconds(1f);
+        NextMainBattlePhase();
+    }
+
+
+    public IEnumerator TurnStartManager()
+    {
+        TeamSwitch();
+        EnergyReset();
+
+        BattleUIReferences.instance.heroTurnIntro.GetComponent<Animator>().SetTrigger("Animate");
+
+        yield return new WaitForSeconds(2f);
+
+        NextMainBattlePhase();
+    }
+    public void TeamSwitch()
+    {
+        teamTracker = !teamTracker;
+
+        if (teamTracker)
+        {
+            foreach (GameObject currentAlly in ReferenceObjects.UnitAllyList)
+            {
+                activePlayers.Add(currentAlly);
+            }
+        }
+        else
+        {
+            foreach (GameObject currentEnemy in ReferenceObjects.UnitEnemyList)
+            {
+                activePlayers.Add(currentEnemy);
+            }
+        }
+
+        finishedPlayers.Clear();
+    }
+    public void EnergyReset()
+    {
+        if (teamTracker)
+        {
+            foreach(GameObject currentAlly in ReferenceObjects.UnitAllyList)
+            {
+                LivingCreature creatureScript = currentAlly.GetComponent<LivingCreature>();
+                creatureScript.CurrentEnergy = Mathf.RoundToInt(creatureScript.maxEnergy.Value); 
+            }
+        }
+        else
+        {
+            foreach (GameObject currentEnemy in ReferenceObjects.UnitEnemyList)
+            {
+                LivingCreature creatureScript = currentEnemy.GetComponent<LivingCreature>();
+                creatureScript.CurrentEnergy = (int)Mathf.RoundToInt(creatureScript.maxEnergy.Value + 0.5f); //Need to do + 0.5 in order to guarentee normal Rounding behavior. 
+            }
+        }
+    }
+
+
+    public void SetPlayerAsFinished(GameObject finishedPlayer) //Keeps track of when a player runs out of moves.
+    {
+        if (activePlayers.Contains(finishedPlayer))
+        {
+            activePlayers.Remove(finishedPlayer);
+        }
+        if (!finishedPlayers.Contains(finishedPlayer))
+        {
+            finishedPlayers.Add(finishedPlayer);
+        }
+        if(activePlayers.Count == 0)
+        {
+            Debug.Log("TURN END - ALL PLAYERS FINISHED");
+        }
+    }
+
+    public IEnumerator TurnEndManager()
+    {
+        //Add Buff Resolution.
+
+        if (!teamTracker)
+        {
+            turnCounter += 1;
+        }
+
+        yield return new WaitForSeconds(1f);
+        NextMainBattlePhase();
+    }
 
     public void EventResolutionReceiver(BattleEvent receivedEvent) //Takes in one BattleEvent.
     {

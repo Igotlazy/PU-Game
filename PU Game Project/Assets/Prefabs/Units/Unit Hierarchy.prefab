@@ -299,7 +299,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1364386363442500}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.89, y: 0, z: -2.34}
+  m_LocalPosition: {x: -2.53, y: 0, z: 5.435}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4386472405591078}
@@ -316,7 +316,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1439543631791724}
   m_LocalRotation: {x: 0.5, y: -0, z: -0, w: 0.8660254}
-  m_LocalPosition: {x: -1.89, y: 17.320507, z: -12.34}
+  m_LocalPosition: {x: -2.53, y: 17.320507, z: -4.5649996}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4270931394658948}
@@ -625,7 +625,7 @@ MonoBehaviour:
   maxHealth:
     BaseValue: 0
   baseStrength: 0
-  baseEnergy: 100
+  baseEnergy: 5
   baseQuirkPower: 0
   basePhysicalResistance: 0
   baseQuirkResistance: 0
@@ -633,7 +633,6 @@ MonoBehaviour:
   currentLevel: 1
   strength:
     BaseValue: 0
-  currentEnergy: 0
   maxEnergy:
     BaseValue: 0
   quirkPower:
@@ -655,6 +654,8 @@ MonoBehaviour:
   isInvincible: 0
   amDead: 0
   healthBar: {fileID: 114361087001110696}
+  damageIndicator: {fileID: 1388622767760518, guid: a41fb87bd3c079a42be01ff36458a442,
+    type: 2}
 --- !u!114 &114834568468382786
 MonoBehaviour:
   m_ObjectHideFlags: 1

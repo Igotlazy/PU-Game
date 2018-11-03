@@ -22,18 +22,17 @@ public class LivingCreature : GameEntity {
     [Header("Stats:")]
     public int currentLevel = 1;
     public CharacterStat strength;
-    public int currentEnergy;
-    private int remainingEnergy;
-    public int RemainingEnergy
+    private int currentEnergy;
+    public int CurrentEnergy
     {
         get
         {
-            return remainingEnergy;
+            return currentEnergy;
         }
         set
         {
-            remainingEnergy = value;
-            if(remainingEnergy <= 0)
+            currentEnergy = value;
+            if(currentEnergy <= 0)
             {
                 RespondFinishToTurn();
             }
@@ -78,6 +77,7 @@ public class LivingCreature : GameEntity {
     public List<Buff> RemoveBuffList = new List<Buff>();
 
     public HealthBarControl healthBar;
+    public GameObject damageIndicator;
 
     protected override void Awake()
     {
@@ -88,9 +88,8 @@ public class LivingCreature : GameEntity {
     {
         //Initial Setting of Stats. 
         strength.BaseValue = baseStrength;
-        currentEnergy = baseEnergy;
-        RemainingEnergy = currentEnergy;
         maxEnergy.BaseValue = baseEnergy;
+        CurrentEnergy = Mathf.RoundToInt(maxEnergy.Value);
         quirkPower.BaseValue = baseQuirkPower;
         physicalResistance.BaseValue = basePhysicalResistance;
         quirkResistance.BaseValue = baseQuirkResistance;
@@ -127,7 +126,10 @@ public class LivingCreature : GameEntity {
 
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth.Value);
 
-            healthBar.UpdateHealth(currentHealth, maxHealth.Value);
+            healthBar.UpdateHealth(currentHealth, maxHealth.Value); //Health Bar
+
+            GameObject indicatorObj = Instantiate(damageIndicator, new Vector3 (transform.position.x, transform.position.y + 2f, transform.position.z), Quaternion.identity);
+            indicatorObj.GetComponent<DamageIndicator>().SetText(receivedAttack.damageValue);
 
             if (currentHealth <= 0 && !amDead)
             {

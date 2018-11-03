@@ -11,4 +11,6 @@ public interface IBattleEventControllable{
     void BattleEventResume();
 
     void BattleEventCancel();
+
+    void BattleEventFinish();
 }

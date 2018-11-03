@@ -9,18 +9,21 @@ public class ClickSelection : MonoBehaviour
     private Camera currentCamera;
     public ParticleSystem selectionParticles;
     public LayerMask clickLayerMask;
+
+
+    [Header("Selection References")]
     public GameObject selectedUnitObj;
     private LivingCreature selectedCreatureScript;
     private Unit selectedUnitScript;
     public GameObject hitTileObj;
 
 
+    [Header("State Bools")]
     public bool hasSelection;
     public bool isAttacking;
-
     public bool isPlayerInput;
 
-    public GameObject basicAttackProjectile;
+    public GameObject basicAttackProjectile; //Testing
 
     private bool particlesPlaying;
 
@@ -62,6 +65,11 @@ public class ClickSelection : MonoBehaviour
 
             }
 
+            if(!isAttacking && hasSelection)
+            {
+                SetMovePath();
+            }
+
             if (Input.GetKeyDown(KeyCode.A))
             {
                 if (hasSelection)
@@ -78,13 +86,6 @@ public class ClickSelection : MonoBehaviour
                     }
                 }
             }
-
-            if (hasSelection && !isAttacking)
-            {
-                SetMovePath();
-            }
-
-
 
 
             if (selectedUnitObj != null && !particlesPlaying) //For Selection Particles
@@ -123,24 +124,26 @@ public class ClickSelection : MonoBehaviour
 
             if (hit)
             {
-                if ((hitInfo.transform.gameObject.tag == "Champion")
-                    && hitInfo.collider.gameObject.activeInHierarchy)
+                if ((hitInfo.transform.gameObject.tag == "Champion") && hitInfo.collider.gameObject.activeInHierarchy)
                 {
                     hasSelection = true;
+                    isAttacking = false;
+
                     selectedUnitObj = hitInfo.collider.gameObject;
                     selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
                     selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
 
-                    isAttacking = false;
-
-
                     DrawMoveZone();
 
-                    TurnManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow them.
+                    TurnManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow selected Unit.
+                }
+                else
+                {
+                    ClearSelection();
+                    DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears path idicators on null selection.
                 }
             }
-
-            if ((hitInfo.transform.gameObject.tag != "Champion"))
+            else
             {
                 ClearSelection();
                 DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears path idicators on null selection.
@@ -159,24 +162,19 @@ public class ClickSelection : MonoBehaviour
 
     private void MoveClick()
     {
-        if(selectedCreatureScript.RemainingEnergy > 0 && selectedUnitScript.hasSuccessfulPath)
+        if(selectedCreatureScript.CurrentEnergy >= selectedUnitScript.path.Length && selectedUnitScript.hasSuccessfulPath)
         {        
-            selectedUnitScript.RunFollowPath();
-            int movedSpaces = selectedUnitScript.path.Length;
-            selectedCreatureScript.RemainingEnergy -= movedSpaces;
-
-           //TurnManager.instance.CurrentBattleState = TurnManager.BattleState.ActionPhase;      //Returns to PlayerInput through Unit - FollowPath();
+            selectedUnitScript.RunFollowPath(); //Starts the path move.           
+            selectedCreatureScript.CurrentEnergy -= selectedUnitScript.path.Length; //Reduces energy by the size of length of the path. (1 Node Movement = 1 Energy).
         }
     }
 
-    private void DrawMoveZone()
+    public void DrawMoveZone() //Draws where the places can move.
     {
-        DrawIndicators.instance.ClearTileMatStates(true, true, true);
+        DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears tiles if you selected a new target and already had one selected.
 
-        List<Node> availableNodes = Pathfinding.instance.DisplayAvailableMoves(selectedUnitScript.currentNode, selectedCreatureScript.RemainingEnergy); //BFS Call
-        DrawIndicators.instance.BFSSelectableSet(availableNodes); 
-            //BFS set tiles to Selectable. 
-        //DrawIndicators.instance.OnPathReturn();
+        List<Node> availableNodes = Pathfinding.instance.DisplayAvailableMoves(selectedUnitScript.currentNode, selectedCreatureScript.CurrentEnergy); //BFS Call to get nodes.
+        DrawIndicators.instance.BFSSelectableSet(availableNodes); //Sets nodes as selectable.
     }
 
     private void SetMovePath() //Drawing of path happens in the pathfinding script. 
@@ -184,7 +182,7 @@ public class ClickSelection : MonoBehaviour
         RaycastHit hitInfo = new RaycastHit();
         bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
 
-        if (hit && hitInfo.collider.gameObject != hitTileObj)
+        if (hit && hitInfo.collider.gameObject != hitTileObj) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 
         {
             if ((hitInfo.transform.gameObject.tag == "Map") && hitInfo.collider.gameObject.activeInHierarchy)
             {
@@ -199,6 +197,7 @@ public class ClickSelection : MonoBehaviour
                 {
                     selectedUnitScript.path = null;
                     selectedUnitScript.hasSuccessfulPath = false;
+
                     DrawIndicators.instance.ClearTileMatStates(true, false, false);
                 }
             }
@@ -208,8 +207,10 @@ public class ClickSelection : MonoBehaviour
     private void AttackSelect()
     {
         List<Node> attackNodes = GetAttackableTiles();
-        DrawIndicators.instance.ClearTileMatStates(true, true, false);
+
+        DrawIndicators.instance.ClearTileMatStates(true, true, true);
         DrawIndicators.instance.AttackableSet(attackNodes);
+
         hitTileObj = null; //Just so when you return to movement select you don't need to hover over a new tile to get the path to be drawn. 
     }
 

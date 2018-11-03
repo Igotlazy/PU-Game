@@ -54,8 +54,8 @@ MonoBehaviour:
   currentBattlePhase: 0
   activePlayers: []
   finishedPlayers: []
-  activeSizeCount: 0
+  teamTracker: 0
   turnCounter: 1
   unitCameraList: []
   currentCamera: {fileID: 0}
-  effectResolutionRunning: 0
+  eventResolutionRunning: 0
