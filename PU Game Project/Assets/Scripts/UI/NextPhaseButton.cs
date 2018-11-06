@@ -68,11 +68,16 @@ namespace MHA.UserInterface
         public void ResetButton()
         {
             hasSetToFinish = false;
-
             ColorBlock colors = buttonComp.colors;
             colors.normalColor = baseColor;
             colors.highlightedColor = baseHighlight;
             buttonComp.colors = colors;
+        }
+
+        public void EndTurnCleanUp()
+        {
+            ClickSelection.instance.ClearSelection();
+            ClickSelection.instance.ResetToDefault();
         }
     } 
 }

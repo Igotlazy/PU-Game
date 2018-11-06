@@ -9,13 +9,13 @@ namespace MHA.UserInterface
     {
         public GameObject endTurnButton;
         public GameObject heroTurnIntro;
+        public GameObject abilitySelection;
 
         public static BattleUIReferences instance;
 
         private void Awake()
         {
             instance = this;
-            Debug.Log(heroTurnIntro.name);
         }
     }
 }

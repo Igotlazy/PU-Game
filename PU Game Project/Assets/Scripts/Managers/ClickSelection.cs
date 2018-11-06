@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ClickSelection : MonoBehaviour
 {
@@ -10,18 +11,20 @@ public class ClickSelection : MonoBehaviour
     public ParticleSystem selectionParticles;
     public LayerMask clickLayerMask;
 
-
+    [Space]
     [Header("Selection References")]
     public GameObject selectedUnitObj;
     private LivingCreature selectedCreatureScript;
     private Unit selectedUnitScript;
     public GameObject hitTileObj;
 
-
+    [Space]
     [Header("State Bools")]
     public bool hasSelection;
-    public bool isAttacking;
-    public bool isPlayerInput;
+    [Space]
+    public bool prepMoving;
+    public bool prepAttack;
+    public bool prepInv;
 
     public GameObject basicAttackProjectile; //Testing
 
@@ -52,11 +55,11 @@ public class ClickSelection : MonoBehaviour
             {
                 if (hasSelection)
                 {
-                    if (!isAttacking)
+                    if (prepMoving)
                     {
                         MoveClick();
                     }
-                    else
+                    if(prepAttack)
                     {
                         AttackClick();
                     }
@@ -65,39 +68,22 @@ public class ClickSelection : MonoBehaviour
 
             }
 
-            if(!isAttacking && hasSelection)
+            if(prepMoving)
             {
                 SetMovePath();
             }
+        }
 
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                if (hasSelection)
-                {
-                    isAttacking = !isAttacking;
-                    if (isAttacking)
-                    {
-                        AttackSelect();
-                    }
-                    else
-                    {
-                        DrawIndicators.instance.ClearTileMatStates(true, true, true);
-                        DrawIndicators.instance.BFSSelectableReturn();
-                    }
-                }
-            }
-
-
-            if (selectedUnitObj != null && !particlesPlaying) //For Selection Particles
-            {
-                selectionParticles.gameObject.SetActive(true);
-                particlesPlaying = true;
-            }
-            else if (selectedUnitObj == null && particlesPlaying)
-            {
-                selectionParticles.gameObject.SetActive(false);
-                particlesPlaying = false;
-            }
+        //For Selection Particles
+        if (selectedUnitObj != null && !particlesPlaying)
+        {
+            selectionParticles.gameObject.SetActive(true);
+            particlesPlaying = true;
+        }
+        else if (selectedUnitObj == null && particlesPlaying)
+        {
+            selectionParticles.gameObject.SetActive(false);
+            particlesPlaying = false;
         }
     }
 
@@ -116,48 +102,46 @@ public class ClickSelection : MonoBehaviour
 
     private void SelectionClick()
     {
-        if (Input.GetMouseButtonDown(0))
+        RaycastHit hitInfo = new RaycastHit();
+        bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
+
+        if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {
-
-            RaycastHit hitInfo = new RaycastHit();
-            bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
-
-            if (hit)
+            if (hit && (hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy))
             {
-                if ((hitInfo.transform.gameObject.tag == "Champion") && hitInfo.collider.gameObject.activeInHierarchy)
-                {
-                    hasSelection = true;
-                    isAttacking = false;
+                hasSelection = true;
 
-                    selectedUnitObj = hitInfo.collider.gameObject;
-                    selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
-                    selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
+                selectedUnitObj = hitInfo.collider.gameObject;
+                selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
+                selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
 
-                    DrawMoveZone();
-
-                    TurnManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow selected Unit.
-                }
-                else
-                {
-                    ClearSelection();
-                    DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears path idicators on null selection.
-                }
+                //DrawMoveZone();
+                ResetToDefault();
+                TurnManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow selected Unit.
             }
             else
             {
                 ClearSelection();
-                DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears path idicators on null selection.
+                ResetToDefault();
             }
-                   
         }
     }
 
-    private void ClearSelection()
+    public void ClearSelection()
     {
+        Debug.Log("eh");
+        hasSelection = false;
         selectedUnitObj = null;
         selectedUnitScript = null;
         selectedCreatureScript = null;
-        hasSelection = false;
+    }
+
+    public void ResetToDefault()
+    {
+        DrawIndicators.instance.ClearTileMatStates(true, true, true);
+
+        prepAttack = false;
+        prepMoving = false;
     }
 
     private void MoveClick()
@@ -171,7 +155,7 @@ public class ClickSelection : MonoBehaviour
 
     public void DrawMoveZone() //Draws where the places can move.
     {
-        DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears tiles if you selected a new target and already had one selected.
+        //DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears tiles if you selected a new target and already had one selected.
 
         List<Node> availableNodes = Pathfinding.instance.DisplayAvailableMoves(selectedUnitScript.currentNode, selectedCreatureScript.CurrentEnergy); //BFS Call to get nodes.
         DrawIndicators.instance.BFSSelectableSet(availableNodes); //Sets nodes as selectable.
@@ -204,7 +188,7 @@ public class ClickSelection : MonoBehaviour
         }
     }
 
-    private void AttackSelect()
+    public void BasicAttackSelect()
     {
         List<Node> attackNodes = GetAttackableTiles();
 
@@ -252,17 +236,6 @@ public class ClickSelection : MonoBehaviour
                     CombatUtils.AttackHitCalculation(selectedUnitObj, hitInfo.collider.gameObject); //[TESTING FOR % CHECK.]                    
                 }
             }
-        }
-    }
-
-    public void ReturnToPlayerInput(bool fromBattle)
-    {
-        TurnManager.instance.CurrentBattlePhase = TurnManager.BattlePhase.PlayerInput;
-        DrawMoveZone();
-
-        if (fromBattle)
-        {
-            isAttacking = false;
         }
     }
 }
