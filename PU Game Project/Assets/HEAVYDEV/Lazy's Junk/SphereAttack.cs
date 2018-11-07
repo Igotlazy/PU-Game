@@ -46,7 +46,6 @@ namespace MHA.DebugGame
             Node enteringNode = GridGen.instance.NodeFromWorldPoint(enteringCollider.gameObject.transform.position);
             enteringNode.IsAttackable = true;
             nodeList.Add(enteringNode);
-            Debug.Log("Entered");
         }
 
         private void OnTriggerExit(Collider exitingCollider)
@@ -55,8 +54,18 @@ namespace MHA.DebugGame
             if (nodeList.Contains(exitingNode))
             {
                 exitingNode.IsAttackable = false;
-                nodeList.Add(exitingNode);
+                nodeList.Remove(exitingNode);
             }
+        }
+
+        public void Cleanup()
+        {
+            foreach(Node currentNode in nodeList)
+            {
+                currentNode.IsAttackable = false;
+            }
+
+            nodeList.Clear();
         }
     }
 }

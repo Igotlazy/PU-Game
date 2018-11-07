@@ -71,7 +71,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4651807167957470}
   - component: {fileID: 114834568468382786}
-  - component: {fileID: 114821005269116126}
+  - component: {fileID: 114489398212379792}
   - component: {fileID: 65268569926126698}
   m_Layer: 9
   m_Name: Unit - Placeholder
@@ -299,7 +299,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1364386363442500}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.53, y: 0, z: 5.435}
+  m_LocalPosition: {x: 0.25, y: 0, z: 5.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4386472405591078}
@@ -316,7 +316,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1439543631791724}
   m_LocalRotation: {x: 0.5, y: -0, z: -0, w: 0.8660254}
-  m_LocalPosition: {x: -2.53, y: 17.320507, z: -4.5649996}
+  m_LocalPosition: {x: 0.25, y: 17.320507, z: -4.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4270931394658948}
@@ -511,6 +511,60 @@ MonoBehaviour:
   currentHealthImage: {fileID: 114588738415485060}
   backHealthImage: {fileID: 114328143520064248}
   cam: {fileID: 0}
+--- !u!114 &114489398212379792
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1364386363442500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 583d19e5e71ded24291d7d14c220d96d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseHealth: 25
+  currentHealth: 0
+  maxHealth:
+    BaseValue: 0
+  baseStrength: 0
+  baseEnergy: 7
+  baseQuirkPower: 0
+  basePhysicalResistance: 0
+  baseQuirkResistance: 0
+  baseRange: 2.75
+  currentLevel: 1
+  strength:
+    BaseValue: 0
+  maxEnergy:
+    BaseValue: 0
+  quirkPower:
+    BaseValue: 0
+  physicalResistance:
+    BaseValue: 0
+  quirkResistance:
+    BaseValue: 0
+  range:
+    BaseValue: 0
+  healthGrowth: 0
+  energyGrowth: 0
+  strengthGrowth: 0
+  attackSpeedGrowth: 0
+  physicalResistanceGrowth: 0
+  quirkResistanceGrowth: 0
+  currentExperience: 0
+  amRanged: 0
+  isInvincible: 0
+  amDead: 0
+  healthBar: {fileID: 114361087001110696}
+  damageIndicator: {fileID: 1388622767760518, guid: a41fb87bd3c079a42be01ff36458a442,
+    type: 2}
+  inCombat: 0
+  attack1Effect: {fileID: 1129807196402454, guid: 873cd207d06303245bf25577ed025ab4,
+    type: 2}
+  attack2Effect: {fileID: 1602967338835610, guid: 30e2419609d55ae4d93b4fc766e1a8b6,
+    type: 2}
+  attack3Effect: {fileID: 1551204962069454, guid: 5fdbf4e7c7070184e93c1473c2883485,
+    type: 2}
 --- !u!114 &114588738415485060
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -609,53 +663,6 @@ MonoBehaviour:
   m_MaximumFOV: 60
   m_MinimumOrthoSize: 1
   m_MaximumOrthoSize: 100
---- !u!114 &114821005269116126
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1364386363442500}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2be02a94d2c2474491f0537fdf39e33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseHealth: 25
-  currentHealth: 0
-  maxHealth:
-    BaseValue: 0
-  baseStrength: 0
-  baseEnergy: 5
-  baseQuirkPower: 0
-  basePhysicalResistance: 0
-  baseQuirkResistance: 0
-  baseRange: 10.75
-  currentLevel: 1
-  strength:
-    BaseValue: 0
-  maxEnergy:
-    BaseValue: 0
-  quirkPower:
-    BaseValue: 0
-  physicalResistance:
-    BaseValue: 0
-  quirkResistance:
-    BaseValue: 0
-  range:
-    BaseValue: 0
-  healthGrowth: 0
-  energyGrowth: 0
-  strengthGrowth: 0
-  attackSpeedGrowth: 0
-  physicalResistanceGrowth: 0
-  quirkResistanceGrowth: 0
-  currentExperience: 0
-  amRanged: 0
-  isInvincible: 0
-  amDead: 0
-  healthBar: {fileID: 114361087001110696}
-  damageIndicator: {fileID: 1388622767760518, guid: a41fb87bd3c079a42be01ff36458a442,
-    type: 2}
 --- !u!114 &114834568468382786
 MonoBehaviour:
   m_ObjectHideFlags: 1

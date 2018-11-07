@@ -6,30 +6,28 @@ namespace MHA.DebugGame
 {
     public class Test : MonoBehaviour
     {
-
-        public GameObject targetObject;
-        public LayerMask layerMask;
-        //RaycastHit hit;
+        public float speedMultiplier;
+        float xMove;
+        float zMove;
+        Rigidbody rb;
+        Animator anim;
 
         void Start()
         {
-
+            rb = GetComponent<Rigidbody>();
+           // anim = GetComponent<Animator>();
         }
 
-        // Update is called once per frame
         void Update()
         {
+            xMove = Input.GetAxis("Horizontal");
+            zMove = Input.GetAxis("Vertical");
+            //anim.SetFloat("Speed", xMove);
+        }
 
-            Vector3 fireDirection = targetObject.transform.position - transform.position;
-
-            if (Physics.Raycast(transform.position, fireDirection, Mathf.Infinity, layerMask))
-            {
-                Debug.Log("Hit Target");
-            }
-
-            Debug.DrawRay(transform.position, fireDirection, Color.yellow);
-
-
+        private void FixedUpdate()
+        {
+            rb.velocity = new Vector3((xMove * speedMultiplier), rb.velocity.y, (zMove * speedMultiplier));
         }
     }
 }

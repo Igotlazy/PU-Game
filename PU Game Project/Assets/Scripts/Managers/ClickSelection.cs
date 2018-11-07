@@ -16,7 +16,7 @@ public class ClickSelection : MonoBehaviour
     public GameObject selectedUnitObj;
     private LivingCreature selectedCreatureScript;
     private Unit selectedUnitScript;
-    public GameObject hitTileObj;
+    public Node lastHitNode;
 
     [Space]
     [Header("State Bools")]
@@ -107,6 +107,11 @@ public class ClickSelection : MonoBehaviour
 
         if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {
+            if (selectedUnitObj != null)
+            {
+                selectedUnitObj.GetComponent<HeroCharacter>().UnitAbilityCleanup();
+            }
+
             if (hit && (hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy))
             {
                 hasSelection = true;
@@ -129,7 +134,6 @@ public class ClickSelection : MonoBehaviour
 
     public void ClearSelection()
     {
-        Debug.Log("eh");
         hasSelection = false;
         selectedUnitObj = null;
         selectedUnitScript = null;
@@ -138,6 +142,7 @@ public class ClickSelection : MonoBehaviour
 
     public void ResetToDefault()
     {
+
         DrawIndicators.instance.ClearTileMatStates(true, true, true);
 
         prepAttack = false;
@@ -166,55 +171,24 @@ public class ClickSelection : MonoBehaviour
         RaycastHit hitInfo = new RaycastHit();
         bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
 
-        if (hit && hitInfo.collider.gameObject != hitTileObj) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 
+        if (hit && (GridGen.instance.NodeFromWorldPoint(hitInfo.point) != lastHitNode) && hitInfo.transform.gameObject.tag == "Map" && hitInfo.collider.gameObject.activeInHierarchy) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 
         {
-            if ((hitInfo.transform.gameObject.tag == "Map") && hitInfo.collider.gameObject.activeInHierarchy)
+            lastHitNode = GridGen.instance.NodeFromWorldPoint(hitInfo.point);
+
+            if (lastHitNode.IsSelectable)
             {
-                hitTileObj = hitInfo.collider.gameObject;
-                Node hitNode = GridGen.instance.NodeFromWorldPoint(hitInfo.point);
+                selectedUnitObj.GetComponent<Unit>().SelectionPathRequest(hitInfo.point);
+            }
+            else
+            {
+                selectedUnitScript.path = null;
+                selectedUnitScript.hasSuccessfulPath = false;
 
-                if (hitNode.IsSelectable)
-                {
-                    selectedUnitObj.GetComponent<Unit>().SelectionPathRequest(hitInfo.point);
-                }
-                else
-                {
-                    selectedUnitScript.path = null;
-                    selectedUnitScript.hasSuccessfulPath = false;
-
-                    DrawIndicators.instance.ClearTileMatStates(true, false, false);
-                }
+                DrawIndicators.instance.ClearTileMatStates(true, false, false);
             }
         }
     }
 
-    public void BasicAttackSelect()
-    {
-        List<Node> attackNodes = GetAttackableTiles();
-
-        DrawIndicators.instance.ClearTileMatStates(true, true, true);
-        DrawIndicators.instance.AttackableSet(attackNodes);
-
-        hitTileObj = null; //Just so when you return to movement select you don't need to hover over a new tile to get the path to be drawn. 
-    }
-
-    private List<Node> GetAttackableTiles()
-    {
-        List<Node> nodesToReturn = new List<Node>();
-
-        Collider[] hitObjects = Physics.OverlapSphere(new Vector3(selectedUnitObj.transform.position.x, 0.55f, selectedUnitObj.transform.position.z), selectedCreatureScript.range.Value, clickLayerMask);
-
-        foreach(Collider currentCol in hitObjects)
-        {
-            Tile currentTile = currentCol.gameObject.GetComponent<Tile>();
-            if(currentTile != null && (currentTile.carryingNode.IsWalkable || currentTile.carryingNode.IsOccupied))
-            {
-                nodesToReturn.Add(currentTile.carryingNode);
-            }
-        }
-
-        return nodesToReturn;
-    }
 
     private void AttackClick()
     {

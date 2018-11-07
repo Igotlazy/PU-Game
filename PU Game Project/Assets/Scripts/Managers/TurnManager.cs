@@ -360,7 +360,6 @@ public class TurnManager : MonoBehaviour {
         {
             if(battleResolveAddList.Count > 0)
             {
-                Debug.Log("ADD SIZE: " + battleResolveAddList.Count);
                 for(int i = battleResolveAddList.Count - 1; i >= 0; i--)
                 {
                     if(i == 0)
@@ -374,6 +373,7 @@ public class TurnManager : MonoBehaviour {
                 }
                 battleResolveAddList.Clear();
             }
+
             yield return null; //Allows Events to react midway through other Events. 
         }
 

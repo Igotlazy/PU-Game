@@ -88,9 +88,10 @@ namespace MHA.UserInterface
         bool isActive;
 
 
+
         public void MoveButtonPress()
         {
-            ClickSelection.instance.ResetToDefault();
+            GeneralSetUp();
 
             ClickSelection.instance.prepMoving = true;
             ClickSelection.instance.DrawMoveZone();
@@ -98,32 +99,47 @@ namespace MHA.UserInterface
 
         public void ItemButtonPress()
         {
-            ClickSelection.instance.ResetToDefault();
+            GeneralSetUp();
         }
 
         public void BasicAButtonPress()
         {
-            ClickSelection.instance.ResetToDefault();
+            GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            ClickSelection.instance.BasicAttackSelect();
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitBasic();
         }
 
         public void A1ButtonPress()
         {
-            ClickSelection.instance.ResetToDefault();
+            GeneralSetUp();
+
+            ClickSelection.instance.prepAttack = true;
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack1();
         }
 
         public void A2ButtonPress()
         {
-            ClickSelection.instance.ResetToDefault();
+            GeneralSetUp();
+
+            ClickSelection.instance.prepAttack = true;
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack2();
         }
 
         public void A3ButtonPress()
         {
-            ClickSelection.instance.ResetToDefault();
+            GeneralSetUp();
+
+            ClickSelection.instance.prepAttack = true;
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack3();
         }
 
 
+
+        private void GeneralSetUp()
+        {
+            ClickSelection.instance.ResetToDefault(); //Resets prepAttack and prepMove and cleans all tiles. 
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAbilityCleanup();
+        }
     }
 }

@@ -72,8 +72,6 @@ public class BattleAttack : BattleEvent {
         GameObject spawnedProj = GameObject.Instantiate(attackProjectile, sourcePos, Quaternion.LookRotation(targetPos - sourcePos));
         Projectile projectileScript = spawnedProj.GetComponent<Projectile>();
 
-        Debug.Log("Projectile Spawned");
-
         while (Vector3.Distance(spawnedProj.transform.position, targetPos) > 0.05f)
         {
             while (IsPaused) { yield return null; }

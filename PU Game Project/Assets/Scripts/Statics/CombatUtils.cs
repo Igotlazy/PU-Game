@@ -9,6 +9,7 @@ public static class CombatUtils {
 
     private static LayerMask initialShotMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("UnWalkable")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     private static LayerMask coverCheckShotMask = (1 << LayerMask.NameToLayer("UnWalkable")) | (1 << LayerMask.NameToLayer("GameTerrain"));
+    private static LayerMask clickLayerMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     private static float maxAngleForPartialCover = 30f;
     private static float hitPercentDistanceDropOff = 5f;
 
@@ -58,12 +59,10 @@ public static class CombatUtils {
             currentHitPercent = 100; //If it isn't in Partial Cover and it does hit, it's 100%.
         }
 
-        Debug.Log("Current Percent: " + currentHitPercent);
         if(hitPercentDistanceDropOff > 0) //Reduces %Hit by distance to target. 
         {
             while (hitDistance > hitPercentDistanceDropOff && currentHitPercent > 0)
             {
-                Debug.Log("Subtract 25");
                 currentHitPercent -= 25; 
                 hitDistance -= hitPercentDistanceDropOff;
             }
@@ -93,5 +92,47 @@ public static class CombatUtils {
         {
             return false;
         }
+    }
+
+    public static bool CanCast(LivingCreature creatureScript, int energyToLose, bool subtract)
+    {
+        if (creatureScript.CurrentEnergy >= energyToLose)
+        {
+            if (subtract)
+            {
+                creatureScript.CurrentEnergy -= energyToLose;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public static void BasicAttackSelect(GameObject selectedUnitObj, float range)
+    {
+        List<Node> attackNodes = GetCircleAttackableTiles(selectedUnitObj, range);
+
+        DrawIndicators.instance.ClearTileMatStates(true, true, true);
+        DrawIndicators.instance.AttackableSet(attackNodes);
+    }
+
+    private static List<Node> GetCircleAttackableTiles(GameObject selectedUnitObj, float range)
+    {
+        List<Node> nodesToReturn = new List<Node>();
+
+        Collider[] hitObjects = Physics.OverlapSphere(new Vector3(selectedUnitObj.transform.position.x, 0.55f, selectedUnitObj.transform.position.z), //MAGIC NUMBER
+            range, clickLayerMask);
+
+        foreach (Collider currentCol in hitObjects)
+        {
+            Tile currentTile = currentCol.gameObject.GetComponent<Tile>();
+            if (currentTile != null && (currentTile.carryingNode.IsWalkable || currentTile.carryingNode.IsOccupied))
+            {
+                nodesToReturn.Add(currentTile.carryingNode);
+            }
+        }
+
+        return nodesToReturn;
     }
 }
