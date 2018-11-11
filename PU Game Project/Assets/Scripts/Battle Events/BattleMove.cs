@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class BattleMove : BattleEvent {
 
 
@@ -13,7 +14,7 @@ public class BattleMove : BattleEvent {
     public float speed;
 
 
-    public BattleMove(GameObject receivedTarget, Vector3[] receivedPath, float receivedSpeed) : base()
+    public BattleMove(GameObject receivedTarget, Vector3[] receivedPath, float receivedSpeed) : base(null)
     {
         this.moveTarget = receivedTarget;
         this.path = (Vector3[])receivedPath.Clone();
@@ -52,7 +53,7 @@ public class BattleMove : BattleEvent {
 
         while (true)
         {
-            while (IsPaused) {yield return null;} //Pauses Coroutine
+            yield return bEventMonoBehaviour.StartCoroutine(ALLOWINTERRUPT(0)); //Pauses Coroutine
 
             if (moveTarget.transform.position == currentWaypoint)
             {
@@ -65,13 +66,12 @@ public class BattleMove : BattleEvent {
             }
 
             moveTarget.transform.position = Vector3.MoveTowards(moveTarget.transform.position, currentWaypoint, speed * Time.deltaTime);
-            yield return null;
-
         }
 
         Unit moveTargetScript = moveTarget.GetComponent<Unit>();
         moveTargetScript.currentNode = GridGen.instance.NodeFromWorldPoint(lastPosition); //So the player knows which Node they're on. 
-        moveTargetScript.currentNode.IsOccupied = true; //Sets last Node to now be Occupied.
+        moveTargetScript.currentNode.IsOccupied = true;
+        moveTargetScript.currentNode.occupant = moveTarget; //Sets last Node to now be Occupied.
 
         DrawIndicators.instance.ClearTileMatStates(true, true, true);
         ClickSelection.instance.DrawMoveZone();

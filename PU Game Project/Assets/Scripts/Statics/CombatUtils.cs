@@ -9,7 +9,7 @@ public static class CombatUtils {
 
     private static LayerMask initialShotMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("UnWalkable")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     private static LayerMask coverCheckShotMask = (1 << LayerMask.NameToLayer("UnWalkable")) | (1 << LayerMask.NameToLayer("GameTerrain"));
-    private static LayerMask clickLayerMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("GameTerrain"));
+    public static LayerMask clickLayerMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     private static float maxAngleForPartialCover = 30f;
     private static float hitPercentDistanceDropOff = 5f;
 
@@ -109,12 +109,14 @@ public static class CombatUtils {
         return false;
     }
 
-    public static void BasicAttackSelect(GameObject selectedUnitObj, float range)
+    public static List<Node> BasicAttackSelect(GameObject selectedUnitObj, float range)
     {
         List<Node> attackNodes = GetCircleAttackableTiles(selectedUnitObj, range);
 
         DrawIndicators.instance.ClearTileMatStates(true, true, true);
         DrawIndicators.instance.AttackableSet(attackNodes);
+
+        return attackNodes;
     }
 
     private static List<Node> GetCircleAttackableTiles(GameObject selectedUnitObj, float range)
@@ -134,5 +136,37 @@ public static class CombatUtils {
         }
 
         return nodesToReturn;
+    }
+
+    public static  List<GameObject> GetAllAttackablesInNodes(List<Node> givenNodes, GameObject sourceObject)
+    {
+        List<GameObject> returnList = new List<GameObject>();
+
+        foreach (Node currentNode in givenNodes)
+        {       
+            if (currentNode.IsOccupied && currentNode.occupant != sourceObject)
+            {
+                returnList.Add(currentNode.occupant);
+            }
+        }
+
+        return returnList;
+    }
+
+    public static Vector3 GiveShotConnector(GameObject objectWithConnector)
+    {
+        Unit sourceScript = objectWithConnector.GetComponent<Unit>();
+
+        Vector3 connectorPos;
+        if (sourceScript != null)
+        {
+            connectorPos = sourceScript.shotConnecter.transform.position;
+        }
+        else
+        {
+            connectorPos = objectWithConnector.transform.position; 
+        }
+
+        return connectorPos;
     }
 }

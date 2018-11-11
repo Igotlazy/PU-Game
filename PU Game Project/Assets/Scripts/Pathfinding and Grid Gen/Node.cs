@@ -12,6 +12,7 @@ public class Node : IHeapItem<Node> {
 	public int gridX;
 	public int gridY;
     public List<Node> nodeNeighbors = new List<Node>();
+    public GameObject occupant;
 
     public int gCost;
 	public int hCost;
@@ -91,6 +92,10 @@ public class Node : IHeapItem<Node> {
         set
         {
             isOccupied = value;
+            if(value == false)
+            {
+                occupant = null;
+            }
             tileScript.ReconfigureMats();
         }
     }

@@ -4,9 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public abstract class BattleEvent : IBattleEventControllable {
 
-    protected MonoBehaviour bEventMonoBehaviour;
+    public MonoBehaviour bEventMonoBehaviour;
+    protected GameObject animationObject;
 
     private bool isFinished; //Defines whether the Event has completed.
     public bool IsFinished
@@ -46,13 +48,37 @@ public abstract class BattleEvent : IBattleEventControllable {
     }
 
     //Gets reference to the TurnManager monobehavior. Need a monobehavior to call Coroutines. If either TurnManager or the GameObject that holds it is destroyed, this system won't work.
-    public BattleEvent() 
+    public BattleEvent(GameObject _animationObject) 
     {
+        this.animationObject = _animationObject;
         this.bEventMonoBehaviour = TurnManager.instance;
     }
 
 
+    public IEnumerator ALLOWINTERRUPT(float InSeconds)
+    {
+        if( InSeconds < 0) { InSeconds = 0; }
 
+        if (InSeconds == 0)
+        {
+            yield return null;
+        }
+        else
+        {
+            yield return new WaitForSeconds(InSeconds);
+        }
+
+        if (IsPaused)
+        {
+            if (WaitUntilInstance == null)
+            {
+                WaitUntilInstance = new WaitUntil(() => !IsPaused);
+            }
+
+            yield return WaitUntilInstance;
+        }
+    }
+    WaitUntil WaitUntilInstance = null;
 
 
     public virtual void BattleEventRun()

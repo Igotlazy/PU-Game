@@ -10,18 +10,19 @@ public class ClickSelection : MonoBehaviour
     private Camera currentCamera;
     public ParticleSystem selectionParticles;
     public LayerMask clickLayerMask;
-
     [Space]
+
     [Header("Selection References")]
     public GameObject selectedUnitObj;
-    private LivingCreature selectedCreatureScript;
-    private Unit selectedUnitScript;
+    public LivingCreature selectedCreatureScript;
+    public Unit selectedUnitScript;
     public Node lastHitNode;
-
     [Space]
+
     [Header("State Bools")]
     public bool hasSelection;
     [Space]
+
     public bool prepMoving;
     public bool prepAttack;
     public bool prepInv;
@@ -61,7 +62,7 @@ public class ClickSelection : MonoBehaviour
                     }
                     if(prepAttack)
                     {
-                        AttackClick();
+                        //AttackClick();
                     }
 
                 }
@@ -171,7 +172,7 @@ public class ClickSelection : MonoBehaviour
         RaycastHit hitInfo = new RaycastHit();
         bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
 
-        if (hit && (GridGen.instance.NodeFromWorldPoint(hitInfo.point) != lastHitNode) && hitInfo.transform.gameObject.tag == "Map" && hitInfo.collider.gameObject.activeInHierarchy) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 
+        if (hit && (GridGen.instance.NodeFromWorldPoint(hitInfo.point) != lastHitNode) && hitInfo.transform.gameObject.CompareTag("Tile") && hitInfo.collider.gameObject.activeInHierarchy) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 
         {
             lastHitNode = GridGen.instance.NodeFromWorldPoint(hitInfo.point);
 
@@ -195,20 +196,17 @@ public class ClickSelection : MonoBehaviour
         RaycastHit hitInfo = new RaycastHit();
         bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
 
-        if (hit)
+        if (hit && hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy)
         {
-            if ((hitInfo.transform.gameObject.tag == "Champion") && hitInfo.collider.gameObject.activeInHierarchy)
+            Unit targetUnitScript = hitInfo.collider.gameObject.GetComponent<Unit>();
+
+            if (targetUnitScript.currentNode.IsAttackable)
             {
-                Unit targetUnitScript = hitInfo.collider.gameObject.GetComponent<Unit>();
+                Attack attack = new Attack(5, Attack.DamageType.Magical, selectedUnitObj);
+                BattleAbility battleAttack = new BattleAbility(attack, basicAttackProjectile, selectedUnitObj, new List<Node> { hitInfo.collider.gameObject.GetComponent<Unit>().currentNode });
+                TurnManager.instance.EventResolutionReceiver(battleAttack);
 
-                if (targetUnitScript.currentNode.IsAttackable)
-                {
-                    Attack attack = new Attack(5, Attack.DamageType.Magical, selectedUnitObj);
-                    BattleAttack battleAttack = new BattleAttack(attack, basicAttackProjectile, selectedUnitObj, hitInfo.collider.gameObject);
-                    TurnManager.instance.EventResolutionReceiver(battleAttack);
-
-                    CombatUtils.AttackHitCalculation(selectedUnitObj, hitInfo.collider.gameObject); //[TESTING FOR % CHECK.]                    
-                }
+                CombatUtils.AttackHitCalculation(selectedUnitObj, hitInfo.collider.gameObject); //[TESTING FOR % CHECK.]                    
             }
         }
     }

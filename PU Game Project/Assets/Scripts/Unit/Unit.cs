@@ -47,6 +47,7 @@ public class Unit : MonoBehaviour {
         if (foundNode.IsWalkable)
         {
             foundNode.IsOccupied = true;
+            foundNode.occupant = this.gameObject;
         }
     }
 

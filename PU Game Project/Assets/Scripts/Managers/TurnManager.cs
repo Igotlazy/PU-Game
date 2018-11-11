@@ -36,7 +36,7 @@ public class TurnManager : MonoBehaviour {
         {
             currentBattlePhase = value;
             BattlePhaseInitiation(currentBattlePhase);
-            Debug.Log("BattleStateSet: " + value);
+            //Debug.Log("BattleStateSet: " + value);
             if (value != BattlePhase.ActionPhase) //Action Phase CANNOT be set directly. Must use the set up function as it requires the Resolve Group.
             {
                 //put the stuff on the top back in here later. 
@@ -303,7 +303,14 @@ public class TurnManager : MonoBehaviour {
             battleResolveAddList.Clear(); //Technically all of these should be clear, but just in case.
             currentResolveBranch.Clear();
             battleResolveBranches.Clear();
-            battleResolveBranches.Add(receivedEvents);
+
+            List<BattleEvent> newToAdd = new List<BattleEvent>();
+            foreach (BattleEvent currentEvent in receivedEvents)
+            {
+                newToAdd.Add(currentEvent);
+            }
+
+            battleResolveBranches.Add(newToAdd);
 
             CurrentBattlePhase = BattlePhase.ActionPhase;
 
@@ -343,6 +350,7 @@ public class TurnManager : MonoBehaviour {
             currentBattleEvent = currentResolveBranch.Last();
         }
 
+        yield return null; //Allows Events to react to instantenous Events by being able to load on before it gets Popped out of the stack. 
 
         if (currentBattleEvent.IsDirty)
         {
@@ -352,8 +360,6 @@ public class TurnManager : MonoBehaviour {
         {
             currentBattleEvent.BattleEventRun();
         }
-
-        yield return null; //Allows Events to react to instantenous Events by being able to load on before it gets Popped out of the stack. 
 
         //Wait until the current BattleEvent either finishes or is interrupted by a new Event on the stack.
         while (!currentBattleEvent.IsFinished && battleResolveBranches[0].Last() == currentBattleEvent)
@@ -399,5 +405,4 @@ public class TurnManager : MonoBehaviour {
             //isFinished to represent it being done.
             //isDirty to represent if it's already started and needs to be resumed as opposed to started fresh.
     }
-    
 }

@@ -14,7 +14,7 @@ namespace MHA.DebugGame
             if((TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.ActionPhase) && enteredCollider.gameObject.tag == "Champion" && enteredCollider.gameObject != parent)
             {
                 Attack attack = new Attack(5f, Attack.DamageType.Physical, this.gameObject);
-                BattleAttack battleAttack = new BattleAttack(attack, projectile, this.gameObject, enteredCollider.gameObject);
+                BattleAbility battleAttack = new BattleAbility(attack, projectile, this.gameObject, new List<Node> { enteredCollider.gameObject.GetComponent<Unit>().currentNode });
                 TurnManager.instance.EventResolutionReceiver(battleAttack);
             }
         }

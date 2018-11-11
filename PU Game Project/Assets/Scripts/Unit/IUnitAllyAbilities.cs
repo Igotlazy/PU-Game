@@ -7,15 +7,15 @@ namespace MHA.Kits
     public interface IUnitAllyAbilities
     {
 
-        void UnitPassive();
+        void UnitPassivePrep();
 
-        void UnitBasic();
+        void UnitBasicPrep();
 
-        void UnitAttack1();
+        void UnitAttack1Prep();
 
-        void UnitAttack2();
+        void UnitAttack2Prep();
 
-        void UnitAttack3();
+        void UnitAttack3Prep();
 
         void UnitAbilityCleanup();
     }

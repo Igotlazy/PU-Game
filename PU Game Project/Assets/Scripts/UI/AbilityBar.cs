@@ -107,7 +107,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitBasic();
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitBasicPrep();
         }
 
         public void A1ButtonPress()
@@ -115,7 +115,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack1();
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack1Prep();
         }
 
         public void A2ButtonPress()
@@ -123,7 +123,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack2();
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack2Prep();
         }
 
         public void A3ButtonPress()
@@ -131,7 +131,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack3();
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack3Prep();
         }
 
 
