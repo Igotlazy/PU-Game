@@ -6,6 +6,7 @@ using UnityEngine;
 using Cinemachine;
 using System.Linq; //Gives List.Last
 using MHA.UserInterface;
+using MHA.GenericBehaviours;
 
 public class TurnManager : MonoBehaviour {
 
@@ -56,12 +57,10 @@ public class TurnManager : MonoBehaviour {
 
     public static TurnManager instance;
 
-    public List<List<BattleEvent>> battleResolveBranches = new List<List<BattleEvent>>();
-    public List<BattleEvent> currentResolveBranch = new List<BattleEvent>();
-    private BattleEvent currentBattleEvent;
-    public BattleEvent CurrentBattleEvent { get { return currentBattleEvent; } } //For other things to be able to know what's currently being resolved. 
+    public List<BattleEvent> battleEventResolutionGroup = new List<BattleEvent>();
+    public BattleEvent currentBattleEvent;
 
-    public List<BattleEvent> battleResolveAddList = new List<BattleEvent>();
+    public List<GBBase> resolvingBehaviours = new List<GBBase>();
 
     public bool eventResolutionRunning;
 
@@ -272,14 +271,12 @@ public class TurnManager : MonoBehaviour {
     {
         if (eventResolutionRunning)
         {
-            battleResolveAddList.Add(receivedEvent);
+            battleEventResolutionGroup.Add(receivedEvent);
         }
         else
         {
-            battleResolveAddList.Clear(); //Technically all of these should be clear, but just in case.
-            currentResolveBranch.Clear();
-            battleResolveBranches.Clear();
-            battleResolveBranches.Add(new List<BattleEvent> {receivedEvent});
+            battleEventResolutionGroup.Clear(); //Technically this should be clear, but just in case.
+            battleEventResolutionGroup.Add(receivedEvent);
 
             CurrentBattlePhase = BattlePhase.ActionPhase;
 
@@ -293,24 +290,19 @@ public class TurnManager : MonoBehaviour {
     {
         if (eventResolutionRunning)
         {
-            foreach(BattleEvent currentEvent in receivedEvents)
+            for (int i = receivedEvents.Count - 1; i >= 0; i--)
             {
-                battleResolveAddList.Add(currentEvent);
+                battleEventResolutionGroup.Add(receivedEvents[i]);
             }
         }
         else
-        {
-            battleResolveAddList.Clear(); //Technically all of these should be clear, but just in case.
-            currentResolveBranch.Clear();
-            battleResolveBranches.Clear();
+        {          
+            battleEventResolutionGroup.Clear(); //Technically all of these should be clear, but just in case.
 
-            List<BattleEvent> newToAdd = new List<BattleEvent>();
-            foreach (BattleEvent currentEvent in receivedEvents)
+            for (int i = receivedEvents.Count - 1; i >= 0; i--)
             {
-                newToAdd.Add(currentEvent);
+                battleEventResolutionGroup.Add(receivedEvents[i]);
             }
-
-            battleResolveBranches.Add(newToAdd);
 
             CurrentBattlePhase = BattlePhase.ActionPhase;
 
@@ -321,81 +313,49 @@ public class TurnManager : MonoBehaviour {
     }
 
     private IEnumerator EffectResolutionTree() //Literally handles the ordering and resolution of every BattleEvent. 
-    {   
-        if(battleResolveBranches.Count <= 0)
-        {
-            if (currentResolveBranch.Count <= 0)
-            {
-                if (battleResolveBranches.Count <= 0)
-                {
-                    eventResolutionRunning = false;
-                    CurrentBattlePhase = BattlePhase.PlayerInput; //Create a function to handle finishing (currently just works through Action Phase, probably want it available for End and Start Phase).
+    {
+        Debug.Log("Size of Stack: " + battleEventResolutionGroup.Count);
 
-                    yield break; //End of Resolution Tree.
-                }
-                else
-                {
-                    currentResolveBranch = battleResolveBranches[0];
-                    currentBattleEvent = currentResolveBranch.Last();
-                }
-            }
-            else
-            {
-                currentBattleEvent = currentResolveBranch.Last();
-            }
+        if (battleEventResolutionGroup.Count <= 0)
+        {
+            eventResolutionRunning = false;
+            CurrentBattlePhase = BattlePhase.PlayerInput; //Create a function to handle finishing (currently just works through Action Phase, probably want it available for End and Start Phase).
+
+            yield break; //End of Resolution Tree.
         }
         else
         {
-            currentResolveBranch = battleResolveBranches[0];
-            currentBattleEvent = currentResolveBranch.Last();
+            currentBattleEvent = battleEventResolutionGroup.Last();
         }
-
-        yield return null; //Allows Events to react to instantenous Events by being able to load on before it gets Popped out of the stack. 
 
         if (currentBattleEvent.IsDirty)
         {
+            Debug.Log("Resumed Event");
             currentBattleEvent.BattleEventResume();
         }
         else
         {
+            Debug.Log("Run Event");
             currentBattleEvent.BattleEventRun();
         }
 
+        yield return null; 
         //Wait until the current BattleEvent either finishes or is interrupted by a new Event on the stack.
-        while (!currentBattleEvent.IsFinished && battleResolveBranches[0].Last() == currentBattleEvent)
+        while(!currentBattleEvent.IsFinished && battleEventResolutionGroup.Last() == currentBattleEvent)
         {
-            if(battleResolveAddList.Count > 0)
-            {
-                for(int i = battleResolveAddList.Count - 1; i >= 0; i--)
-                {
-                    if(i == 0)
-                    {
-                        currentResolveBranch.Add(battleResolveAddList[i]); //Puts the last one to react into the current branch.
-                    }
-                    else
-                    {
-                        battleResolveBranches.Insert(0, new List<BattleEvent> { battleResolveAddList[i]}); //Puts the others in order of who reacted first into new Branches at the top.
-                    }
-                }
-                battleResolveAddList.Clear();
-            }
-
-            yield return null; //Allows Events to react midway through other Events. 
+            yield return null;
         }
 
         if (currentBattleEvent.IsFinished) //If Event HAS finished.
         {
-            currentResolveBranch.Remove(currentBattleEvent); //Basically removes the last BattleEvent in the list. Allows resolution within a branch to work like a Stack. 
-
-            if(currentResolveBranch.Count <= 0) 
-            {
-                battleResolveBranches.RemoveAt(0); //Removes the first Branch in the branch list. Allows resolution between branches to work like a Queue. 
-            }
+            Debug.Log("Finished Event");
+            battleEventResolutionGroup.Remove(currentBattleEvent); //Removes the last BattleEvent in the list. Allows resolution to work like a Stack. 
   
             StartCoroutine(EffectResolutionTree());
         }
-        if(!currentBattleEvent.IsFinished && battleResolveBranches[0].Last() != currentBattleEvent) //If the Event HASN'T finished and IT ISN'T at the top of the "Stack".
+        if(!currentBattleEvent.IsFinished && battleEventResolutionGroup.Last() != currentBattleEvent) //If the Event HASN'T finished and IT ISN'T at the top of the "Stack".
         {
+            Debug.Log("Paused Event");
             currentBattleEvent.BattleEventPause();
 
             StartCoroutine(EffectResolutionTree());

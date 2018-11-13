@@ -66,12 +66,12 @@ public class BETakahiroBasic : BattleEvent
 
                 GameObject projectile = GameObject.Instantiate(attackProjectile, sourcePos, Quaternion.LookRotation(targetPos - sourcePos));
 
-                GBMoveObject moveObjectBehav = new GBMoveObject(this);
-                yield return bEventMonoBehaviour.StartCoroutine(moveObjectBehav.MoveObject(projectile, targetPos));
+                GBMoveObject moveObjectBehav = new GBMoveObject(projectile, targetPos, this);
+                yield return bEventMonoBehaviour.StartCoroutine(moveObjectBehav.RunBehaviour());
                 GameObject.Destroy(projectile);
 
-                GBDealDamage dealDamageBehav = new GBDealDamage(this);
-                yield return bEventMonoBehaviour.StartCoroutine(dealDamageBehav.DealDamage(attack, currentObject));
+                GBDealDamage dealDamageBehav = new GBDealDamage(attack, currentObject, this);
+                yield return bEventMonoBehaviour.StartCoroutine(dealDamageBehav.RunBehaviour());
             }
         }
 

@@ -4,18 +4,23 @@ using UnityEngine;
 
 namespace MHA.GenericBehaviours
 {
-    public class GBDealDamage :GBBase
+    [System.Serializable]
+    public class GBDealDamage : GBBase
     {
         //Identifiers
         public float damageToDeal;
         public float remainingHealth;
 
-        public GBDealDamage(BattleEvent _attachedBattleEvent) : base(_attachedBattleEvent)
-        {
+        public Attack givenAttack;
+        public GameObject targetObject;
 
+        public GBDealDamage(Attack _givenAttack, GameObject _targetObject, BattleEvent _attachedBattleEvent) : base(_attachedBattleEvent)
+        {
+            this.givenAttack = _givenAttack;
+            this.targetObject = _targetObject; 
         }
             
-        public IEnumerator DealDamage(Attack givenAttack, GameObject targetObject)
+        protected override IEnumerator RunBehaviourImpl()
         {
             damageToDeal = givenAttack.damageValue;
             yield return attachedBattleEvent.bEventMonoBehaviour.StartCoroutine(attachedBattleEvent.ALLOWINTERRUPT(0f)); 
@@ -28,8 +33,7 @@ namespace MHA.GenericBehaviours
                 yield return attachedBattleEvent.bEventMonoBehaviour.StartCoroutine(attachedBattleEvent.ALLOWINTERRUPT(0.2f));
             }
 
-            this.behaviourDone = true;
-        }
-      
+            FinishBehaviour();
+        }     
     }
 }

@@ -10,6 +10,8 @@ public abstract class BattleEvent : IBattleEventControllable {
     public MonoBehaviour bEventMonoBehaviour;
     protected GameObject animationObject;
 
+    public bool isMovementBased;
+
     private bool isFinished; //Defines whether the Event has completed.
     public bool IsFinished
     {
@@ -117,11 +119,4 @@ public abstract class BattleEvent : IBattleEventControllable {
         IsFinished = true;
     }
     protected abstract void BattleEventFinishImpl();
-
-
-
-
-
-
-
 }

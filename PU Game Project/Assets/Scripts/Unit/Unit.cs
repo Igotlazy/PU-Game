@@ -6,7 +6,7 @@ using Cinemachine;
 
 public class Unit : MonoBehaviour {
 
-	public float speed = 25f;
+	public float speed = 4f;
 
 	public Vector3[] path;
 	int targetIndex;

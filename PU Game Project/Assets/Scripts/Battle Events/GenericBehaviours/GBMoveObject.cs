@@ -1,49 +1,52 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MHA.GenericBehaviours;
 
-public class GBMoveObject : GBBase {
-
-    public GameObject objectToMove;
-    public Vector3 endPosition;
-    public float moveSpeed;
-
-    public GBMoveObject(BattleEvent _attachedBattleEvent) : base(_attachedBattleEvent)
+namespace MHA.GenericBehaviours
+{
+    [System.Serializable]
+    public class GBMoveObject : GBBase
     {
 
-    }
+        public GameObject objectToMove;
+        public Vector3 endPosition;
+        public float moveSpeed;
 
-    public IEnumerator MoveObject(GameObject givenObject, Vector3 givenEndPosition)
-    {
-        objectToMove = givenObject;
-        endPosition = givenEndPosition;
-
-        Projectile projScript = givenObject.GetComponent<Projectile>();
-        if(projScript != null)
+        public GBMoveObject(GameObject _objectToMove, Vector3 _endPosition, BattleEvent _attachedBattleEvent) : base(_attachedBattleEvent)
         {
-            moveSpeed = projScript.projectileMovementSpeed;
-        }
-        else
-        {
-            moveSpeed = 5f;
+            this.objectToMove = _objectToMove;
+            this.endPosition = _endPosition;
         }
 
-        while (Vector3.Distance(givenObject.transform.position, givenEndPosition) > 0.05f)
+        protected override IEnumerator RunBehaviourImpl()
         {
-            yield return attachedBattleEvent.bEventMonoBehaviour.StartCoroutine(attachedBattleEvent.ALLOWINTERRUPT(0f));
-
-            if (givenObject != null)
+            Projectile projScript = objectToMove.GetComponent<Projectile>();
+            if (projScript != null)
             {
-                givenObject.transform.position = Vector3.MoveTowards(givenObject.transform.position, givenEndPosition, moveSpeed * Time.deltaTime);
+                moveSpeed = projScript.projectileMovementSpeed;
             }
             else
             {
-                break;
+                moveSpeed = 5f;
             }
+
+            while (Vector3.Distance(objectToMove.transform.position, endPosition) > 0.05f)
+            {
+                yield return attachedBattleEvent.bEventMonoBehaviour.StartCoroutine(attachedBattleEvent.ALLOWINTERRUPT(0f));
+
+                if (objectToMove != null)
+                {
+                    objectToMove.transform.position = Vector3.MoveTowards(objectToMove.transform.position, endPosition, moveSpeed * Time.deltaTime);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            FinishBehaviour();
         }
 
-        this.behaviourDone = true;
     }
-
 }
+

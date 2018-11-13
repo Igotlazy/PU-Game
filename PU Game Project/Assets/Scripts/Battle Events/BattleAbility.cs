@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MHA.GenericBehaviours;
+using MHA.DebugGame;
 
 [System.Serializable]
 public class BattleAbility : BattleEvent {
@@ -54,45 +55,27 @@ public class BattleAbility : BattleEvent {
 
     IEnumerator FireAttack()
     {
-        /*
-        Unit sourceScript = sourceObject.GetComponent<Unit>();
-        Unit targetScript = targetObject.GetComponent<Unit>();
-        Vector3 sourcePos;
-        Vector3 targetPos;
-        if(sourceScript != null)
-        {
-            sourcePos = sourceScript.shotConnecter.transform.position;
-        }
-        else
-        {
-            sourcePos = sourceObject.transform.position; //Just so it can work without being fired from a unit. 
-        }
-        if (targetScript != null)
-        {
-            targetPos = targetScript.centerPoint.transform.position;
-        }
-        else
-        {
-            targetPos = targetObject.transform.position; //Just so it can work without being fired at a unit. 
-        }
-
-        
-        GameObject spawnedProj = GameObject.Instantiate(attackProjectile, sourcePos, Quaternion.LookRotation(targetPos - sourcePos));
-        
-        Projectile projectileScript = spawnedProj.GetComponent<Projectile>();
-
-        */
-
+        Debug.Log("Fire Attack: " + sourceObject.name);
         List<GameObject> objectsToDamage = CombatUtils.GetAllAttackablesInNodes(targetNodes, sourceObject);
-        foreach(GameObject currentObject in objectsToDamage)
+        Debug.Log("Size of Node Array: " + targetNodes.Count);
+        Debug.Log("Size of Target Array: " + objectsToDamage.Count);
+        foreach (GameObject currentObject in objectsToDamage)
         {
-            GBDealDamage dealDamageBehav = new GBDealDamage(this);
-            yield return bEventMonoBehaviour.StartCoroutine(dealDamageBehav.DealDamage(attack, currentObject));
+            if (currentObject != null)
+            {
+                Vector3 sourcePos = CombatUtils.GiveShotConnector(sourceObject);
+                Vector3 targetPos = CombatUtils.GiveShotConnector(currentObject);
+
+                GameObject projectile = GameObject.Instantiate(attackProjectile, sourcePos, Quaternion.LookRotation(targetPos - sourcePos));
+
+                GBMoveObject moveObjectBehav = new GBMoveObject(projectile, targetPos, this);
+                yield return bEventMonoBehaviour.StartCoroutine(moveObjectBehav.RunBehaviour());
+                GameObject.Destroy(projectile);
+
+                GBDealDamage dealDamageBehav = new GBDealDamage(attack, currentObject, this);
+                yield return bEventMonoBehaviour.StartCoroutine(dealDamageBehav.RunBehaviour());
+            }
         }
-        
-        
-        //Object.Destroy(spawnedProj);
-        yield return null;
 
         BattleEventFinish();
     } 
