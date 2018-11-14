@@ -8,7 +8,7 @@ using UnityEngine;
 public class TimedBuff : Buff
 {
     
-    protected Attack burnAttack = new Attack(1f, 0, null);
+    protected Attack burnAttack = new Attack(1f, 0);
     private float nextTickTime;
     public float tickInterval = 1f;
     protected float bDuration;

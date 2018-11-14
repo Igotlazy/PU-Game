@@ -7,6 +7,7 @@ namespace MHA.GenericBehaviours
     [System.Serializable]
     public class GBDealDamage : GBBase
     {
+
         //Identifiers
         public float damageToDeal;
         public float remainingHealth;
@@ -20,6 +21,7 @@ namespace MHA.GenericBehaviours
             this.targetObject = _targetObject; 
         }
             
+        /*
         protected override IEnumerator RunBehaviourImpl()
         {
             damageToDeal = givenAttack.damageValue;
@@ -34,6 +36,7 @@ namespace MHA.GenericBehaviours
             }
 
             FinishBehaviour();
-        }     
+        }    
+        */
     }
 }

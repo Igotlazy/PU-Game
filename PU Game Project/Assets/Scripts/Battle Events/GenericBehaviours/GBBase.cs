@@ -15,7 +15,7 @@ namespace MHA.GenericBehaviours
             attachedBattleEvent = _attachedBattleEvent;
         }
 
-
+        /*
 
         public IEnumerator RunBehaviour()
         {
@@ -47,6 +47,7 @@ namespace MHA.GenericBehaviours
                 TurnManager.instance.resolvingBehaviours.Remove(this);
             }
         }
+        */
 
     }
 

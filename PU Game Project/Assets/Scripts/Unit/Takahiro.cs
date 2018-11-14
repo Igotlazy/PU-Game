@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MHA.Kits.TakahiroAbilities;
 
 namespace MHA.Kits
 {
@@ -24,6 +23,7 @@ namespace MHA.Kits
         public GameObject attack2Effect;
         public GameObject attack3Effect;
 
+
         protected override void Awake()
         {
             base.Awake();
@@ -39,7 +39,17 @@ namespace MHA.Kits
             base.Update();
         }
 
-
+        public override void InitializeAbilities()
+        {
+            CharBasic = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model().takaHiroA1Model));
+            CharBasic.associatedModel.associatedObject = this.gameObject;
+            CharA1 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model().takaHiroA1Model));
+            CharA1.associatedModel.associatedObject = this.gameObject;
+            CharA2 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model().takaHiroA1Model));
+            CharA2.associatedModel.associatedObject = this.gameObject;
+            CharA3 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model().takaHiroA1Model));
+            CharA3.associatedModel.associatedObject = this.gameObject;
+        }
 
 
         protected override void UnitPassivePrepImpl()
@@ -99,30 +109,24 @@ namespace MHA.Kits
         }
 
 
-        protected override BattleEvent UnitBasicInit(List<Node> relevantNodes)
+        protected override BattleEvent CharBasicInit(List<Node> relevantNodes)
         {
-            Attack basicAttack = new Attack(5f, Attack.DamageType.Physical, this.gameObject);
-            BETakahiroBasic basicBattleEvent = new BETakahiroBasic(basicAttack, basicEffect, this.gameObject, relevantNodes);
-            return basicBattleEvent;
+            return null;
         }
 
-        protected override BattleEvent UnitAttack1Init(List<Node> relevantNodes)
+        protected override BattleEvent CharAbility1Init(List<Node> relevantNodes)
         {
-            Attack a1Attack = new Attack(5f, Attack.DamageType.Physical, this.gameObject);
-            BETakahiroBasic a3BattleEvent = new BETakahiroBasic(a1Attack, attack1Effect, this.gameObject, relevantNodes);
-            return a3BattleEvent;
+            return null;
         }
 
-        protected override BattleEvent UnitAttack2Init(List<Node> relevantNodes)
+        protected override BattleEvent CharAbility2Init(List<Node> relevantNodes)
         {
             throw new System.NotImplementedException();
         }
 
-        protected override BattleEvent UnitAttack3Init(List<Node> relevantNodes)
+        protected override BattleEvent CharAbility3Init(List<Node> relevantNodes)
         {
-            Attack a3Attack = new Attack(10f, Attack.DamageType.Physical, this.gameObject);
-            BETakahiroBasic a3BattleEvent = new BETakahiroBasic(a3Attack, attack3Effect, this.gameObject, relevantNodes);
-            return a3BattleEvent;
+            return null;
         }
     }
 }

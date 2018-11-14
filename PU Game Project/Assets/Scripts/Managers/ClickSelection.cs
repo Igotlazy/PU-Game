@@ -202,9 +202,9 @@ public class ClickSelection : MonoBehaviour
 
             if (targetUnitScript.currentNode.IsAttackable)
             {
-                Attack attack = new Attack(5, Attack.DamageType.Magical, selectedUnitObj);
-                BattleAbility battleAttack = new BattleAbility(attack, basicAttackProjectile, selectedUnitObj, new List<Node> { hitInfo.collider.gameObject.GetComponent<Unit>().currentNode });
-                TurnManager.instance.EventResolutionReceiver(battleAttack);
+                Attack attack = new Attack(5, Attack.DamageType.Magical);
+                //BattleAbility battleAttack = new BattleAbility(attack, basicAttackProjectile, selectedUnitObj, new List<Node> { hitInfo.collider.gameObject.GetComponent<Unit>().currentNode });
+                //TurnManager.instance.EventResolutionReceiver(battleAttack);
 
                 CombatUtils.AttackHitCalculation(selectedUnitObj, hitInfo.collider.gameObject); //[TESTING FOR % CHECK.]                    
             }

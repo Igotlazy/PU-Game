@@ -8,8 +8,6 @@ using MHA.Kits;
 
 public abstract class HeroCharacter : LivingCreature, IUnitAllyAbilities {
 
-    public List<GameObject> blarg2 = new List<GameObject>();
-    public List<BattleAbility> blarg = new List<BattleAbility>();
     [Header("[HERO CHARACTER]")]
     public bool inCombat;
 
@@ -18,14 +16,21 @@ public abstract class HeroCharacter : LivingCreature, IUnitAllyAbilities {
     protected bool a2Active;
     protected bool a3Active;
 
+    public CharAbilityController CharBasic;
+    public CharAbilityController CharA1;
+    public CharAbilityController CharA2;
+    public CharAbilityController CharA3;
+
 
     protected override void Awake()
     {
         base.Awake();
+        InitializeAbilities();
     }
 
     protected override void Start()
     {
+        Debug.Log(CharBasic.associatedModel.abilityName);
         base.Start();
     }
 
@@ -33,6 +38,8 @@ public abstract class HeroCharacter : LivingCreature, IUnitAllyAbilities {
     {
         base.Update();
     }
+
+    public abstract void InitializeAbilities();
 
 
     public virtual void UnitPassivePrep()
@@ -84,7 +91,7 @@ public abstract class HeroCharacter : LivingCreature, IUnitAllyAbilities {
 
         if (basicActive)
         {
-            battleEventToFire = UnitBasicInit(relevantNodes);
+            battleEventToFire = CharBasicInit(relevantNodes);
         }
         /*else if (a1Active)
         {
@@ -109,10 +116,10 @@ public abstract class HeroCharacter : LivingCreature, IUnitAllyAbilities {
     BattleEvent battleEventToFire;
 
 
-    protected abstract BattleEvent UnitBasicInit(List<Node> relevantNodes);
-    protected abstract BattleEvent UnitAttack1Init(List<Node> relevantNodes);
-    protected abstract BattleEvent UnitAttack2Init(List<Node> relevantNodes);
-    protected abstract BattleEvent UnitAttack3Init(List<Node> relevantNodes);
+    protected abstract BattleEvent CharBasicInit(List<Node> relevantNodes);
+    protected abstract BattleEvent CharAbility1Init(List<Node> relevantNodes);
+    protected abstract BattleEvent CharAbility2Init(List<Node> relevantNodes);
+    protected abstract BattleEvent CharAbility3Init(List<Node> relevantNodes);
 
 
 }

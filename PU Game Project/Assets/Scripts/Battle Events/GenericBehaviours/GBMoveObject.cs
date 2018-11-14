@@ -18,6 +18,7 @@ namespace MHA.GenericBehaviours
             this.endPosition = _endPosition;
         }
 
+        /*
         protected override IEnumerator RunBehaviourImpl()
         {
             Projectile projScript = objectToMove.GetComponent<Projectile>();
@@ -46,6 +47,7 @@ namespace MHA.GenericBehaviours
 
             FinishBehaviour();
         }
+        */
 
     }
 }

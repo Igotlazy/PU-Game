@@ -145,7 +145,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1810131259986996
 GameObject:
   m_ObjectHideFlags: 1
@@ -299,7 +299,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1364386363442500}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.83, y: 0, z: 4.26}
+  m_LocalPosition: {x: -0.55, y: 0, z: 4.26}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4386472405591078}
@@ -558,8 +558,6 @@ MonoBehaviour:
   healthBar: {fileID: 114361087001110696}
   damageIndicator: {fileID: 1388622767760518, guid: a41fb87bd3c079a42be01ff36458a442,
     type: 2}
-  blarg2: []
-  blarg: []
   inCombat: 0
   basicIndicator: {fileID: 1551204962069454, guid: 3c1714827cf151646b3f983a153e32fb,
     type: 2}

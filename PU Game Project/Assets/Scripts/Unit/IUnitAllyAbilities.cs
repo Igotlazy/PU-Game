@@ -6,6 +6,7 @@ namespace MHA.Kits
 {
     public interface IUnitAllyAbilities
     {
+        void InitializeAbilities();
 
         void UnitPassivePrep();
 

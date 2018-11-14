@@ -7,6 +7,8 @@ using Cinemachine;
 
 public static class ReferenceObjects {
 
+    public static readonly string generalPathToAbilitySO = "Assets/Resouces/CharAbilityData/";
+
     public static List<GameObject> UnitList = new List<GameObject>();
     public static List<GameObject> UnitAllyList = new List<GameObject>();
     public static List<GameObject> UnitEnemyList = new List<GameObject>();

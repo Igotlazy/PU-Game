@@ -60,7 +60,7 @@ public class TurnManager : MonoBehaviour {
     public List<BattleEvent> battleEventResolutionGroup = new List<BattleEvent>();
     public BattleEvent currentBattleEvent;
 
-    public List<GBBase> resolvingBehaviours = new List<GBBase>();
+    public List<BattleBehaviourController> resolvingBehaviours = new List<BattleBehaviourController>();
 
     public bool eventResolutionRunning;
 

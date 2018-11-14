@@ -72,9 +72,13 @@ public class Unit : MonoBehaviour {
         if (hasSuccessfulPath)
         {
             currentNode.IsOccupied = false; // Sets last Node to now not be Occupied.
-            
-            BattleMove battleMove = new BattleMove(this.gameObject, path, speed);
-            TurnManager.instance.EventResolutionReceiver(battleMove);
+
+            BBGridMoveModel gridMoveModel = new BBGridMoveModel() { path = path, moveTarget = this.gameObject, speed = speed };
+
+            BBGridMoveController gridMoveController = (BBGridMoveController)AbilityFactory.instance.CreateBehaviourController(gridMoveModel);
+            BattleEvent moveEvent = new BattleEvent(gridMoveController);
+            gridMoveController.attachedBattleEvent = moveEvent;
+            TurnManager.instance.EventResolutionReceiver(moveEvent);
         }
     }
 

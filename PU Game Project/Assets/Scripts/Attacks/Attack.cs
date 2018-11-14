@@ -14,13 +14,11 @@ public class Attack
 
     public float damageValue;
     public DamageType damageType;
-    public GameObject damageSource;
 
 
-    public Attack(float damageValue, DamageType damageType, GameObject damageSource) //Constructor for Attacks.
+    public Attack(float damageValue, DamageType damageType) //Constructor for Attacks.
     {
         this.damageValue = damageValue;
         this.damageType = damageType;
-        this.damageSource = damageSource;
     }
 }

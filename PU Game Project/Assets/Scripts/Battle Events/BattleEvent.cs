@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public abstract class BattleEvent : IBattleEventControllable {
+public class BattleEvent : IBattleEventControllable {
 
     public MonoBehaviour bEventMonoBehaviour;
-    protected GameObject animationObject;
+    public List<BattleBehaviourController> behavioursToProcess = new List<BattleBehaviourController>();
+    int controllerTracker = 0;
 
     public bool isMovementBased;
 
@@ -50,16 +51,75 @@ public abstract class BattleEvent : IBattleEventControllable {
     }
 
     //Gets reference to the TurnManager monobehavior. Need a monobehavior to call Coroutines. If either TurnManager or the GameObject that holds it is destroyed, this system won't work.
-    public BattleEvent(GameObject _animationObject) 
+    public BattleEvent(BattleBehaviourController givenBehaviour)
     {
-        this.animationObject = _animationObject;
+        behavioursToProcess.Add(givenBehaviour);
+
         this.bEventMonoBehaviour = TurnManager.instance;
     }
 
+    public BattleEvent(List<BattleBehaviourController> givenBehaviours) 
+    {
+        foreach(BattleBehaviourController currentController in givenBehaviours)
+        {
+            behavioursToProcess.Add(currentController);
+        }
+        this.bEventMonoBehaviour = TurnManager.instance;
+    }
+
+    private IEnumerator BattleEventProceed()
+    {
+        if (controllerTracker >= behavioursToProcess.Count)
+        {
+            Debug.Log("Finished Battle Event");
+            BattleEventFinish();
+            yield break;
+        }
+
+        yield return bEventMonoBehaviour.StartCoroutine(behavioursToProcess[controllerTracker].RunBehaviour());
+        Debug.Log("End Yield");
+
+        Debug.Log("Partial Finish");
+
+        controllerTracker++;
+        bEventMonoBehaviour.StartCoroutine(BattleEventProceed());
+    }
+
+
+
+
+    public virtual void BattleEventRun()
+    {
+        IsDirty = true;
+        bEventMonoBehaviour.StartCoroutine(BattleEventProceed());
+    }
+
+
+    public virtual void BattleEventPause()
+    {
+        IsPaused = true;
+    }  
+
+
+    public virtual void BattleEventResume()
+    {
+        IsPaused = false;
+    }
+
+
+    public virtual void BattleEventCancel()
+    {
+
+    }
+
+    public virtual void BattleEventFinish()
+    {
+        IsFinished = true;
+    }
 
     public IEnumerator ALLOWINTERRUPT(float InSeconds)
     {
-        if( InSeconds < 0) { InSeconds = 0; }
+        if (InSeconds < 0) { InSeconds = 0; }
 
         if (InSeconds == 0)
         {
@@ -81,42 +141,4 @@ public abstract class BattleEvent : IBattleEventControllable {
         }
     }
     WaitUntil WaitUntilInstance = null;
-
-
-    public virtual void BattleEventRun()
-    {
-        IsDirty = true;
-        BattleEventRunImpl();
-    }
-    protected abstract void BattleEventRunImpl();
-
-
-    public virtual void BattleEventPause()
-    {
-        IsPaused = true;
-        BattleEventPauseImpl();
-    }  
-    protected abstract void BattleEventPauseImpl();
-
-
-    public virtual void BattleEventResume()
-    {
-        IsPaused = false;
-        BattleEventResumeImpl();
-    }
-    protected abstract void BattleEventResumeImpl();
-
-
-    public virtual void BattleEventCancel()
-    {
-        BattleEventCancelImpl();
-    }
-    protected abstract void BattleEventCancelImpl();
-
-    public virtual void BattleEventFinish()
-    {
-        BattleEventFinishImpl();
-        IsFinished = true;
-    }
-    protected abstract void BattleEventFinishImpl();
 }
