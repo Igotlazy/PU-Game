@@ -153,9 +153,9 @@ public class ClickSelection : MonoBehaviour
     private void MoveClick()
     {
         if(selectedCreatureScript.CurrentEnergy >= selectedUnitScript.path.Length && selectedUnitScript.hasSuccessfulPath)
-        {        
-            selectedUnitScript.RunFollowPath(); //Starts the path move.           
+        {                  
             selectedCreatureScript.CurrentEnergy -= selectedUnitScript.path.Length; //Reduces energy by the size of length of the path. (1 Node Movement = 1 Energy).
+            selectedUnitScript.RunFollowPath(); //Starts the path move. 
         }
     }
 

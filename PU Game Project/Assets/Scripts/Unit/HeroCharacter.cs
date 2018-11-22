@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Kryz.CharacterStats;
+using MHA.BattleBehaviours;
 using MHA.Kits;
 
 public abstract class HeroCharacter : LivingCreature, IUnitAllyAbilities {
@@ -25,12 +26,11 @@ public abstract class HeroCharacter : LivingCreature, IUnitAllyAbilities {
     protected override void Awake()
     {
         base.Awake();
-        InitializeAbilities();
     }
 
     protected override void Start()
     {
-        Debug.Log(CharBasic.associatedModel.abilityName);
+        InitializeAbilities();
         base.Start();
     }
 
@@ -105,13 +105,14 @@ public abstract class HeroCharacter : LivingCreature, IUnitAllyAbilities {
         {
             battleEventToFire = UnitAttack3Init(relevantNodes);
         }
-        */
+        
 
         if(battleEventToFire != null)
         {
-            TurnManager.instance.EventResolutionReceiver(battleEventToFire);
+            ResolutionManager.instance.EventResolutionReceiver(battleEventToFire);
         }
         battleEventToFire = null;
+        */
     }
     BattleEvent battleEventToFire;
 

@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class BBDealDamageModel : BattleBehaviourModel {
+namespace MHA.BattleBehaviours {
+    [System.Serializable]
+    public class BBDealDamageModel : BattleBehaviourModel {
 
-    public BBDealDamageModel()
-    {
-        identifierString = "DealDamage";
+        public BBDealDamageModel()
+        {
+            identifierString = "DealDamage";
+        }
+
+        public Attack attackToDeal;
+        public GameObject targetObject;
+
+
     }
-
-    public Attack attackToDeal;
-    public GameObject targetObject;
-
-
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MHA.BattleBehaviours;
 
 namespace MHA.Kits
 {
@@ -15,14 +16,9 @@ namespace MHA.Kits
         GameObject storedAttack1Indicator;
         GameObject storedAttack2Indicator;
         GameObject storedAttack3Indicator;
-        [Space]
 
-        [Header("Ability Objects")]
-        public GameObject basicEffect;
-        public GameObject attack1Effect;
-        public GameObject attack2Effect;
-        public GameObject attack3Effect;
-
+        public GameObject basicParticle;
+        TakahiroBasicModel basicModel;
 
         protected override void Awake()
         {
@@ -41,14 +37,12 @@ namespace MHA.Kits
 
         public override void InitializeAbilities()
         {
-            CharBasic = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model().takaHiroA1Model));
-            CharBasic.associatedModel.associatedObject = this.gameObject;
-            CharA1 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model().takaHiroA1Model));
-            CharA1.associatedModel.associatedObject = this.gameObject;
-            CharA2 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model().takaHiroA1Model));
-            CharA2.associatedModel.associatedObject = this.gameObject;
-            CharA3 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model().takaHiroA1Model));
-            CharA3.associatedModel.associatedObject = this.gameObject;
+            basicModel = new TakahiroBasicModel(this);
+            CharBasic = AbilityFactory.instance.CreateAbilityController(basicModel.takaHiroBasicModel);
+
+            CharA1 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model(this).takaHiroA1Model));
+            CharA2 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model(this).takaHiroA1Model));
+            CharA3 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model(this).takaHiroA1Model));
         }
 
 
@@ -111,6 +105,11 @@ namespace MHA.Kits
 
         protected override BattleEvent CharBasicInit(List<Node> relevantNodes)
         {
+            Debug.Log(basicModel.takaHiroBasicModel.Equals(CharBasic.charModel));
+            basicModel.dynamicTarget = relevantNodes[0].occupant.transform.position;
+            Debug.Log("Name of Node: "+ relevantNodes[0].occupant.name);
+            basicModel.objectToHit = relevantNodes[0].occupant;
+            CharBasic.AbilityCast(0);
             return null;
         }
 

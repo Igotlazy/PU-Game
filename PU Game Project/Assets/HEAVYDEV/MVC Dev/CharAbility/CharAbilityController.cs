@@ -4,17 +4,14 @@ using UnityEngine;
 
 public class CharAbilityController {
 
-    public CharAbilityModel associatedModel;
-    public List<BattleBehaviourController> charBehaviourControllers = new List<BattleBehaviourController>();
+    public CharAbilityModel charModel;
+    public CharAbilityView charView;
 
-    public void AbilityCast()
+    public void AbilityCast(int abilityCastIndex)
     {
-        BattleEvent battleEventToSend = new BattleEvent(charBehaviourControllers);
-        foreach(BattleBehaviourController currentControl in charBehaviourControllers)
+        if (abilityCastIndex <= charModel.activatableBBehaviourControllers.Count)
         {
-            currentControl.attachedBattleEvent = battleEventToSend;
+            ResolutionManager.instance.LoadBattleBehaviour(charModel.activatableBBehaviourControllers[abilityCastIndex]);
         }
-
-        TurnManager.instance.EventResolutionReceiver(battleEventToSend);
     }
 }

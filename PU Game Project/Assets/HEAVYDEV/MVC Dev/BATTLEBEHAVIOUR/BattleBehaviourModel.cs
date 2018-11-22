@@ -2,8 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public abstract class BattleBehaviourModel
+
+namespace MHA.BattleBehaviours
 {
-    public string identifierString;
+    [System.Serializable]
+    public abstract class BattleBehaviourModel
+    {
+        public string identifierString;
+
+        public CharAbilityModel associatedCharAbilityModel;
+
+        public List<BattleBehaviourModel> auxBehaviourModels = new List<BattleBehaviourModel>();
+        public List<BattleBehaviourController> auxBehaviourControllers = new List<BattleBehaviourController>();
+    }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 using Cinemachine;
 using System.Linq; //Gives List.Last
 using MHA.UserInterface;
-using MHA.GenericBehaviours;
+using MHA.BattleBehaviours;
 
 public class TurnManager : MonoBehaviour {
 
@@ -56,13 +56,6 @@ public class TurnManager : MonoBehaviour {
     public CinemachineVirtualCamera currentCamera;
 
     public static TurnManager instance;
-
-    public List<BattleEvent> battleEventResolutionGroup = new List<BattleEvent>();
-    public BattleEvent currentBattleEvent;
-
-    public List<BattleBehaviourController> resolvingBehaviours = new List<BattleBehaviourController>();
-
-    public bool eventResolutionRunning;
 
 
     private void Awake()
@@ -265,104 +258,5 @@ public class TurnManager : MonoBehaviour {
 
         yield return new WaitForSeconds(1f);
         NextMainBattlePhase();
-    }
-
-    public void EventResolutionReceiver(BattleEvent receivedEvent) //Takes in one BattleEvent.
-    {
-        if (eventResolutionRunning)
-        {
-            battleEventResolutionGroup.Add(receivedEvent);
-        }
-        else
-        {
-            battleEventResolutionGroup.Clear(); //Technically this should be clear, but just in case.
-            battleEventResolutionGroup.Add(receivedEvent);
-
-            CurrentBattlePhase = BattlePhase.ActionPhase;
-
-            eventResolutionRunning = true;
-
-            StartCoroutine(EffectResolutionTree());
-        }
-    }
-
-    public void EventResolutionReceiver(List<BattleEvent> receivedEvents) //Takes in many. Use for buff resolution and other predetermined lists of Events.
-    {
-        if (eventResolutionRunning)
-        {
-            for (int i = receivedEvents.Count - 1; i >= 0; i--)
-            {
-                battleEventResolutionGroup.Add(receivedEvents[i]);
-            }
-        }
-        else
-        {          
-            battleEventResolutionGroup.Clear(); //Technically all of these should be clear, but just in case.
-
-            for (int i = receivedEvents.Count - 1; i >= 0; i--)
-            {
-                battleEventResolutionGroup.Add(receivedEvents[i]);
-            }
-
-            CurrentBattlePhase = BattlePhase.ActionPhase;
-
-            eventResolutionRunning = true;
-
-            StartCoroutine(EffectResolutionTree());
-        }
-    }
-
-    private IEnumerator EffectResolutionTree() //Literally handles the ordering and resolution of every BattleEvent. 
-    {
-        Debug.Log("Size of Stack: " + battleEventResolutionGroup.Count);
-
-        if (battleEventResolutionGroup.Count <= 0)
-        {
-            eventResolutionRunning = false;
-            CurrentBattlePhase = BattlePhase.PlayerInput; //Create a function to handle finishing (currently just works through Action Phase, probably want it available for End and Start Phase).
-
-            yield break; //End of Resolution Tree.
-        }
-        else
-        {
-            currentBattleEvent = battleEventResolutionGroup.Last();
-        }
-
-        if (currentBattleEvent.IsDirty)
-        {
-            Debug.Log("Resumed Event");
-            currentBattleEvent.BattleEventResume();
-        }
-        else
-        {
-            Debug.Log("Run Event");
-            currentBattleEvent.BattleEventRun();
-        }
-
-        yield return null; 
-        //Wait until the current BattleEvent either finishes or is interrupted by a new Event on the stack.
-        while(!currentBattleEvent.IsFinished && battleEventResolutionGroup.Last() == currentBattleEvent)
-        {
-            yield return null;
-        }
-
-        if (currentBattleEvent.IsFinished) //If Event HAS finished.
-        {
-            Debug.Log("Finished Event");
-            battleEventResolutionGroup.Remove(currentBattleEvent); //Removes the last BattleEvent in the list. Allows resolution to work like a Stack. 
-  
-            StartCoroutine(EffectResolutionTree());
-        }
-        if(!currentBattleEvent.IsFinished && battleEventResolutionGroup.Last() != currentBattleEvent) //If the Event HASN'T finished and IT ISN'T at the top of the "Stack".
-        {
-            Debug.Log("Paused Event");
-            currentBattleEvent.BattleEventPause();
-
-            StartCoroutine(EffectResolutionTree());
-        }
-
-            //Needs to be a check where if the current running BattleEvent is not on the top of the stack. If so, pause that BattleEvent and start the one on top. 
-            //isFinished to represent it being done.
-            //isDirty to represent if it's already started and needs to be resumed as opposed to started fresh.
     }
 }

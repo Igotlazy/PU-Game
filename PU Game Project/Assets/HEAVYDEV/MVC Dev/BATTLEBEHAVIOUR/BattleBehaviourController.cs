@@ -1,47 +1,89 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public abstract class BattleBehaviourController : IBattleBehaviour {
-
-    public CharAbilityController charAbilityController;
-    public BattleEvent attachedBattleEvent;
-
-
-
-    public IEnumerator RunBehaviour()
+namespace MHA.BattleBehaviours
+{
+    public abstract class BattleBehaviourController : IBattleBehaviour
     {
-        AddToBehaviourList();
-        yield return attachedBattleEvent.bEventMonoBehaviour.StartCoroutine(RunBehaviourImpl());
-    }
-    protected abstract IEnumerator RunBehaviourImpl();
 
-    public void CancelBehaviour()
-    {
-        TurnManager.instance.StopCoroutine(RunBehaviourImpl());
-        RemoveFromBehaviourList();
-    }
-    protected abstract void CancelBehaviourImpl();
+        public BattleBehaviourModel battleBehaviourModel;
+        protected List<Action> RunBehaviourImplList = new List<Action>();
+        public BattleEvent attachedBattleEvent;
+        protected bool isFinished;
+        protected int invokeIndex = 0;
 
-    public void FinishBehaviour()
-    {
-        RemoveFromBehaviourList();
-    }
-    protected abstract void FinishBehaviourImpl();
 
-    public void AddToBehaviourList()
-    {
-        TurnManager.instance.resolvingBehaviours.Add(this);
-    }
-
-    public void RemoveFromBehaviourList()
-    {
-        if (TurnManager.instance.resolvingBehaviours.Contains(this))
+        public BattleBehaviourController(BattleBehaviourModel givenModel)
         {
-            TurnManager.instance.resolvingBehaviours.Remove(this);
+            battleBehaviourModel = givenModel;
+        }
+
+
+        public void RunBehaviour()
+        {
+            if (invokeIndex < RunBehaviourImplList.Count)
+            {
+                RunBehaviourImplList[invokeIndex]();
+                invokeIndex++;
+
+                if (invokeIndex >= RunBehaviourImplList.Count)
+                {
+                    FinishBehaviour();
+                }
+            }
+        }
+
+        public void QueueAnimation()
+        {
+
+        }
+
+
+        public void CancelBehaviour()
+        {
+            if (!isFinished)
+            {
+                CancelBehaviourImpl();
+                RemoveFromBehaviourList();
+                invokeIndex = 0;
+            }
+        }
+        protected abstract void CancelBehaviourImpl();
+
+
+        public void FinishBehaviour()
+        {
+            isFinished = true;
+            FinishBehaviourImpl();
+            RemoveFromBehaviourList();
+            invokeIndex = 0;
+            RunAuxControllers();
+        }
+        protected abstract void FinishBehaviourImpl();
+
+
+        public void RunAuxControllers()
+        {
+            foreach (BattleBehaviourController currentController in battleBehaviourModel.auxBehaviourControllers)
+            {
+                currentController.attachedBattleEvent = this.attachedBattleEvent;
+                ResolutionManager.instance.LoadBattleBehaviour(currentController);
+            }
+
+            ResolutionManager.instance.LoadBattleBehaviour(battleBehaviourModel.auxBehaviourControllers);
+        }
+
+        public void RemoveFromBehaviourList()
+        {
+            if (ResolutionManager.instance.resolvingBehaviours.Contains(this))
+            {
+                ResolutionManager.instance.resolvingBehaviours.Remove(this);
+            }
         }
     }
-} 
+}
 
 
 

@@ -3,6 +3,7 @@
 using UnityEngine;
 using System.Collections;
 using Cinemachine;
+using MHA.BattleBehaviours;
 
 public class Unit : MonoBehaviour {
 
@@ -75,10 +76,8 @@ public class Unit : MonoBehaviour {
 
             BBGridMoveModel gridMoveModel = new BBGridMoveModel() { path = path, moveTarget = this.gameObject, speed = speed };
 
-            BBGridMoveController gridMoveController = (BBGridMoveController)AbilityFactory.instance.CreateBehaviourController(gridMoveModel);
-            BattleEvent moveEvent = new BattleEvent(gridMoveController);
-            gridMoveController.attachedBattleEvent = moveEvent;
-            TurnManager.instance.EventResolutionReceiver(moveEvent);
+            BBGridMoveController gridMoveController = (BBGridMoveController)AbilityFactory.instance.ControllerFinder(gridMoveModel);
+            ResolutionManager.instance.LoadBattleBehaviour(gridMoveController);
         }
     }
 

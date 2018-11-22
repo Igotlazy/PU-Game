@@ -2,41 +2,44 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BBDealDamageController : BattleBehaviourController {
-
-    public BBDealDamageModel dealDamageModel;
-
-    public BBDealDamageController(BBDealDamageModel givenModel)
+namespace MHA.BattleBehaviours
+{
+    public class BBDealDamageController : BattleBehaviourController
     {
-        dealDamageModel = givenModel;
-    }
 
-    //float damageToDeal;
+        public BBDealDamageModel dealDamageModel;
 
-    protected override IEnumerator RunBehaviourImpl()
-    {
-        //damageTodeal
-        yield return TurnManager.instance.StartCoroutine(attachedBattleEvent.ALLOWINTERRUPT(0f));
-
-        if (dealDamageModel.targetObject != null)
+        public BBDealDamageController(BBDealDamageModel givenModel) : base(givenModel)
         {
-            dealDamageModel.targetObject.GetComponent<LivingCreature>().CreatureHit(dealDamageModel.attackToDeal);
-
-            EventFlags.EVENTTookDamage();
-            yield return attachedBattleEvent.bEventMonoBehaviour.StartCoroutine(attachedBattleEvent.ALLOWINTERRUPT(0.2f));
+            dealDamageModel = givenModel;
+            RunBehaviourImplList.Add(DealDamage);
         }
 
-        FinishBehaviour();
-    }
+        protected void DealDamage()
+        {
+            Debug.Log(dealDamageModel.targetObject);
 
-    protected override void CancelBehaviourImpl()
-    {
-        throw new System.NotImplementedException();
-    }
+            //damageTodeal
 
-    protected override void FinishBehaviourImpl()
-    {
-        throw new System.NotImplementedException();
-    }
 
+            if (dealDamageModel.targetObject != null)
+            {
+                dealDamageModel.targetObject.GetComponent<LivingCreature>().CreatureHit(dealDamageModel.attackToDeal);
+                Debug.Log(dealDamageModel.targetObject.GetComponent<LivingCreature>());
+
+                EventFlags.EVENTTookDamage();
+            }
+        }
+
+        protected override void CancelBehaviourImpl()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override void FinishBehaviourImpl()
+        {
+
+        }
+
+    }
 }

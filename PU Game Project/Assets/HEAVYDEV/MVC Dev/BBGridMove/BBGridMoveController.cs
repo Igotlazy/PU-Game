@@ -2,59 +2,59 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BBGridMoveController : BattleBehaviourController {
-
-    public BBGridMoveModel gridMoveModel;
-
-    public BBGridMoveController(BBGridMoveModel givenModel)
+namespace MHA.BattleBehaviours
+{
+    public class BBGridMoveController : BattleBehaviourController
     {
-        gridMoveModel = givenModel;
-    }
 
-    int targetIndex;
+        public BBGridMoveModel gridMoveModel;
 
-    protected override IEnumerator RunBehaviourImpl()
-    {
-        Vector3 currentWaypoint = gridMoveModel.path[0];
-        int lastPositionIndex = gridMoveModel.path.Length - 1;
-        Vector3 lastPosition = gridMoveModel.path[lastPositionIndex];
-
-        while (true)
+        public BBGridMoveController(BBGridMoveModel givenModel) : base(givenModel)
         {
-            yield return attachedBattleEvent.bEventMonoBehaviour.StartCoroutine(attachedBattleEvent.ALLOWINTERRUPT(0f)); //Pauses Coroutine
-
-            if (gridMoveModel.moveTarget.transform.position == currentWaypoint)
+            gridMoveModel = givenModel;
+            for (int i = 0; i < givenModel.path.Length; i++)
             {
-                targetIndex++;
-                if (targetIndex >= gridMoveModel.path.Length)
-                {
-                    break;
-                }
-                currentWaypoint = gridMoveModel.path[targetIndex];
+                RunBehaviourImplList.Add(GridMove);
             }
-
-            gridMoveModel.moveTarget.transform.position = Vector3.MoveTowards(gridMoveModel.moveTarget.transform.position, currentWaypoint, gridMoveModel.speed * Time.deltaTime);
         }
 
-        Unit moveTargetScript = gridMoveModel.moveTarget.GetComponent<Unit>();
-        moveTargetScript.currentNode = GridGen.instance.NodeFromWorldPoint(lastPosition); //So the player knows which Node they're on. 
-        moveTargetScript.currentNode.IsOccupied = true;
-        moveTargetScript.currentNode.occupant = gridMoveModel.moveTarget; //Sets last Node to now be Occupied.
+        int targetIndex;
 
-        DrawIndicators.instance.ClearTileMatStates(true, true, true);
-        ClickSelection.instance.DrawMoveZone();
-        FinishBehaviour();
-        Debug.Log("Finished Controller");
+        protected void GridMove()
+        {
+            Vector3 newGridPos = gridMoveModel.path[targetIndex];
+            targetIndex++;
+
+            Unit moveTargetScript = gridMoveModel.moveTarget.GetComponent<Unit>();
+            Node newNode = GridGen.instance.NodeFromWorldPoint(newGridPos);
+
+            if (moveTargetScript != null)
+            {
+                moveTargetScript.currentNode.IsOccupied = false;
+                moveTargetScript.currentNode = newNode; //So the player knows which Node they're on. 
+            }
+            newNode.IsOccupied = true;
+            newNode.occupant = gridMoveModel.moveTarget; //Sets last Node to now be Occupied.
+
+            new BBGridMoveAnim(newGridPos, gridMoveModel.moveTarget, gridMoveModel.speed);
+
+            //EVENT FOR MOVEMENT
+
+
+
+            DrawIndicators.instance.ClearTileMatStates(true, true, true);
+            //ClickSelection.instance.DrawMoveZone();
+        }
+
+        protected override void CancelBehaviourImpl()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override void FinishBehaviourImpl()
+        {
+            //throw new System.NotImplementedException();
+        }
+
     }
-
-    protected override void CancelBehaviourImpl()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    protected override void FinishBehaviourImpl()
-    {
-        //throw new System.NotImplementedException();
-    }
-
 }

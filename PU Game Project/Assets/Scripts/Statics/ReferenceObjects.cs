@@ -7,13 +7,13 @@ using Cinemachine;
 
 public static class ReferenceObjects {
 
-    public static readonly string generalPathToAbilitySO = "Assets/Resouces/CharAbilityData/";
+    //public static readonly string generalPathToAbilitySO = "Assets/Resouces/CharAbilityData/";
 
     public static List<GameObject> UnitList = new List<GameObject>();
     public static List<GameObject> UnitAllyList = new List<GameObject>();
     public static List<GameObject> UnitEnemyList = new List<GameObject>();
 
-    public static List<BattleBuff> BuffList = new List<BattleBuff>();
+    //public static List<BattleBuff> BuffList = new List<BattleBuff>();
 
 
     public static void AddToPlayerList(GameObject receivedObject)
@@ -30,10 +30,11 @@ public static class ReferenceObjects {
         UnitList.Add(receivedObject);
     }
 
-    public static void AddToBuffList(BattleBuff receivedBuff)
+    /*public static void AddToBuffList(BattleBuff receivedBuff)
     {
 
     }
+    */
 
 
 

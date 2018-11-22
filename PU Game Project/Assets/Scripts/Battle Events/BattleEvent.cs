@@ -4,141 +4,127 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class BattleEvent : IBattleEventControllable {
-
-    public MonoBehaviour bEventMonoBehaviour;
-    public List<BattleBehaviourController> behavioursToProcess = new List<BattleBehaviourController>();
-    int controllerTracker = 0;
-
-    public bool isMovementBased;
-
-    private bool isFinished; //Defines whether the Event has completed.
-    public bool IsFinished
+namespace MHA.BattleBehaviours
+{
+    [System.Serializable]
+    public class BattleEvent
     {
-        get
+
+        public MonoBehaviour bEventMonoBehaviour;
+        public List<BattleBehaviourController> behavioursToProcess = new List<BattleBehaviourController>();
+        int controllerTracker = 0;
+
+        public bool isMovementBased;
+
+        private bool isFinished; //Defines whether the Event has completed.
+        public bool IsFinished
         {
-            return isFinished;
-        }
-        set
-        {
-            isFinished = value;
-        }
-    }
-    private bool isDirty; //Defines whether the Event has been visited before.
-    public bool IsDirty
-    {
-        get
-        {
-            return isDirty;
-        }
-        set
-        {
-            isDirty = value;
-        }
-    }
-    private bool isPaused; //Defines whether the Event is currently paused and not running. 
-    public bool IsPaused
-    {
-        get
-        {
-            return isPaused;
-        }
-        set
-        {
-            isPaused = value;
-        }
-    }
-
-    //Gets reference to the TurnManager monobehavior. Need a monobehavior to call Coroutines. If either TurnManager or the GameObject that holds it is destroyed, this system won't work.
-    public BattleEvent(BattleBehaviourController givenBehaviour)
-    {
-        behavioursToProcess.Add(givenBehaviour);
-
-        this.bEventMonoBehaviour = TurnManager.instance;
-    }
-
-    public BattleEvent(List<BattleBehaviourController> givenBehaviours) 
-    {
-        foreach(BattleBehaviourController currentController in givenBehaviours)
-        {
-            behavioursToProcess.Add(currentController);
-        }
-        this.bEventMonoBehaviour = TurnManager.instance;
-    }
-
-    private IEnumerator BattleEventProceed()
-    {
-        if (controllerTracker >= behavioursToProcess.Count)
-        {
-            Debug.Log("Finished Battle Event");
-            BattleEventFinish();
-            yield break;
-        }
-
-        yield return bEventMonoBehaviour.StartCoroutine(behavioursToProcess[controllerTracker].RunBehaviour());
-        Debug.Log("End Yield");
-
-        Debug.Log("Partial Finish");
-
-        controllerTracker++;
-        bEventMonoBehaviour.StartCoroutine(BattleEventProceed());
-    }
-
-
-
-
-    public virtual void BattleEventRun()
-    {
-        IsDirty = true;
-        bEventMonoBehaviour.StartCoroutine(BattleEventProceed());
-    }
-
-
-    public virtual void BattleEventPause()
-    {
-        IsPaused = true;
-    }  
-
-
-    public virtual void BattleEventResume()
-    {
-        IsPaused = false;
-    }
-
-
-    public virtual void BattleEventCancel()
-    {
-
-    }
-
-    public virtual void BattleEventFinish()
-    {
-        IsFinished = true;
-    }
-
-    public IEnumerator ALLOWINTERRUPT(float InSeconds)
-    {
-        if (InSeconds < 0) { InSeconds = 0; }
-
-        if (InSeconds == 0)
-        {
-            yield return null;
-        }
-        else
-        {
-            yield return new WaitForSeconds(InSeconds);
-        }
-
-        if (IsPaused)
-        {
-            if (WaitUntilInstance == null)
+            get
             {
-                WaitUntilInstance = new WaitUntil(() => !IsPaused);
+                return isFinished;
+            }
+            set
+            {
+                isFinished = value;
+            }
+        }
+        private bool isDirty; //Defines whether the Event has been visited before.
+        public bool IsDirty
+        {
+            get
+            {
+                return isDirty;
+            }
+            set
+            {
+                isDirty = value;
+            }
+        }
+        private bool isPaused; //Defines whether the Event is currently paused and not running. 
+        public bool IsPaused
+        {
+            get
+            {
+                return isPaused;
+            }
+            set
+            {
+                isPaused = value;
+            }
+        }
+
+        //Gets reference to the TurnManager monobehavior. Need a monobehavior to call Coroutines. If either TurnManager or the GameObject that holds it is destroyed, this system won't work.
+        public BattleEvent(BattleBehaviourController givenBehaviour)
+        {
+            behavioursToProcess.Add(givenBehaviour);
+
+            this.bEventMonoBehaviour = ResolutionManager.instance;
+        }
+
+        public BattleEvent(List<BattleBehaviourController> givenBehaviours)
+        {
+            foreach (BattleBehaviourController currentController in givenBehaviours)
+            {
+                behavioursToProcess.Add(currentController);
+            }
+            this.bEventMonoBehaviour = ResolutionManager.instance;
+        }
+
+
+        /*
+        public virtual void BattleEventRun()
+        {
+            IsDirty = true;
+            bEventMonoBehaviour.StartCoroutine(BattleEventProceed());
+        }
+
+
+        public virtual void BattleEventPause()
+        {
+            IsPaused = true;
+        }  
+
+
+        public virtual void BattleEventResume()
+        {
+            IsPaused = false;
+        }
+
+
+        public virtual void BattleEventCancel()
+        {
+
+        }
+
+        public virtual void BattleEventFinish()
+        {
+            IsFinished = true;
+        }
+        */
+
+        public IEnumerator ALLOWINTERRUPT(float InSeconds)
+        {
+            if (InSeconds < 0) { InSeconds = 0; }
+
+            if (InSeconds == 0)
+            {
+                yield return null;
+            }
+            else
+            {
+                yield return new WaitForSeconds(InSeconds);
             }
 
-            yield return WaitUntilInstance;
+            if (IsPaused)
+            {
+                if (WaitUntilInstance == null)
+                {
+                    WaitUntilInstance = new WaitUntil(() => !IsPaused);
+                }
+
+                yield return WaitUntilInstance;
+            }
         }
+        WaitUntil WaitUntilInstance = null;
     }
-    WaitUntil WaitUntilInstance = null;
 }

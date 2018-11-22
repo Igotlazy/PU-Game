@@ -87,10 +87,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1536
   selectedUnitObj: {fileID: 0}
-  hitTileObj: {fileID: 0}
+  selectedCreatureScript: {fileID: 0}
+  selectedUnitScript: {fileID: 0}
   hasSelection: 0
-  isAttacking: 0
-  isPlayerInput: 0
+  prepMoving: 0
+  prepAttack: 0
+  prepInv: 0
   basicAttackProjectile: {fileID: 1679614431855374, guid: 19769e77e9bc1fb4fba922a8997813ef,
     type: 2}
 --- !u!198 &198924885110343188
