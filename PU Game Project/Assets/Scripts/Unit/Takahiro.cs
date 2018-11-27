@@ -18,7 +18,6 @@ namespace MHA.Kits
         GameObject storedAttack3Indicator;
 
         public GameObject basicParticle;
-        TakahiroBasicModel basicModel;
 
         protected override void Awake()
         {
@@ -37,12 +36,7 @@ namespace MHA.Kits
 
         public override void InitializeAbilities()
         {
-            basicModel = new TakahiroBasicModel(this);
-            CharBasic = AbilityFactory.instance.CreateAbilityController(basicModel.takaHiroBasicModel);
 
-            CharA1 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model(this).takaHiroA1Model));
-            CharA2 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model(this).takaHiroA1Model));
-            CharA3 = AbilityFactory.instance.CreateAbilityController((new TakahiroA1Model(this).takaHiroA1Model));
         }
 
 
@@ -54,13 +48,11 @@ namespace MHA.Kits
         protected override void UnitBasicPrepImpl()
         {
             storedBasicIndicator = Instantiate(basicIndicator, new Vector3(this.gameObject.transform.position.x, 0.5f, this.gameObject.transform.position.z), Quaternion.identity);
-            storedBasicIndicator.transform.GetChild(0).GetComponent<AttackSelection>().Initialize(this);
         }
 
         protected override void UnitAttack1PrepImpl()
         {
             storedAttack1Indicator = Instantiate(attack1Indicator, new Vector3(this.gameObject.transform.position.x, 0.5f, this.gameObject.transform.position.z), Quaternion.identity);
-            storedAttack1Indicator.transform.GetChild(0).GetComponent<AttackSelection>().Initialize(this);
         }
 
         protected override void UnitAttack2PrepImpl()
@@ -71,7 +63,6 @@ namespace MHA.Kits
         protected override void UnitAttack3PrepImpl()
         {
             storedAttack3Indicator = Instantiate(attack3Indicator, new Vector3(this.gameObject.transform.position.x, 0.5f, this.gameObject.transform.position.z), Quaternion.identity);
-            storedAttack3Indicator.transform.GetChild(0).GetComponent<AttackSelection>().Initialize(this);
         }
 
         protected override void UnitAbilityCleanupImpl()
@@ -100,32 +91,6 @@ namespace MHA.Kits
                 Destroy(storedAttack3Indicator);
                 a3Active = false;
             }
-        }
-
-
-        protected override BattleEvent CharBasicInit(List<Node> relevantNodes)
-        {
-            Debug.Log(basicModel.takaHiroBasicModel.Equals(CharBasic.charModel));
-            basicModel.dynamicTarget = relevantNodes[0].occupant.transform.position;
-            Debug.Log("Name of Node: "+ relevantNodes[0].occupant.name);
-            basicModel.objectToHit = relevantNodes[0].occupant;
-            CharBasic.AbilityCast(0);
-            return null;
-        }
-
-        protected override BattleEvent CharAbility1Init(List<Node> relevantNodes)
-        {
-            return null;
-        }
-
-        protected override BattleEvent CharAbility2Init(List<Node> relevantNodes)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        protected override BattleEvent CharAbility3Init(List<Node> relevantNodes)
-        {
-            return null;
         }
     }
 }

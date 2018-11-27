@@ -1,15 +1,15 @@
-﻿using System.Collections;
+﻿using MHA.BattleBehaviours;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using MHA.BattleBehaviours;
+using UnityEngine;
 
 public class ResolutionManager : MonoBehaviour {
 
     public static ResolutionManager instance;
 
-    public List<BattleBehaviourController> resolvingBehaviours = new List<BattleBehaviourController>();
-    public BattleBehaviourController currentBehaviour;
+    public List<BattleEffect> resolvingEffects = new List<BattleEffect>();
+    public BattleEffect currentEffect;
     public bool eventResolutionRunning;
 
     private Queue<BattleAnimation> animationQueue = new Queue<BattleAnimation>();
@@ -21,7 +21,7 @@ public class ResolutionManager : MonoBehaviour {
 
     private void Awake()
     {
-        if(instance == null){instance = this;}
+        if(instance == null){instance = this; } else { Destroy(this); }
     }
 
 
@@ -32,39 +32,40 @@ public class ResolutionManager : MonoBehaviour {
 
 
 
-    public void LoadBattleBehaviour(List<BattleBehaviourController> givenControllers)
+    public void LoadBattleEffect(List<BattleEffect> givenEffects)
     {
         if (eventResolutionRunning)
         {
-            for (int i = givenControllers.Count - 1; i >= 0; i--)
+            for (int i = givenEffects.Count - 1; i >= 0; i--)
             {
-                resolvingBehaviours.Add(givenControllers[i]);
+                resolvingEffects.Add(givenEffects[i]);
             }
         }
         else
         {
-            resolvingBehaviours.Clear(); //Technically all of these should be clear, but just in case.
+            resolvingEffects.Clear(); //Technically all of these should be clear, but just in case.
 
-            for (int i = givenControllers.Count - 1; i >= 0; i--)
+            for (int i = givenEffects.Count - 1; i >= 0; i--)
             {
-                resolvingBehaviours.Add(givenControllers[i]);
+                resolvingEffects.Add(givenEffects[i]);
             }
 
             currentResolutionCalls = 0;
+            eventResolutionRunning = true;
             StartCoroutine(EffectResolution());
         }
     }
 
-    public void LoadBattleBehaviour(BattleBehaviourController givenController)
+    public void LoadBattleEffect(BattleEffect givenEffect)
     {
         if (eventResolutionRunning)
         {
-            resolvingBehaviours.Add(givenController);
+            resolvingEffects.Add(givenEffect);
         }
         else
         {
-            resolvingBehaviours.Clear(); //Technically this should be clear, but just in case.
-            resolvingBehaviours.Add(givenController);
+            resolvingEffects.Clear(); //Technically this should be clear, but just in case.
+            resolvingEffects.Add(givenEffect);
 
             currentResolutionCalls = 0;
             StartCoroutine(EffectResolution());
@@ -75,14 +76,14 @@ public class ResolutionManager : MonoBehaviour {
     public IEnumerator EffectResolution()
     {
         originalBattlePhase = TurnManager.instance.CurrentBattlePhase;
-
-        TurnManager.instance.CurrentBattlePhase = TurnManager.BattlePhase.ActionPhase;
         eventResolutionRunning = true;
 
-        while (resolvingBehaviours.Count > 0 )
+        TurnManager.instance.CurrentBattlePhase = TurnManager.BattlePhase.ActionPhase;
+
+        while (resolvingEffects.Count > 0 )
         {
-            currentBehaviour = resolvingBehaviours.Last();
-            currentBehaviour.RunBehaviour();
+            currentEffect = resolvingEffects.Last();
+            currentEffect.RunEffect();
 
             currentResolutionCalls++;
 
@@ -94,6 +95,7 @@ public class ResolutionManager : MonoBehaviour {
             
         }
 
+        CharAbility.charIndex = 0; //Resets individual cast tracker when Resolution empties. 
         eventResolutionRunning = false;
     }
 
@@ -119,8 +121,10 @@ public class ResolutionManager : MonoBehaviour {
         }
         else
         {
+            Debug.Log("Return to Input");
             animQueueRunning = false;
             TurnManager.instance.CurrentBattlePhase = originalBattlePhase;
+            Debug.Log(originalBattlePhase.ToString());
         }
     }
 

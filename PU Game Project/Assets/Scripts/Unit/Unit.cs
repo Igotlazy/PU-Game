@@ -68,16 +68,21 @@ public class Unit : MonoBehaviour {
 		}
 	}
 
+    AbilityBasicMove moveAbility;
+
     public void RunFollowPath() //Used by other scripts to get the player to follow the loaded path.
     {
         if (hasSuccessfulPath)
         {
             currentNode.IsOccupied = false; // Sets last Node to now not be Occupied.
 
-            BBGridMoveModel gridMoveModel = new BBGridMoveModel() { path = path, moveTarget = this.gameObject, speed = speed };
-
-            BBGridMoveController gridMoveController = (BBGridMoveController)AbilityFactory.instance.ControllerFinder(gridMoveModel);
-            ResolutionManager.instance.LoadBattleBehaviour(gridMoveController);
+            moveAbility = new AbilityBasicMove(GetComponent<LivingCreature>())
+            {
+                moveTarget = GetComponent<LivingCreature>(),
+                speed = 3.5f,
+                path = path
+            };
+            moveAbility.CastAbility(0);
         }
     }
 

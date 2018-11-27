@@ -1,25 +1,28 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using MHA.Events;
 
 namespace MHA.BattleBehaviours
 {
     public class BBActivator
     {
+        public EventArgs eventArgs;
 
-        public List<string> eventStringArray = new List<string>();
+        public string eventString;
+
 
         public BBActivator()
         {
-            foreach (string currentString in eventStringArray)
-            {
-                EventFlagChecker(currentString);
-            }
+            EventFlagChecker(eventString);
         }
 
-        private void RunPassiveEvents()
+
+        private void RunPassiveEvents(object source, EventArgs givenArgs)
         {
-            ResolutionManager.instance.LoadBattleBehaviour(passiveBBehaviourControllerList);
+            eventArgs = givenArgs;
+            //ResolutionManager.instance.LoadBattleBehaviour(passiveBBehaviourControllerList);
         }
 
         private void EventFlagChecker(string givenString)
@@ -27,12 +30,12 @@ namespace MHA.BattleBehaviours
             switch (givenString)
             {
                 case (EventFlags.TookDamageIdentifier):
-                    EventFlags.tookDamage += this.RunPassiveEvents;
+                    EventFlags.TookDamage += this.RunPassiveEvents;
                     break;
             }
         }
 
-        public List<BattleBehaviourModel> passiveBBehaviorModelList = new List<BattleBehaviourModel>();
-        public List<BattleBehaviourController> passiveBBehaviourControllerList = new List<BattleBehaviourController>();
+        //public List<BattleBehaviourModel> passiveBBehaviorModelList = new List<BattleBehaviourModel>();
+        //public List<BattleBehaviourController> passiveBBehaviourControllerList = new List<BattleBehaviourController>();
     }
 }

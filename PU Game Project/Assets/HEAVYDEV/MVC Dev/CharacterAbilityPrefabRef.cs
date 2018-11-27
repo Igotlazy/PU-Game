@@ -13,4 +13,6 @@ public class CharacterAbilityPrefabRef : MonoBehaviour {
 
     public List<GameObject> TakahiroPrefabs = new List<GameObject>();
 
+    public List<GameObject> NodeCollectors = new List<GameObject>();
+
 }

@@ -48,7 +48,7 @@ public class ClickSelection : MonoBehaviour
     {
         if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && !prepAttack)
             {
                 SelectionClick();
             }
@@ -59,10 +59,6 @@ public class ClickSelection : MonoBehaviour
                     if (prepMoving)
                     {
                         MoveClick();
-                    }
-                    if(prepAttack)
-                    {
-                        //AttackClick();
                     }
 
                 }
@@ -155,6 +151,7 @@ public class ClickSelection : MonoBehaviour
         if(selectedCreatureScript.CurrentEnergy >= selectedUnitScript.path.Length && selectedUnitScript.hasSuccessfulPath)
         {                  
             selectedCreatureScript.CurrentEnergy -= selectedUnitScript.path.Length; //Reduces energy by the size of length of the path. (1 Node Movement = 1 Energy).
+            DrawIndicators.instance.ClearTileMatStates(true, true, true);
             selectedUnitScript.RunFollowPath(); //Starts the path move. 
         }
     }

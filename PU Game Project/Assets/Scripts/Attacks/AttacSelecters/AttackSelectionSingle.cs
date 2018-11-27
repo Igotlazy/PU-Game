@@ -20,11 +20,6 @@ public class AttackSelectionSingle : AttackSelection {
         }
 	}
 
-    public override void Initialize(HeroCharacter _receivedCharacter)
-    {
-        base.Initialize(_receivedCharacter);
-    }
-
     public override void NodeDisplayCleanup()
     {
         foreach (Node currentNode in allNodes)

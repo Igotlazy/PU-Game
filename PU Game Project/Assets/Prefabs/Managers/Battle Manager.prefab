@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4312544067287450}
   - component: {fileID: 114317298502121490}
-  - component: {fileID: 114803414281498696}
   - component: {fileID: 114946478123526644}
   m_Layer: 0
   m_Name: Battle Manager
@@ -53,24 +52,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ead3fe26e21ca4040848491e1583f738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  battleEventResolutionGroup: []
-  currentBattleEvent:
-    bEventMonoBehaviour: {fileID: 0}
-    isMovementBased: 0
   eventResolutionRunning: 0
+  animQueueRunning: 0
   currentResolutionCalls: 0
   maxResolutionPerTurn: 5
---- !u!114 &114803414281498696
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1382013232624852}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2d3f75987f72f7438e311b47cb516d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114946478123526644
 MonoBehaviour:
   m_ObjectHideFlags: 1
