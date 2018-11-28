@@ -24,7 +24,6 @@ public class RandomBlink : MonoBehaviour {
     {
 		if(Time.time > timeToNextBlink)
         {
-            Debug.Log("Blink");
             Blink();
             timeToNextBlink = Time.time + Random.Range(minTime, maxTime);
         }

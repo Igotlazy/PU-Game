@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ZoneNodeCollectorTrigger : MonoBehaviour
+public class ZoneNodeCollectorTrigger : AttackSelection
 {
     public List<Node> nodeList = new List<Node>();
     public AttackSelection attackInd;
@@ -18,7 +18,7 @@ public class ZoneNodeCollectorTrigger : MonoBehaviour
         {
             Node enteringNode = GridGen.instance.NodeFromWorldPoint(enteringCollider.gameObject.transform.position);
             enteringNode.IsAttackable = true;
-            attackInd.targettedNodes.Add(enteringNode);
+            collectedNodes.Add(enteringNode);
         }
     }
 
@@ -27,11 +27,16 @@ public class ZoneNodeCollectorTrigger : MonoBehaviour
         if (exitingCollider.gameObject.CompareTag("Tile"))
         {
             Node exitingNode = GridGen.instance.NodeFromWorldPoint(exitingCollider.gameObject.transform.position);
-            if (attackInd.targettedNodes.Contains(exitingNode))
+            if (collectedNodes.Contains(exitingNode))
             {
                 exitingNode.IsAttackable = false;
-                attackInd.targettedNodes.Remove(exitingNode);
+                collectedNodes.Remove(exitingNode);
             }
         }
+    }
+
+    public override void MadeSelectionImpl()
+    {
+
     }
 }

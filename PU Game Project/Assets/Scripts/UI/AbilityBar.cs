@@ -94,6 +94,8 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepMoving = true;
+            Debug.Log("Cast Ability");
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().abilityList[0].InitiateAbility(0);
             ClickSelection.instance.DrawMoveZone();
         }
 
@@ -107,7 +109,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitBasicPrep();
+            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitBasicPrep();
         }
 
         public void A1ButtonPress()
@@ -115,7 +117,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack1Prep();
+            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack1Prep();
         }
 
         public void A2ButtonPress()
@@ -123,7 +125,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack2Prep();
+            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack2Prep();
         }
 
         public void A3ButtonPress()
@@ -131,7 +133,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack3Prep();
+            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack3Prep();
         }
 
 
@@ -139,7 +141,7 @@ namespace MHA.UserInterface
         private void GeneralSetUp()
         {
             ClickSelection.instance.ResetToDefault(); //Resets prepAttack and prepMove and cleans all tiles. 
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAbilityCleanup();
+            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAbilityCleanup();
         }
     }
 }

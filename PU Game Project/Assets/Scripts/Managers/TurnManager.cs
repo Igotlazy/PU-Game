@@ -76,7 +76,7 @@ public class TurnManager : MonoBehaviour {
     void Update()
     {
         //DEBUG
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.N))
         {
             NextMainBattlePhase();
         }
@@ -197,6 +197,7 @@ public class TurnManager : MonoBehaviour {
         {
             foreach (GameObject currentAlly in ReferenceObjects.UnitAllyList)
             {
+                Debug.Log("Add Player");
                 activePlayers.Add(currentAlly);
             }
         }

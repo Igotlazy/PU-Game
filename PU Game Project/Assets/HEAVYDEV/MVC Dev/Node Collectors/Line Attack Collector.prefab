@@ -100,7 +100,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4281442736164038}
-  - component: {fileID: 114038630033959566}
   - component: {fileID: 114913986486991090}
   - component: {fileID: 114984468721559830}
   - component: {fileID: 54122940728644002}
@@ -357,18 +356,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 1, z: 4}
   m_Center: {x: 0, y: 0, z: 2.4}
---- !u!114 &114038630033959566
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1753097388438384}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa7d3b11ea2a46d429ac59385ca282fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targettedObjects: []
 --- !u!114 &114913986486991090
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -380,6 +367,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 471bebff66a8fe84ca77f536d2a204b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hasSentTargets: 0
+  givenAbility:
+    associatedCreature: {fileID: 0}
+    abilityName: 
+    abilityDescription: 
+    abilitySprite: {fileID: 0}
+    energyCost: 0
+    turnCooldown: 0
   attackInd: {fileID: 0}
 --- !u!114 &114984468721559830
 MonoBehaviour:

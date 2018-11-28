@@ -52,7 +52,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4787698149085358}
   - component: {fileID: 135000365049546416}
-  - component: {fileID: 114360580974290158}
   - component: {fileID: 114737622198492194}
   - component: {fileID: 54754772398874966}
   m_Layer: 0
@@ -160,17 +159,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
---- !u!114 &114360580974290158
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1922860754127508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa7d3b11ea2a46d429ac59385ca282fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114737622198492194
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -182,6 +170,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 471bebff66a8fe84ca77f536d2a204b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hasSentTargets: 0
+  givenAbility:
+    associatedCreature: {fileID: 0}
+    abilityName: 
+    abilityDescription: 
+    abilitySprite: {fileID: 0}
+    energyCost: 0
+    turnCooldown: 0
   attackInd: {fileID: 0}
 --- !u!135 &135000365049546416
 SphereCollider:

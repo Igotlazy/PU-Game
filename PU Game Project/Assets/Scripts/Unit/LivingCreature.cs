@@ -12,8 +12,8 @@ public class LivingCreature : GameEntity {
     [Header("[LIVING CREATURE]")]
 
     [Header("Base Stats:")]
-    public float baseStrength;
-    public int baseEnergy;
+    public float baseStrength = 5;
+    public int baseEnergy = 5;
     public float baseQuirkPower;
     public float basePhysicalResistance;
     public float baseQuirkResistance;

@@ -5,35 +5,42 @@ using System;
 
 public class AbilityBasicMove : CharAbility {
 
-    public Vector3[] path;
-    public LivingCreature moveTarget;
+    public List<Vector3> path = new List<Vector3>();
     public float speed = 5f;
 
     public AbilityBasicMove(LivingCreature livingCreature) : base (livingCreature)
     {
         castableAbilities.Add(new Action<int>(Initialize));
-
-
+        targetCollectors.Add(new List<GameObject> {CharacterAbilityPrefabRef.instance.NodeCollectors[2]});
     }
 
     private void Initialize(int castIndex)
     {
-        EffectDataPacket effectPacket = new EffectDataPacket(moveTarget, this, castIndex);
+        Debug.Log(abilityTargets[0].Count);
+        foreach(Node currentNode in abilityTargets[0])
+        {
+            path.Add(currentNode.worldPosition);
+        }
+        Debug.Log(path.Count);
 
-        for (int i = 0; i < path.Length; i++)
+        associatedCreature.CurrentEnergy -= path.Count;
+
+        EffectDataPacket effectPacket = new EffectDataPacket(associatedCreature, this, castIndex);
+
+        for (int i = 0; i < path.Count; i++)
         {
             effectPacket.SetValueAtKey("MovePath", path[i]);
         }
 
         List<BattleEffect> effectsToPass = new List<BattleEffect>();
 
-        for(int i = 0; i < path.Length; i++)
+        for(int i = 0; i < path.Count; i++)
         {
             EffectGridMove moveEffect = new EffectGridMove(effectPacket)
             {
                 pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false)[i],
                 moveSpeed = speed,
-                moveTarget = moveTarget,                 
+                moveTarget = associatedCreature
             };
 
 
@@ -45,6 +52,7 @@ public class AbilityBasicMove : CharAbility {
 
         previousEffect = null;
         ResolutionManager.instance.LoadBattleEffect(effectsToPass);
+        path.Clear();
     }
     BattleEffect previousEffect;
 }

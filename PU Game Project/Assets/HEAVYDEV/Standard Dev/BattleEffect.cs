@@ -52,6 +52,7 @@ public abstract class BattleEffect {
 
     public void CancelEffect()
     {
+        Debug.Log("Effect Cancelled");
         isCancelled = true;
         RemoveSelfFromResolveList();
         if(tiedCancelEffect != null)

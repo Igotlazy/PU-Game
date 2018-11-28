@@ -7,83 +7,28 @@ using Kryz.CharacterStats;
 using MHA.BattleBehaviours;
 using MHA.Kits;
 
-public abstract class HeroCharacter : LivingCreature, IUnitAllyAbilities {
+public class HeroCharacter : LivingCreature{
 
     [Header("[HERO CHARACTER]")]
-    public bool inCombat;
 
-    protected bool basicActive;
-    protected bool a1Active;
-    protected bool a2Active;
-    protected bool a3Active;
+    public List<CharAbility> abilityList = new List<CharAbility>();
 
-    /*
-    public CharAbilityController CharBasic;
-    public CharAbilityController CharA1;
-    public CharAbilityController CharA2;
-    public CharAbilityController CharA3;
-    */
 
 
     protected override void Awake()
     {
         base.Awake();
+
     }
 
     protected override void Start()
     {
-        InitializeAbilities();
         base.Start();
+        abilityList.Add(new AbilityBasicMove(this));
     }
 
     protected override void Update()
     {
         base.Update();
-    }
-
-    public abstract void InitializeAbilities();
-
-
-    public void UnitPassivePrep()
-    {
-        UnitPassivePrepImpl();
-    }
-    protected abstract void UnitPassivePrepImpl();
-
-
-    public virtual void UnitBasicPrep()
-    {
-        basicActive = true;
-        UnitBasicPrepImpl();
-    }
-    protected abstract void UnitBasicPrepImpl();
-
-
-    public void UnitAttack1Prep()
-    {
-        a1Active = true;
-        UnitAttack1PrepImpl();
-    }
-    protected abstract void UnitAttack1PrepImpl();
-
-
-    public void UnitAttack2Prep()
-    {
-        a2Active = true;
-        UnitAttack2PrepImpl();
-    }
-    protected abstract void UnitAttack2PrepImpl();
-
-    public void UnitAttack3Prep()
-    {
-        a3Active = true;
-        UnitAttack3PrepImpl();
-    }
-    protected abstract void UnitAttack3PrepImpl();
-
-    public void UnitAbilityCleanup()
-    {
-        UnitAbilityCleanupImpl();
-    }
-    protected abstract void UnitAbilityCleanupImpl();      
+    }     
 }

@@ -1,27 +1,47 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class BasicMoveSelector : MonoBehaviour {
+public class BasicMoveSelector : AttackSelection {
 
     public Vector3[] path;
     int targetIndex;
     public bool hasSuccessfulPath;
+    private Node lastHitNode;
 
-    public GameObject movingTarget;
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    protected override void Update()
+    {
+        base.Update();
+
+        SetMovePath();
+    }
+
+    private void SetMovePath() //Drawing of path happens in the pathfinding script. 
+    {
+        RaycastHit hitInfo = new RaycastHit();
+        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.clickLayerMask);
+
+        if (hit && (GridGen.instance.NodeFromWorldPoint(hitInfo.point) != lastHitNode) && hitInfo.transform.gameObject.CompareTag("Tile") && hitInfo.collider.gameObject.activeInHierarchy) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 
+        {
+            lastHitNode = GridGen.instance.NodeFromWorldPoint(hitInfo.point);
+
+            if (lastHitNode.IsSelectable)
+            {
+                SelectionPathRequest(hitInfo.point);
+            }
+            else
+            {
+                path = null;
+                hasSuccessfulPath = false;
+                DrawIndicators.instance.ClearTileMatStates(true, false, false);
+            }
+        }
+    }
 
     public void SelectionPathRequest(Vector3 targetPos) //Called by ClickSelection to get a path to the target. 
     {
-        PathRequestManager.RequestPath(movingTarget.transform.position, targetPos, OnPathFound);
+        PathRequestManager.RequestPath(transform.position, targetPos, OnPathFound);
     }
 
     public void OnPathFound(Vector3[] newPath, bool pathSuccessful) //Loads script with relevant path data should the path return successful. 
@@ -37,16 +57,12 @@ public class BasicMoveSelector : MonoBehaviour {
 
     AbilityBasicMove moveAbility;
 
-    public void RunFollowPath() 
+
+    public override void MadeSelectionImpl()
     {
-        if (hasSuccessfulPath)
+        foreach(Vector3 currentVector in path)
         {
-            moveAbility = new AbilityBasicMove(GetComponent<LivingCreature>())
-            {
-                moveTarget = GetComponent<LivingCreature>(),
-                path = path
-            };
-            moveAbility.CastAbility(0);
+            collectedNodes.Add(GridGen.instance.NodeFromWorldPoint(currentVector));
         }
     }
 

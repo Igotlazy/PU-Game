@@ -52,6 +52,7 @@ public class ClickSelection : MonoBehaviour
             {
                 SelectionClick();
             }
+            /*
             if (Input.GetMouseButtonDown(1))
             {
                 if (hasSelection)
@@ -69,6 +70,7 @@ public class ClickSelection : MonoBehaviour
             {
                 SetMovePath();
             }
+            */
         }
 
         //For Selection Particles
@@ -104,10 +106,12 @@ public class ClickSelection : MonoBehaviour
 
         if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {
+            /*
             if (selectedUnitObj != null)
             {
                 selectedUnitObj.GetComponent<HeroCharacter>().UnitAbilityCleanup();
             }
+            */
 
             if (hit && (hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy))
             {
@@ -146,6 +150,7 @@ public class ClickSelection : MonoBehaviour
         prepMoving = false;
     }
 
+    /*
     private void MoveClick()
     {
         if(selectedCreatureScript.CurrentEnergy >= selectedUnitScript.path.Length && selectedUnitScript.hasSuccessfulPath)
@@ -155,6 +160,7 @@ public class ClickSelection : MonoBehaviour
             selectedUnitScript.RunFollowPath(); //Starts the path move. 
         }
     }
+    */
 
     public void DrawMoveZone() //Draws where the places can move.
     {
@@ -164,6 +170,7 @@ public class ClickSelection : MonoBehaviour
         DrawIndicators.instance.BFSSelectableSet(availableNodes); //Sets nodes as selectable.
     }
 
+    /*
     private void SetMovePath() //Drawing of path happens in the pathfinding script. 
     {
         RaycastHit hitInfo = new RaycastHit();
@@ -186,6 +193,7 @@ public class ClickSelection : MonoBehaviour
             }
         }
     }
+    */
 
 
     private void AttackClick()

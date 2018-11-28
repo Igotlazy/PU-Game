@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+[System.Serializable]
 public class CharAbility{
 
     public LivingCreature associatedCreature;
+    IEnumerator collectorCoroutine;
+    
 
     public CharAbility(LivingCreature _associatedCreature)
     {
@@ -22,13 +25,17 @@ public class CharAbility{
     public int turnCooldown;
 
     protected List<List<GameObject>> targetCollectors = new List<List<GameObject>>();
-    public List<List<Node>> targets = new List<List<Node>>();
+    public List<List<Node>> abilityTargets = new List<List<Node>>();
 
     public List<Action<int>> castableAbilities = new List<Action<int>>();
 
+
+
+
     public void InitiateAbility(int abilityIndex)
     {
-        associatedCreature.StartCoroutine(CollectTargets(abilityIndex));
+        collectorCoroutine = CollectTargets(abilityIndex);
+        associatedCreature.StartCoroutine(collectorCoroutine);
     }
 
     private IEnumerator CollectTargets(int abilityIndex)
@@ -37,17 +44,26 @@ public class CharAbility{
 
         while(collectorIndex < targetCollectors.Count)
         {
-            GameObject.Instantiate(targetCollectors[abilityIndex][collectorIndex], associatedCreature.gameObject.transform.position, Quaternion.identity);
-            yield return new WaitUntil(() => targetCollectors[abilityIndex][collectorIndex].GetComponent<AttackSelection>().hasSentTargets);
+            GameObject spawnedCollector = GameObject.Instantiate(targetCollectors[abilityIndex][collectorIndex], associatedCreature.GetComponent<Unit>().centerPoint.position, Quaternion.identity);
+            spawnedCollector.GetComponent<AttackSelection>().givenAbility = this;
+
+            yield return new WaitUntil(() => spawnedCollector.GetComponent<AttackSelection>().hasSentTargets);
+
             collectorIndex++;
         }
 
         CastAbility(abilityIndex);
     }
 
+    public void CancelTargets()
+    {
+        associatedCreature.StopCoroutine(collectorCoroutine);
+        abilityTargets.Clear();
+    }
+
     private void CastAbility(int abilityIndex)
     {
-        if(targets.Count > 0)
+        if(abilityTargets.Count > 0)
         {
             charIndex += 1;
             castableAbilities[abilityIndex].Invoke(charIndex);

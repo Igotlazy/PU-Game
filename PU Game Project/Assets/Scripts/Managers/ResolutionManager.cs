@@ -34,25 +34,29 @@ public class ResolutionManager : MonoBehaviour {
 
     public void LoadBattleEffect(List<BattleEffect> givenEffects)
     {
-        if (eventResolutionRunning)
+        if (givenEffects.Count > 0)
         {
-            for (int i = givenEffects.Count - 1; i >= 0; i--)
+            Debug.Log(givenEffects.Count);
+            if (eventResolutionRunning)
             {
-                resolvingEffects.Add(givenEffects[i]);
+                for (int i = givenEffects.Count - 1; i >= 0; i--)
+                {
+                    resolvingEffects.Add(givenEffects[i]);
+                }
             }
-        }
-        else
-        {
-            resolvingEffects.Clear(); //Technically all of these should be clear, but just in case.
-
-            for (int i = givenEffects.Count - 1; i >= 0; i--)
+            else
             {
-                resolvingEffects.Add(givenEffects[i]);
-            }
+                resolvingEffects.Clear(); //Technically all of these should be clear, but just in case.
 
-            currentResolutionCalls = 0;
-            eventResolutionRunning = true;
-            StartCoroutine(EffectResolution());
+                for (int i = givenEffects.Count - 1; i >= 0; i--)
+                {
+                    resolvingEffects.Add(givenEffects[i]);
+                }
+
+                currentResolutionCalls = 0;
+                eventResolutionRunning = true;
+                StartCoroutine(EffectResolution());
+            }
         }
     }
 
@@ -84,6 +88,7 @@ public class ResolutionManager : MonoBehaviour {
         {
             currentEffect = resolvingEffects.Last();
             currentEffect.RunEffect();
+            Debug.Log("Effect Ran");
 
             currentResolutionCalls++;
 
