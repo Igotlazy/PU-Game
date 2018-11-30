@@ -60,9 +60,16 @@ public class BasicMoveSelector : AttackSelection {
 
     public override void MadeSelectionImpl()
     {
-        foreach(Vector3 currentVector in path)
+        if(path.Length > 0)
         {
-            collectedNodes.Add(GridGen.instance.NodeFromWorldPoint(currentVector));
+            foreach (Vector3 currentVector in path)
+            {
+                collectedNodes.Add(GridGen.instance.NodeFromWorldPoint(currentVector));
+            }
+        }
+        else
+        {
+
         }
     }
 

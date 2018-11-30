@@ -5,9 +5,11 @@ using MHA.BattleBehaviours;
 
 public abstract class AttackSelection : MonoBehaviour{
 
-    public bool hasSentTargets;
+    public bool hasLoadedTargets;
     public CharAbility givenAbility;
-    protected List<Node> collectedNodes = new List<Node>();
+    protected HashSet<Node> collectedNodes = new HashSet<Node>();
+    public TargetPacket attachedTargetPacket;
+
 
 
 
@@ -15,7 +17,6 @@ public abstract class AttackSelection : MonoBehaviour{
     {
         if (Input.GetKeyDown(KeyCode.G))
         {
-            Debug.Log("Send Ability");
             MadeSelection();
         }
         if (Input.GetMouseButtonDown(0))
@@ -28,8 +29,8 @@ public abstract class AttackSelection : MonoBehaviour{
     {
         NodeDisplayCleanup();
         MadeSelectionImpl();
-        givenAbility.abilityTargets.Add(collectedNodes);
-        hasSentTargets = true;
+        attachedTargetPacket.TargetNodes.Add(collectedNodes);
+        hasLoadedTargets = true;
 
         Destroy(this.gameObject);
     }

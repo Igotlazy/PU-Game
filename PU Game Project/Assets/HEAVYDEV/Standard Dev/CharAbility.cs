@@ -15,7 +15,7 @@ public class CharAbility{
         associatedCreature = _associatedCreature;
     }
 
-    public static int charIndex;
+    public static int totalCastIndex;
 
     public string abilityName;
     public string abilityDescription;
@@ -24,50 +24,57 @@ public class CharAbility{
     public int energyCost;
     public int turnCooldown;
 
-    protected List<List<GameObject>> targetCollectors = new List<List<GameObject>>();
-    public List<List<Node>> abilityTargets = new List<List<Node>>();
+    protected List<List<GameObject>> targetSelectors = new List<List<GameObject>>();
 
-    public List<Action<int>> castableAbilities = new List<Action<int>>();
+    public List<Action<EffectDataPacket>> castableAbilities = new List<Action<EffectDataPacket>>();
 
 
 
 
     public void InitiateAbility(int abilityIndex)
     {
+        if(collectorCoroutine != null)
+        {
+            CancelTargets();
+            Debug.Log("Boop");
+        }
         collectorCoroutine = CollectTargets(abilityIndex);
         associatedCreature.StartCoroutine(collectorCoroutine);
     }
 
     private IEnumerator CollectTargets(int abilityIndex)
     {
+        TargetPacket targets = new TargetPacket();
         int collectorIndex = 0;
 
-        while(collectorIndex < targetCollectors.Count)
+        while(collectorIndex < targetSelectors.Count)
         {
-            GameObject spawnedCollector = GameObject.Instantiate(targetCollectors[abilityIndex][collectorIndex], associatedCreature.GetComponent<Unit>().centerPoint.position, Quaternion.identity);
-            spawnedCollector.GetComponent<AttackSelection>().givenAbility = this;
+            GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][collectorIndex], associatedCreature.GetComponent<Unit>().centerPoint.position, Quaternion.identity);
+            AttackSelection selectorScript = spawnedSelector.GetComponent<AttackSelection>();
+            selectorScript.givenAbility = this;
+            selectorScript.attachedTargetPacket = targets;
 
-            yield return new WaitUntil(() => spawnedCollector.GetComponent<AttackSelection>().hasSentTargets);
+            yield return new WaitUntil(() => selectorScript.hasLoadedTargets);
 
             collectorIndex++;
         }
 
-        CastAbility(abilityIndex);
+        CastAbility(abilityIndex, targets);
     }
 
     public void CancelTargets()
     {
         associatedCreature.StopCoroutine(collectorCoroutine);
-        abilityTargets.Clear();
     }
 
-    private void CastAbility(int abilityIndex)
+    private void CastAbility(int abilityIndex, TargetPacket givenTargets)
     {
-        if(abilityTargets.Count > 0)
-        {
-            charIndex += 1;
-            castableAbilities[abilityIndex].Invoke(charIndex);
-        }
+        totalCastIndex += 1;
 
+        EffectDataPacket effectPacket = new EffectDataPacket(associatedCreature, this, totalCastIndex, givenTargets);
+
+        castableAbilities[abilityIndex].Invoke(effectPacket);
     }
+
+
 }

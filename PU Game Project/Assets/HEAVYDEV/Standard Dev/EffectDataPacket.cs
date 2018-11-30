@@ -13,6 +13,13 @@ public class EffectDataPacket {
         SetValueAtKey("CharacterAbility", _charAbility);
         SetValueAtKey("CastIndex", _castIndex);
     }
+    public EffectDataPacket(LivingCreature _caster, CharAbility _charAbility, int _castIndex, TargetPacket _targets)
+    {
+        SetValueAtKey("Caster", _caster);
+        SetValueAtKey("CharacterAbility", _charAbility);
+        SetValueAtKey("CastIndex", _castIndex);
+        SetValueAtKey("Targets", _targets);
+    }
 
 
     public List<object> GetValueAtKey(string getKey, bool zero)

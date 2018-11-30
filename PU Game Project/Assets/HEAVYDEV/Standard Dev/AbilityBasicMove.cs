@@ -6,35 +6,33 @@ using System;
 public class AbilityBasicMove : CharAbility {
 
     public List<Vector3> path = new List<Vector3>();
-    public float speed = 5f;
+    public float speed = 2f;
 
     public AbilityBasicMove(LivingCreature livingCreature) : base (livingCreature)
     {
-        castableAbilities.Add(new Action<int>(Initialize));
-        targetCollectors.Add(new List<GameObject> {CharacterAbilityPrefabRef.instance.NodeCollectors[2]});
+        castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
+        targetSelectors.Add(new List<GameObject> {CharacterAbilityPrefabRef.instance.NodeCollectors[2]});
     }
 
-    private void Initialize(int castIndex)
+
+    private void Initialize(EffectDataPacket effectPacket)
     {
-        Debug.Log(abilityTargets[0].Count);
-        foreach(Node currentNode in abilityTargets[0])
+        TargetPacket relevantTargets = (TargetPacket)effectPacket.GetValueAtKey("Targets", false)[0];
+        foreach (Node currentNode in relevantTargets.TargetNodes[0]) //Get Path Location Data
         {
             path.Add(currentNode.worldPosition);
         }
-        Debug.Log(path.Count);
 
         associatedCreature.CurrentEnergy -= path.Count;
 
-        EffectDataPacket effectPacket = new EffectDataPacket(associatedCreature, this, castIndex);
-
-        for (int i = 0; i < path.Count; i++)
+        for (int i = 0; i < path.Count; i++) //Store Path Location Data (not really needed in this case)
         {
             effectPacket.SetValueAtKey("MovePath", path[i]);
         }
 
-        List<BattleEffect> effectsToPass = new List<BattleEffect>();
+        List<BattleEffect> effectsToPass = new List<BattleEffect>(); //Effects to send to the Resolver
 
-        for(int i = 0; i < path.Count; i++)
+        for(int i = 0; i < path.Count; i++) //Creation of Effects
         {
             EffectGridMove moveEffect = new EffectGridMove(effectPacket)
             {

@@ -197,7 +197,6 @@ public class TurnManager : MonoBehaviour {
         {
             foreach (GameObject currentAlly in ReferenceObjects.UnitAllyList)
             {
-                Debug.Log("Add Player");
                 activePlayers.Add(currentAlly);
             }
         }

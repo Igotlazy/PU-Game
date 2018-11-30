@@ -88,7 +88,6 @@ public class ResolutionManager : MonoBehaviour {
         {
             currentEffect = resolvingEffects.Last();
             currentEffect.RunEffect();
-            Debug.Log("Effect Ran");
 
             currentResolutionCalls++;
 
@@ -100,7 +99,7 @@ public class ResolutionManager : MonoBehaviour {
             
         }
 
-        CharAbility.charIndex = 0; //Resets individual cast tracker when Resolution empties. 
+        CharAbility.totalCastIndex = 0; //Resets individual cast tracker when Resolution empties. 
         eventResolutionRunning = false;
     }
 
