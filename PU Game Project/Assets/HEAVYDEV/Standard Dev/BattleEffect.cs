@@ -6,30 +6,28 @@ using System;
 public abstract class BattleEffect {
 
     public EffectDataPacket effectData; //Reference to data for this Effect.
-    private Action tiedCancelEffect; //For closely related strings of effects that need to all get cancelled should one of them get cancelled. Add the Cancel Effect of the last one. 
-    public Action TiedCancelEffect
+
+    private Action cancelEffectAuxCalls; //Methods that can be called when this effect is cancelled. For closely related strings of effects that need to all get cancelled should one of them get cancelled. Add the Cancel Effect of the last one to this.
+    public Action CancelEffectAuxCalls
     {
-        get { return tiedCancelEffect; }
+        get { return cancelEffectAuxCalls; }
         set
         {
-            tiedCancelEffect += value;
+            cancelEffectAuxCalls += value;
             //Makes it so when the effect that it's depending on is cancelled, it also will get cancelled.
         }
     }
-    private Action<EffectDataPacket> dependentEffectCall; //Effect that this Effect is dependent on resolving in order to be called.
-    public Action<EffectDataPacket> DependentEffectCall
+    private Action<EffectDataPacket> finishedEffectAuxCall; //Methods that can be called when this is effect finishes. 
+    public Action<EffectDataPacket> FinishedEffectAuxCall
     {
-        get {return dependentEffectCall;}
+        get {return finishedEffectAuxCall;}
         set
         {
-            if(dependentEffectCall == null)
-            {
-                dependentEffectCall += value;
-                //Makes it so when the effect that it's depending on is cancelled, it also will get cancelled.
-            }
+            finishedEffectAuxCall += value;
         }
     }
     public bool isCancelled;
+    public bool isFinished;
 
 
     public BattleEffect(EffectDataPacket _effectData)
@@ -40,13 +38,16 @@ public abstract class BattleEffect {
 
     public void RunEffect()
     {
-        RunEffectImpl();
+        WarnEffect();
+
         if (!isCancelled)
         {
+            RunEffectImpl();
+
             FinishEffect();
-        }
-        
+        }        
     }
+    public abstract void WarnEffect();
     public abstract void RunEffectImpl();
 
 
@@ -55,25 +56,26 @@ public abstract class BattleEffect {
         Debug.Log("Effect Cancelled");
         isCancelled = true;
         RemoveSelfFromResolveList();
-        if(tiedCancelEffect != null)
+        if(cancelEffectAuxCalls != null)
         {
-            tiedCancelEffect.Invoke();
+            cancelEffectAuxCalls.Invoke();
         }
         CancelEffectImpl();
     }
     public abstract void CancelEffectImpl();
 
-    public void FinishEffect()
+    private void FinishEffect()
     {
         if (!isCancelled)
         {
             RemoveSelfFromResolveList();
-            if(dependentEffectCall != null) { dependentEffectCall.Invoke(effectData); }          
+            if(finishedEffectAuxCall != null) { finishedEffectAuxCall.Invoke(effectData); }          
         }
+        isFinished = true;
     }
 
 
-    public virtual void RemoveSelfFromResolveList()
+    protected virtual void RemoveSelfFromResolveList()
     {
         if (ResolutionManager.instance.resolvingEffects.Contains(this))
         {

@@ -25,6 +25,7 @@ public class HeroCharacter : LivingCreature{
     {
         base.Start();
         abilityList.Add(new AbilityBasicMove(this));
+        abilityList.Add(new AbilityBasicAttack(this));
     }
 
     protected override void Update()

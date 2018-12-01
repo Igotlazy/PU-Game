@@ -5,8 +5,6 @@ using System;
 
 public class AbilityBasicMove : CharAbility {
 
-    public List<Vector3> path = new List<Vector3>();
-    public float speed = 2f;
 
     public AbilityBasicMove(LivingCreature livingCreature) : base (livingCreature)
     {
@@ -17,6 +15,8 @@ public class AbilityBasicMove : CharAbility {
 
     private void Initialize(EffectDataPacket effectPacket)
     {
+        List<Vector3> path = new List<Vector3>();
+
         TargetPacket relevantTargets = (TargetPacket)effectPacket.GetValueAtKey("Targets", false)[0];
         foreach (Node currentNode in relevantTargets.TargetNodes[0]) //Get Path Location Data
         {
@@ -37,12 +37,12 @@ public class AbilityBasicMove : CharAbility {
             EffectGridMove moveEffect = new EffectGridMove(effectPacket)
             {
                 pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false)[i],
-                moveSpeed = speed,
+                moveSpeed = 3f,
                 moveTarget = associatedCreature
             };
 
 
-            if (previousEffect != null) { previousEffect.TiedCancelEffect += moveEffect.CancelEffect; } //If a move is cancelled, all of them down the line will also be cancelled. 
+            if (previousEffect != null) { previousEffect.CancelEffectAuxCalls += moveEffect.CancelEffect; } //If a move is cancelled, all of them down the line will also be cancelled. 
             previousEffect = moveEffect;
 
             effectsToPass.Add(moveEffect);
@@ -50,7 +50,6 @@ public class AbilityBasicMove : CharAbility {
 
         previousEffect = null;
         ResolutionManager.instance.LoadBattleEffect(effectsToPass);
-        path.Clear();
     }
     BattleEffect previousEffect;
 }

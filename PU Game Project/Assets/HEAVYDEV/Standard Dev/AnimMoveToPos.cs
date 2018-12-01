@@ -4,18 +4,20 @@ using UnityEngine;
 
 namespace MHA.BattleBehaviours
 {
-    public class BBGridMoveAnim : BattleAnimation
+    public class AnimMoveToPos : BattleAnimation
     {
 
         Vector3 finalPos;
         GameObject moveTarget;
         float speed;
+        bool destroyAtEnd;
 
-        public BBGridMoveAnim(Vector3 _finalPos, GameObject _moveTarget, float _speed)
+        public AnimMoveToPos(Vector3 _finalPos, GameObject _moveTarget, float _speed, bool _destroyAtEnd)
         {
             finalPos = _finalPos;
             moveTarget = _moveTarget;
             speed = _speed;
+            destroyAtEnd = _destroyAtEnd;
 
             LoadBattleAnimation();
         }
@@ -36,6 +38,11 @@ namespace MHA.BattleBehaviours
 
                 moveTarget.transform.position = Vector3.MoveTowards(moveTarget.transform.position, finalPos, speed * Time.deltaTime);
                 yield return null;
+            }
+
+            if (destroyAtEnd)
+            {
+                GameObject.Destroy(moveTarget);
             }
 
             AnimFinished = true;

@@ -10,6 +10,9 @@ public static class CombatUtils {
     private static LayerMask initialShotMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("UnWalkable")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     private static LayerMask coverCheckShotMask = (1 << LayerMask.NameToLayer("UnWalkable")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     public static LayerMask clickLayerMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("GameTerrain"));
+    public static LayerMask nodeSelectionMask = (1 << LayerMask.NameToLayer("GameTerrain"));
+    public static LayerMask targetSelectionMask = (1 << LayerMask.NameToLayer("GameEntity"));
+
     private static float maxAngleForPartialCover = 30f;
     private static float hitPercentDistanceDropOff = 5f;
 
@@ -138,21 +141,6 @@ public static class CombatUtils {
         return nodesToReturn;
     }
 
-    public static  List<GameObject> GetAllAttackablesInNodes(List<Node> givenNodes, GameObject sourceObject)
-    {
-        List<GameObject> returnList = new List<GameObject>();
-
-        foreach (Node currentNode in givenNodes)
-        {       
-            if (currentNode.IsOccupied && currentNode.occupant != sourceObject)
-            {
-                returnList.Add(currentNode.occupant);
-            }
-        }
-
-        return returnList;
-    }
-
     public static Vector3 GiveShotConnector(GameObject objectWithConnector)
     {
         Unit sourceScript = objectWithConnector.GetComponent<Unit>();
@@ -168,5 +156,77 @@ public static class CombatUtils {
         }
 
         return connectorPos;
+    }
+
+    public static List<Vector3> ProjectilePathSplicer(Vector3 startPoint, Vector3 endPoint, float cutDistance)
+    {
+        if(cutDistance < 0.1)
+        {
+            cutDistance = 0.1f;
+        }
+
+        List<Vector3> returnList = new List<Vector3>();
+
+        Vector3 intermediate = (endPoint - startPoint).normalized * cutDistance;
+        Vector3 builder = startPoint;
+
+
+        while(Vector3.Distance(builder, endPoint) > cutDistance)
+        {
+            returnList.Add(builder);
+            builder += intermediate;
+        }
+        returnList.Add(endPoint);
+
+        return returnList;
+    }
+
+    public static List<Vector3> ProjectilePathSplicer(Vector3 startPoint, Vector3 endPoint)
+    {
+        return ProjectilePathSplicer(startPoint, endPoint, 1f);
+    }
+    public static List<Vector3> ProjectilePathSplicer(Unit startUnit, Unit endUnit, float cutDistance)
+    {
+        Vector3 startPoint = startUnit.shotConnecter.transform.position;
+        Vector3 endPoint = endUnit.shotConnecter.transform.position;
+
+        return ProjectilePathSplicer(startPoint, endPoint, cutDistance);
+    }
+    public static List<Vector3> ProjectilePathSplicer(Unit startUnit, Unit endUnit)
+    {
+        Vector3 startPoint = startUnit.shotConnecter.transform.position;
+        Vector3 endPoint = endUnit.shotConnecter.transform.position;
+
+        return ProjectilePathSplicer(startPoint, endPoint, 1f);
+    }
+
+    public static void MakeEffectsDependent(List<BattleEffect> givenEffects, int startIndex, int endIndex)
+    {
+        if((startIndex < endIndex) && (startIndex < givenEffects.Count) && (endIndex < givenEffects.Count))
+        {
+            BattleEffect previousEffect = null;
+
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                if (previousEffect != null) { previousEffect.CancelEffectAuxCalls += givenEffects[i].CancelEffect; } //If a move is cancelled, all of them down the line will also be cancelled. 
+
+                previousEffect = givenEffects[i];
+            }
+        }
+        else
+        {
+            Debug.Log("Hey you gave shitty Indexes for MakingEffectsDependent");
+        }
+    }
+    public static void MakeEffectsDependent(List<BattleEffect> givenEffects)
+    {
+        BattleEffect previousEffect = null;
+
+        for (int i = 0; i < givenEffects.Count; i++)
+        {
+            if (previousEffect != null) { previousEffect.CancelEffectAuxCalls += givenEffects[i].CancelEffect; } //If a move is cancelled, all of them down the line will also be cancelled. 
+
+            previousEffect = givenEffects[i];
+        }
     }
 }

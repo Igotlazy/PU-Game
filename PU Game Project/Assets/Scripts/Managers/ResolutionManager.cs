@@ -36,7 +36,6 @@ public class ResolutionManager : MonoBehaviour {
     {
         if (givenEffects.Count > 0)
         {
-            Debug.Log(givenEffects.Count);
             if (eventResolutionRunning)
             {
                 for (int i = givenEffects.Count - 1; i >= 0; i--)

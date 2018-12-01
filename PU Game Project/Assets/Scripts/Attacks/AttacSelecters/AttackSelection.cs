@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using MHA.BattleBehaviours;
 
-public abstract class AttackSelection : MonoBehaviour{
+public abstract class AttackSelection : MonoBehaviour {
 
     public bool hasLoadedTargets;
     public CharAbility givenAbility;
@@ -30,6 +30,7 @@ public abstract class AttackSelection : MonoBehaviour{
         NodeDisplayCleanup();
         MadeSelectionImpl();
         attachedTargetPacket.TargetNodes.Add(collectedNodes);
+        Debug.Log(attachedTargetPacket.TargetNodes[0]);
         hasLoadedTargets = true;
 
         Destroy(this.gameObject);

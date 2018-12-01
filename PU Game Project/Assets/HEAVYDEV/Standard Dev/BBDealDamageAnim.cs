@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MHA.UserInterface;
 
 
 namespace MHA.BattleBehaviours
@@ -9,13 +10,13 @@ namespace MHA.BattleBehaviours
     {
         LivingCreature givenCreature;
         float healthRemaining;
-        float maxHealth;
+        Attack givenAttack;
 
-        public BBDealDamageAnim(LivingCreature _givenCreature, float _healthRemaining, float _maxHealth)
+        public BBDealDamageAnim(LivingCreature _givenCreature, float _healthRemaining, Attack _givenAttack)
         {
             givenCreature = _givenCreature;
             healthRemaining = _healthRemaining;
-            maxHealth = _maxHealth;
+           givenAttack = _givenAttack;
 
             LoadBattleAnimation();
         }
@@ -27,7 +28,12 @@ namespace MHA.BattleBehaviours
 
         private IEnumerator DisplayDamage()
         {
-            givenCreature.healthBar.UpdateHealth(healthRemaining, maxHealth);
+
+            givenCreature.healthBar.UpdateHealth(healthRemaining, givenCreature.maxHealth.Value);
+
+            GameObject indicatorObj = GameObject.Instantiate(givenCreature.damageIndicator, new Vector3 (givenCreature.transform.position.x, givenCreature.transform.position.y + 2f, givenCreature.transform.position.z), Quaternion.identity);
+            indicatorObj.GetComponent<DamageIndicator>().SetText(givenAttack.damageValue);
+
             yield return new WaitForSeconds(0.3f);
 
             AnimFinished = true;

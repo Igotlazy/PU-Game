@@ -23,7 +23,7 @@ public class EffectDealDamage : BattleEffect {
     {
         set
         {
-            DamageTargetKey = value;
+            damageTargetKey = value;
             recordDamageTarget = true;
         }
     }
@@ -43,38 +43,37 @@ public class EffectDealDamage : BattleEffect {
         DealDamage();
     }
 
+    public override void WarnEffect()
+    {
+        Debug.Log("Deal Damage: Warning Event Not Implemented");
+    }
+
     private void DealDamage()
     {
 
         //damageTodeal
 
-        if (!isCancelled)
+        if (damageTarget != null)
         {
-            if (damageTarget != null)
+            damageTarget.CreatureHit(damageAttack);
+            Debug.Log("DEALING DAMAGE");
+
+            new BBDealDamageAnim(damageTarget, damageTarget.currentHealth, damageAttack);
+
+            EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs
             {
-                damageTarget.CreatureHit(damageAttack);
+                damageValue = damageAttack.damageValue,
+                source = (LivingCreature)effectData.GetValueAtKey("caster", false)[0],
+                target = damageTarget
+            });
 
-                new BBDealDamageAnim(damageTarget, damageTarget.currentHealth, damageTarget.maxHealth.Value);
-
-                EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs
-                {
-                    damageValue = damageAttack.damageValue,
-                    source = (LivingCreature)effectData.GetValueAtKey("caster", false)[0],
-                    target = damageTarget
-                });
-
-                if (recordDamageAttack)
-                {
-                    effectData.SetValueAtKey(damageAttackKey, damageAttack);
-                }
-                if (recordDamageTarget)
-                {
-                    effectData.SetValueAtKey(damageTargetKey, damageTarget);
-                }
+            if (recordDamageAttack)
+            {
+                effectData.SetValueAtKey(damageAttackKey, damageAttack);
             }
-            else
+            if (recordDamageTarget)
             {
-                CancelEffect();
+                effectData.SetValueAtKey(damageTargetKey, damageTarget);
             }
         }
     }

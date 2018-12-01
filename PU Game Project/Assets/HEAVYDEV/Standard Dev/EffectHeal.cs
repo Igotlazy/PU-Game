@@ -17,6 +17,11 @@ public class EffectHeal : BattleEffect {
         HealTarget();
     }
 
+    public override void WarnEffect()
+    {
+        Debug.Log("Heal: Warning Event Not Implemented");
+    }
+
     private void HealTarget()
     {
         //target.Heal(healAmount);

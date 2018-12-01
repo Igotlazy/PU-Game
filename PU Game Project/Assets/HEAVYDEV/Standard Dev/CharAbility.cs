@@ -33,11 +33,7 @@ public class CharAbility{
 
     public void InitiateAbility(int abilityIndex)
     {
-        if(collectorCoroutine != null)
-        {
-            CancelTargets();
-            Debug.Log("Boop");
-        }
+        CancelTargets();
         collectorCoroutine = CollectTargets(abilityIndex);
         associatedCreature.StartCoroutine(collectorCoroutine);
     }
@@ -64,7 +60,10 @@ public class CharAbility{
 
     public void CancelTargets()
     {
-        associatedCreature.StopCoroutine(collectorCoroutine);
+        if(collectorCoroutine != null)
+        {
+            associatedCreature.StopCoroutine(collectorCoroutine);
+        }
     }
 
     private void CastAbility(int abilityIndex, TargetPacket givenTargets)

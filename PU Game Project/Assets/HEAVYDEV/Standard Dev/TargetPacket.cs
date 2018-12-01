@@ -48,7 +48,7 @@ public class TargetPacket {
         return returnList;
     }
 
-    public List<GameObject> ReturnObjectsOnNode(int targetListIndex, int teamInt)
+    public List<GameObject> ReturnObjectsOnNodes(int targetListIndex, int teamInt)
     {
         List<GameObject> returnList = new List<GameObject>();
 

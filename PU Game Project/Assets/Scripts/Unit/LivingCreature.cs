@@ -121,15 +121,10 @@ public class LivingCreature : GameEntity {
     {
         if (!isInvincible)
         {
-            //Debug.Log(this.gameObject.name + ": Got Hit");
             currentHealth -= receivedAttack.damageValue;
+            Debug.Log("TOOK DAMAGE");
 
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth.Value);
-
-            healthBar.UpdateHealth(currentHealth, maxHealth.Value); //Health Bar
-
-            GameObject indicatorObj = Instantiate(damageIndicator, new Vector3 (transform.position.x, transform.position.y + 2f, transform.position.z), Quaternion.identity);
-            indicatorObj.GetComponent<DamageIndicator>().SetText(receivedAttack.damageValue);
 
             if (currentHealth <= 0 && !amDead)
             {

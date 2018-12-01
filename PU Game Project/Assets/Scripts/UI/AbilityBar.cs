@@ -108,8 +108,9 @@ namespace MHA.UserInterface
         {
             GeneralSetUp();
 
-            ClickSelection.instance.prepAttack = true;
-            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitBasicPrep();
+            ClickSelection.instance.prepMoving = true;
+            Debug.Log("Cast Ability");
+            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().abilityList[1].InitiateAbility(0);
         }
 
         public void A1ButtonPress()
