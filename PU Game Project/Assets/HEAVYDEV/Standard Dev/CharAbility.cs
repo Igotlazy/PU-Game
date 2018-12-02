@@ -45,7 +45,7 @@ public class CharAbility{
 
         while(collectorIndex < targetSelectors.Count)
         {
-            GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][collectorIndex], associatedCreature.GetComponent<Unit>().centerPoint.position, Quaternion.identity);
+            GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][collectorIndex], associatedCreature.transform.position, Quaternion.identity);
             AttackSelection selectorScript = spawnedSelector.GetComponent<AttackSelection>();
             selectorScript.givenAbility = this;
             selectorScript.attachedTargetPacket = targets;

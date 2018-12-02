@@ -4,13 +4,13 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-
 public class Node : IHeapItem<Node> {
 
     //Node Properties;
     public Vector3 worldPosition;
 	public int gridX;
 	public int gridY;
+    public int gridZ;
     public List<Node> nodeNeighbors = new List<Node>();
     public GameObject occupant;
 
@@ -23,10 +23,11 @@ public class Node : IHeapItem<Node> {
 
     int heapIndex;
 	
-	public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY, GameObject _tilePrefab) {
+	public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY, int _gridZ, GameObject _tilePrefab) {
 		worldPosition = _worldPos;
 		gridX = _gridX;
 		gridY = _gridY;
+        gridZ = _gridZ;
         tilePrefab = _tilePrefab;
 
         tileScript = tilePrefab.GetComponent<Tile>();

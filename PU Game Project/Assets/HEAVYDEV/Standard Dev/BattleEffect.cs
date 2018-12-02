@@ -28,6 +28,7 @@ public abstract class BattleEffect {
     }
     public bool isCancelled;
     public bool isFinished;
+    bool hasWarned;
 
 
     public BattleEffect(EffectDataPacket _effectData)
@@ -38,14 +39,17 @@ public abstract class BattleEffect {
 
     public void RunEffect()
     {
-        WarnEffect();
-
-        if (!isCancelled)
+        if (!hasWarned)
+        {
+            WarnEffect();
+            hasWarned = true;
+        }
+        else
         {
             RunEffectImpl();
 
             FinishEffect();
-        }        
+        }      
     }
     public abstract void WarnEffect();
     public abstract void RunEffectImpl();

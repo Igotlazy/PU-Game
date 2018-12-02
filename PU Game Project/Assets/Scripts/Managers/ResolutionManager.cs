@@ -85,6 +85,7 @@ public class ResolutionManager : MonoBehaviour {
 
         while (resolvingEffects.Count > 0 )
         {
+            Debug.Log(resolvingEffects.Count);
             currentEffect = resolvingEffects.Last();
             currentEffect.RunEffect();
 

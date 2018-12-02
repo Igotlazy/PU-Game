@@ -24,20 +24,21 @@ public class Pathfinding : MonoBehaviour {
 	}
 	
 	
-	public void StartFindPath(Vector3 startPos, Vector3 targetPos) {
+	public void StartFindPath(Vector3 startPos, Vector3 targetPos)
+    {
 		StartCoroutine(FindPath(startPos,targetPos));
 	}
 
     //A* Pathfinding	
-	IEnumerator FindPath(Vector3 startPos, Vector3 targetPos) {
+	IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
+    {
 
 		Vector3[] waypoints = new Vector3[0];
 		bool pathSuccess = false;
 		
 		Node startNode = gridGenScript.NodeFromWorldPoint(startPos);
 		Node targetNode = gridGenScript.NodeFromWorldPoint(targetPos);
-		
-		
+
 		if (startNode.IsWalkable && (targetNode.IsWalkable && !targetNode.IsOccupied)) {
 			Heap<Node> openSet = new Heap<Node>(gridGenScript.MaxSize);
 			HashSet<Node> closedSet = new HashSet<Node>();
@@ -48,20 +49,25 @@ public class Pathfinding : MonoBehaviour {
 				closedSet.Add(currentNode);
 				
 				if (currentNode == targetNode) {
-					pathSuccess = true;
+                    pathSuccess = true;
 					break;
 				}
 				
-				foreach (Node neighbour in gridGenScript.GetNeighbours(currentNode)) {
-					if (!neighbour.IsWalkable || neighbour.IsOccupied || closedSet.Contains(neighbour)) {
+				foreach (Node neighbour in currentNode.nodeNeighbors)
+                {
+					if (!neighbour.IsWalkable || neighbour.IsOccupied || closedSet.Contains(neighbour))
+                    {
 						continue;
 					}
 					
 					int newMovementCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
-					if (newMovementCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour)) {
+					if (newMovementCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
+                    {
 						neighbour.gCost = newMovementCostToNeighbour;
 						neighbour.hCost = GetDistance(neighbour, targetNode);
+                        
 						neighbour.parent = currentNode;
+                        
 						
 						if (!openSet.Contains(neighbour))
 							openSet.Add(neighbour);
@@ -70,7 +76,9 @@ public class Pathfinding : MonoBehaviour {
 			}
 		}
 		yield return null;
+
 		if (pathSuccess) {
+            //Debug.LogAssertion("PATH SUCCESS");
 			waypoints = RetracePath(startNode,targetNode);
 		}
 		requestManager.FinishedProcessingPath(waypoints,pathSuccess);	
@@ -117,12 +125,28 @@ public class Pathfinding : MonoBehaviour {
 	}
 	
 	int GetDistance(Node nodeA, Node nodeB) {
-		int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
-		int dstY = Mathf.Abs(nodeA.gridY - nodeB.gridY);
-		
-		if (dstX > dstY)
-			return 14*dstY + 10* (dstX-dstY);
-		return 14*dstX + 10 * (dstY-dstX);
+		//int dstX = Mathf.Clamp(Mathf.Abs(nodeA.gridX - nodeB.gridX), 0, 2);
+		//int dstZ = Mathf.Clamp(Mathf.Abs(nodeA.gridZ - nodeB.gridZ), 0 , 2);
+
+        int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
+        if(dstX > Mathf.Cos(gridGenScript.nodeRadius * 2.1f)){
+            dstX = 1;
+        }
+
+        int dstZ = Mathf.Abs(nodeA.gridZ - nodeB.gridZ);
+        if (dstZ > Mathf.Sin(gridGenScript.nodeRadius * 2.1f)){
+            dstZ = 1;
+        }
+
+        //Debug.Log(dstX);
+        //Debug.Log(dstZ);
+
+        if (dstX > dstZ)
+        {           
+            return 14 * dstZ + 10 * (dstX - dstZ);
+        }
+
+        return 14*dstX + 10 * (dstZ-dstX);
 	}
 
     //BFS Pathfinding

@@ -25,8 +25,9 @@ public class BasicMoveSelector : AttackSelection {
         if (hit && (GridGen.instance.NodeFromWorldPoint(hitInfo.point) != lastHitNode) && hitInfo.transform.gameObject.CompareTag("Tile") && hitInfo.collider.gameObject.activeInHierarchy) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 
         {
             lastHitNode = GridGen.instance.NodeFromWorldPoint(hitInfo.point);
+            //Debug.Log(hitInfo.point);
 
-            if (lastHitNode.IsSelectable)
+            if (lastHitNode != null && lastHitNode.IsSelectable)
             {
                 SelectionPathRequest(hitInfo.point);
             }

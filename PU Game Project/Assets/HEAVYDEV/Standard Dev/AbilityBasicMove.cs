@@ -37,7 +37,7 @@ public class AbilityBasicMove : CharAbility {
             EffectGridMove moveEffect = new EffectGridMove(effectPacket)
             {
                 pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false)[i],
-                moveSpeed = 3f,
+                moveSpeed = 4f,
                 moveTarget = associatedCreature
             };
 
