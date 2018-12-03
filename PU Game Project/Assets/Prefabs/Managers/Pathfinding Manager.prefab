@@ -49,7 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayGridGizmos: 1
   doDiagonal: 0
-  unwalkableMask:
+  obstacleMask:
     serializedVersion: 2
     m_Bits: 2048
   baseMapGenMask:
@@ -57,7 +57,7 @@ MonoBehaviour:
     m_Bits: 1024
   nodeRadius: 0.75
   maxCielingHeight: 4
-  tileGraphicSpawnHeight: 0.55
+  tileGraphicSpawnHeight: 0.05
   tilePrefab: {fileID: 1226535111823818, guid: 2c1e32fc4b74e7c4fadac8704720a7f8, type: 3}
 --- !u!65 &4484250368083071263
 BoxCollider:
@@ -84,7 +84,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19015cc0bb70b0240a01d40a3d64f392, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lastPath: []
 --- !u!114 &114564716042498706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,6 +108,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56ba38a588d5dee4bb1f172041c01a4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentPathNodes: []
-  currentBFSNodes: []
-  currentAttackableNodes: []

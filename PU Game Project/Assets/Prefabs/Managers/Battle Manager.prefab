@@ -47,7 +47,7 @@ MonoBehaviour:
   eventResolutionRunning: 0
   animQueueRunning: 0
   currentResolutionCalls: 0
-  maxResolutionPerTurn: 5
+  maxResolutionPerTurn: 7
 --- !u!114 &114946478123526644
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ public class GridGen : MonoBehaviour {
 
 	public bool displayGridGizmos;
     public bool doDiagonal;
-	public LayerMask unwalkableMask;
+	public LayerMask obstacleMask;
     public LayerMask baseMapGenMask;
 	private Vector3 gridWorldSize;
     public float nodeRadius = 0.5f;
@@ -84,7 +84,7 @@ public class GridGen : MonoBehaviour {
                     lastCollider = currentHit.collider;
 
                     Vector3 nodePoint = new Vector3(worldPoint.x, (int)currentHit.point.y, worldPoint.z);
-                    bool walkable = !(Physics.CheckSphere(nodePoint, nodeRadius, unwalkableMask));
+                    bool walkable = !(Physics.CheckSphere(nodePoint, nodeRadius, obstacleMask));
 
                     //Debug.Log("Current Hit Y: " + currentHit.point.y);
                     //Debug.Log("Node Point Y: " + nodePoint.y);

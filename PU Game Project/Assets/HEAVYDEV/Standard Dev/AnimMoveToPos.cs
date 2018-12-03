@@ -37,6 +37,7 @@ namespace MHA.BattleBehaviours
                 }
 
                 moveTarget.transform.position = Vector3.MoveTowards(moveTarget.transform.position, finalPos, speed * Time.deltaTime);
+
                 yield return null;
             }
 

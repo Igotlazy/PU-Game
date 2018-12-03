@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 public class AbilityBasicMove : CharAbility {
 
@@ -32,12 +33,21 @@ public class AbilityBasicMove : CharAbility {
 
         List<BattleEffect> effectsToPass = new List<BattleEffect>(); //Effects to send to the Resolver
 
-        for(int i = 0; i < path.Count; i++) //Creation of Effects
+        /*
+        EffectGridMove move = new EffectGridMove(effectPacket)
+        {
+            pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false).Last(),
+            moveSpeed = 7f,
+            moveTarget = associatedCreature
+        };
+        effectsToPass.Add(move);
+        
+        for(int i = path.Count - 1; i >= 0; i--) //Creation of Effects
         {
             EffectGridMove moveEffect = new EffectGridMove(effectPacket)
             {
                 pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false)[i],
-                moveSpeed = 4f,
+                moveSpeed = 7f,
                 moveTarget = associatedCreature
             };
 
@@ -47,6 +57,24 @@ public class AbilityBasicMove : CharAbility {
 
             effectsToPass.Add(moveEffect);
         }
+        */
+
+        for (int i = 0; i < path.Count; i++) //Creation of Effects
+        {
+            EffectGridMove moveEffect = new EffectGridMove(effectPacket)
+            {
+                pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false)[i],
+                moveSpeed = 3.5f,
+                moveTarget = associatedCreature
+            };
+
+
+            if (previousEffect != null) { previousEffect.CancelEffectAuxCalls += moveEffect.CancelEffect; } //If a move is cancelled, all of them down the line will also be cancelled. 
+            previousEffect = moveEffect;
+
+            effectsToPass.Add(moveEffect);
+        }
+
 
         previousEffect = null;
         ResolutionManager.instance.LoadBattleEffect(effectsToPass);

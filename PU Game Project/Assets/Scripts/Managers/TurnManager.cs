@@ -52,24 +52,16 @@ public class TurnManager : MonoBehaviour {
     public bool teamTracker;
     public int turnCounter = 1;
 
-    public List<CinemachineVirtualCamera> unitCameraList = new List<CinemachineVirtualCamera>();
-    public CinemachineVirtualCamera currentCamera;
-
     public static TurnManager instance;
 
 
     private void Awake()
     {
-        instance = this;
+        if(instance == null){ instance = this;} else{ Destroy(this);}
     }
 
     void Start()
     {
-        foreach (GameObject currentPlayer in ReferenceObjects.UnitList)
-        {
-            unitCameraList.Add(currentPlayer.GetComponent<Unit>().unitCamera);
-        }
-
         CurrentBattlePhase = BattlePhase.MatchStart;
     }
 
@@ -80,21 +72,6 @@ public class TurnManager : MonoBehaviour {
         {
             NextMainBattlePhase();
         }
-    }
-
-
-
-    public void SetCameraTargetBasic(CinemachineVirtualCamera selectedCamera) //Controls Cinemachine camera movement between Units. Should honestly be on another script. 
-    {
-        foreach (CinemachineVirtualCamera vCam in unitCameraList)
-        {
-            if (vCam != selectedCamera)
-            {
-                vCam.Priority = 10;
-            }
-        }
-
-        selectedCamera.Priority = 11;
     }
 
 

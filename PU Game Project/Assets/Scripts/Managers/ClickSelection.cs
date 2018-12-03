@@ -123,7 +123,7 @@ public class ClickSelection : MonoBehaviour
 
                 //DrawMoveZone();
                 ResetToDefault();
-                TurnManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow selected Unit.
+                CameraManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow selected Unit.
             }
             else
             {

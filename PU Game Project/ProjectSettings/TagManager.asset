@@ -5,9 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - Champion
-  - Map
   - Obstacle
   - Tile
+  - Map Base
+  - Map
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - PostProcessing
   - GameEntity
   - GameTerrain
-  - UnWalkable
+  - Obstacle
   - GridGen
   - 
   - 

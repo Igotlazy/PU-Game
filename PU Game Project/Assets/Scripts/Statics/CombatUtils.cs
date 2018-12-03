@@ -7,8 +7,8 @@ using UnityEngine;
 public static class CombatUtils {
 
 
-    private static LayerMask initialShotMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("UnWalkable")) | (1 << LayerMask.NameToLayer("GameTerrain"));
-    private static LayerMask coverCheckShotMask = (1 << LayerMask.NameToLayer("UnWalkable")) | (1 << LayerMask.NameToLayer("GameTerrain"));
+    private static LayerMask initialShotMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain"));
+    private static LayerMask coverCheckShotMask = (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     public static LayerMask clickLayerMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     public static LayerMask nodeSelectionMask = (1 << LayerMask.NameToLayer("GameTerrain"));
     public static LayerMask targetSelectionMask = (1 << LayerMask.NameToLayer("GameEntity"));

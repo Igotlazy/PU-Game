@@ -6,7 +6,7 @@ using MHA.BattleBehaviours;
 public class EffectGridMove : BattleEffect {
 
     public Vector3 pathIndex;
-    public float moveSpeed = 5f;
+    public float moveSpeed = 3.5f;
     public LivingCreature moveTarget;
     public bool destroyAtEnd;
 

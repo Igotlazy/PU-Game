@@ -6310,17 +6310,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 4
   path: []
-  currentNode:
-    worldPosition: {x: 0, y: 0, z: 0}
-    gridX: 0
-    gridY: 0
-    gridZ: 0
-    nodeNeighbors: []
-    occupant: {fileID: 0}
-    gCost: 0
-    hCost: 0
-    BFSDepth: 0
-    tilePrefab: {fileID: 0}
   tileLayerMask:
     serializedVersion: 2
     m_Bits: 1024
@@ -9263,6 +9252,11 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 1.0000001
       objectReference: {fileID: 0}
+    - target: {fileID: 2728635301396550573, guid: fde9dccd8369fb7499e39f7506d91d12,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2728635301396550572, guid: fde9dccd8369fb7499e39f7506d91d12,
         type: 3}
       propertyPath: scalingMode
@@ -9327,11 +9321,6 @@ PrefabInstance:
         type: 3}
       propertyPath: ColorModule.gradient.maxGradient.ctime3
       value: 47224
-      objectReference: {fileID: 0}
-    - target: {fileID: 2728635301396550573, guid: fde9dccd8369fb7499e39f7506d91d12,
-        type: 3}
-      propertyPath: m_SortingOrder
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fde9dccd8369fb7499e39f7506d91d12, type: 3}
@@ -9503,6 +9492,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2728635301396550573, guid: fde9dccd8369fb7499e39f7506d91d12,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 2728635301396550572, guid: fde9dccd8369fb7499e39f7506d91d12,
         type: 3}
       propertyPath: scalingMode
@@ -9567,11 +9561,6 @@ PrefabInstance:
         type: 3}
       propertyPath: ColorModule.gradient.maxGradient.ctime3
       value: 47224
-      objectReference: {fileID: 0}
-    - target: {fileID: 2728635301396550573, guid: fde9dccd8369fb7499e39f7506d91d12,
-        type: 3}
-      propertyPath: m_SortingOrder
-      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fde9dccd8369fb7499e39f7506d91d12, type: 3}
