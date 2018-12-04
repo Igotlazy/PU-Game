@@ -7,6 +7,7 @@ public class ObjectDissolver : MonoBehaviour
     public MeshRenderer meshRend;
     private Material material;
     private float dissolveRate = 4f;
+    public bool amDissolved;
 
     private void Start()
     {
@@ -30,6 +31,9 @@ public class ObjectDissolver : MonoBehaviour
 
     IEnumerator ReformMesh()
     {
+        amDissolved = false;
+        gameObject.layer = LayerMask.NameToLayer("GameTerrain");
+
         float currentDissolve = material.GetFloat("_dissolveProgression");
         while(currentDissolve > -1.1f)
         {
@@ -42,6 +46,9 @@ public class ObjectDissolver : MonoBehaviour
 
     IEnumerator DissolveMesh()
     {
+        amDissolved = true;
+        gameObject.layer = LayerMask.NameToLayer("GameTerrainFade");
+
         float currentDissolve = material.GetFloat("_dissolveProgression");
         while (currentDissolve < 0.5f)
         {

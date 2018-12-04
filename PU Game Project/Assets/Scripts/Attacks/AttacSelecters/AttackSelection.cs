@@ -30,7 +30,6 @@ public abstract class AttackSelection : MonoBehaviour {
         NodeDisplayCleanup();
         MadeSelectionImpl();
         attachedTargetPacket.TargetNodes.Add(collectedNodes);
-        Debug.Log(attachedTargetPacket.TargetNodes[0]);
         hasLoadedTargets = true;
 
         Destroy(this.gameObject);

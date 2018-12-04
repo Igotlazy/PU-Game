@@ -68,7 +68,7 @@ public class GridGen : MonoBehaviour {
             for (int z = 0; z < gridSizeZ; z++)
             {
                 Vector3 worldPoint = worldBottomTopLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.forward * (z * nodeDiameter + nodeRadius);
-                hitObjects = Physics.RaycastAll(worldPoint, Vector3.down, gridSizeY, CombatUtils.nodeSelectionMask);
+                hitObjects = Physics.RaycastAll(worldPoint, Vector3.down, gridSizeY, CombatUtils.gameTerrainMask);
                 Debug.DrawRay(worldPoint, Vector3.down * gridSizeY, Color.blue, 2f);
 
                 hitObjects = hitObjects.OrderBy(hitObject => Vector3.Distance(worldPoint, hitObject.collider.bounds.center)).ToArray();

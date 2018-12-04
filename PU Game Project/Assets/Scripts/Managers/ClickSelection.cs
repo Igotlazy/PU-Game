@@ -7,9 +7,7 @@ using UnityEngine.EventSystems;
 
 public class ClickSelection : MonoBehaviour
 {
-    private Camera currentCamera;
     public ParticleSystem selectionParticles;
-    public LayerMask clickLayerMask;
     [Space]
 
     [Header("Selection References")]
@@ -36,7 +34,6 @@ public class ClickSelection : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        currentCamera = Camera.main;
     }
 
     void Start()
@@ -52,25 +49,6 @@ public class ClickSelection : MonoBehaviour
             {
                 SelectionClick();
             }
-            /*
-            if (Input.GetMouseButtonDown(1))
-            {
-                if (hasSelection)
-                {
-                    if (prepMoving)
-                    {
-                        MoveClick();
-                    }
-
-                }
-
-            }
-
-            if(prepMoving)
-            {
-                SetMovePath();
-            }
-            */
         }
 
         //For Selection Particles
@@ -102,7 +80,7 @@ public class ClickSelection : MonoBehaviour
     private void SelectionClick()
     {
         RaycastHit hitInfo = new RaycastHit();
-        bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
+        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.clickLayerMask);
 
         if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {
@@ -115,15 +93,7 @@ public class ClickSelection : MonoBehaviour
 
             if (hit && (hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy))
             {
-                hasSelection = true;
-
-                selectedUnitObj = hitInfo.collider.gameObject;
-                selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
-                selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
-
-                //DrawMoveZone();
-                ResetToDefault();
-                CameraManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow selected Unit.
+                ClickedSelection(hitInfo.collider.gameObject);
             }
             else
             {
@@ -131,6 +101,19 @@ public class ClickSelection : MonoBehaviour
                 ResetToDefault();
             }
         }
+    }
+
+    public void ClickedSelection(GameObject newSelection)
+    {
+        hasSelection = true;
+
+        selectedUnitObj = newSelection;
+        selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
+        selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
+
+        //DrawMoveZone();
+        ResetToDefault();
+        CameraManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow selected Unit.
     }
 
     public void ClearSelection()
@@ -199,7 +182,7 @@ public class ClickSelection : MonoBehaviour
     private void AttackClick()
     {
         RaycastHit hitInfo = new RaycastHit();
-        bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
+        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.clickLayerMask);
 
         if (hit && hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy)
         {

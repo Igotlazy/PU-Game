@@ -31,7 +31,7 @@ public class SingleTargetSelector : AttackSelection
     private void GatherClick()
     {
         Debug.Log("Click click");
-        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.targetSelectionMask);
+        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.gameEntityMask);
 
         if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {

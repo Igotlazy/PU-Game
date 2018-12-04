@@ -7,11 +7,12 @@ using UnityEngine;
 public static class CombatUtils {
 
 
-    private static LayerMask initialShotMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain"));
-    private static LayerMask coverCheckShotMask = (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain"));
+    private static LayerMask initialShotMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade"));
+    private static LayerMask coverCheckShotMask = (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade"));
     public static LayerMask clickLayerMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("GameTerrain"));
-    public static LayerMask nodeSelectionMask = (1 << LayerMask.NameToLayer("GameTerrain"));
-    public static LayerMask targetSelectionMask = (1 << LayerMask.NameToLayer("GameEntity"));
+    public static LayerMask gameTerrainMask = (1 << LayerMask.NameToLayer("GameTerrain"));
+    public static LayerMask gameEntityMask = (1 << LayerMask.NameToLayer("GameEntity"));
+    public static LayerMask objectFadeMask = (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade") | (1 << LayerMask.NameToLayer("Obstacle")));
 
     private static float maxAngleForPartialCover = 30f;
     private static float hitPercentDistanceDropOff = 5f;

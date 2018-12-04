@@ -12,7 +12,11 @@ public class GridModifiers : MonoBehaviour
         foreach (GridModifiers current in joinedModifiers)
         {
             Node partnersNode = GridGen.instance.NodeFromWorldPoint(current.transform.position);
-            if (!myNode.nodeNeighbors.Contains(partnersNode))
+            if(partnersNode == null)
+            {
+                Debug.LogError("WARNING: A Node Connector is not associated with a Node - " + current.gameObject.name);
+            }
+            else if(!myNode.nodeNeighbors.Contains(partnersNode))
             {
                 myNode.nodeNeighbors.Add(partnersNode);
             }
