@@ -10,6 +10,8 @@ public class CameraManager : MonoBehaviour
 
     public List<CinemachineVirtualCamera> unitCameraList = new List<CinemachineVirtualCamera>();
     public CinemachineVirtualCamera currentUnitCamera;
+    public CinemachineVirtualCamera freeCamera;
+    private CinemachineFramingTransposer currentFramingTransposer;
     public float currentCameraAngle = 45f;
     public bool cameraOtherControl;
     public bool cameraMoving;
@@ -18,9 +20,15 @@ public class CameraManager : MonoBehaviour
 
     [Header("Camera Controls:")]
     [SerializeField]
-    private float timer;
+    private float scrollSpeed = 5f;
     [SerializeField]
-    private AnimationCurve customCurve;
+    private float scrollMinDistance = 7.5f;
+    [SerializeField]
+    private float scrollMaxDistance = 30f;
+    [SerializeField]  
+    private float cameraTurnTimer;
+    [SerializeField]
+    private AnimationCurve turnCurve;
 
     private void Awake()
     {
@@ -38,10 +46,43 @@ public class CameraManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //DEBUG
-        if(!cameraOtherControl && angleAlterations.Count < 3 && currentUnitCamera != null)
+        RotateCameraControl();
+        RotateCameraLoader();
+
+        UnitPanControl();
+
+        ZoomControl();
+
+        FreeMoveControl();
+    }
+
+    public void SetCameraTargetBasic(CinemachineVirtualCamera selectedCamera) //Controls Cinemachine camera movement between Units. Should honestly be on another script. 
+    {
+        if (currentUnitCamera != null)
         {
-            if(angleAlterations.Count < 3)
+            currentUnitCamera.Priority = 10;
+        }
+
+        //Makes it so new Camera inherits Rotation. 
+        selectedCamera.gameObject.transform.eulerAngles = new Vector3(selectedCamera.gameObject.transform.eulerAngles.x, currentCameraAngle, selectedCamera.gameObject.transform.eulerAngles.z);
+
+        CinemachineFramingTransposer newTransposer = selectedCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        if(currentFramingTransposer != null)
+        {
+            newTransposer.m_CameraDistance = currentFramingTransposer.m_CameraDistance; //Makes it so new Camera inherits Zoom. 
+        }
+
+        selectedCamera.Priority = 11; //Changes priority to new Camera.
+
+        currentUnitCamera = selectedCamera;
+        currentFramingTransposer = newTransposer;
+    }
+
+    private void RotateCameraControl()
+    {
+        if (!cameraOtherControl && angleAlterations.Count < 3 && currentUnitCamera != null) // Controls Camera Turn
+        {
+            if (angleAlterations.Count < 3)
             {
                 if (Input.GetKeyDown(KeyCode.LeftArrow))
                 {
@@ -61,6 +102,42 @@ public class CameraManager : MonoBehaviour
                 }
             }
         }
+    }
+    private void RotateCameraLoader()
+    {
+        if (!cameraMoving && angleAlterations.Count > 0)
+        {
+            StartCoroutine(RotateCamera(angleAlterations.Dequeue()));
+        }
+
+    }
+    IEnumerator RotateCamera(float angleToAdd)
+    {
+        cameraMoving = true;
+        cameraTurnTimer = 0;
+
+        Transform cCameraTransform = currentUnitCamera.gameObject.transform;
+
+        float startRotation = cCameraTransform.rotation.eulerAngles.y;
+        float endRotation = startRotation + angleToAdd;
+        currentCameraAngle = endRotation;
+
+        while (cameraTurnTimer < 1f)
+        {
+            cameraTurnTimer = cameraTurnTimer + Time.deltaTime;
+         
+            float newAngle = Mathf.LerpAngle(startRotation, endRotation, turnCurve.Evaluate(cameraTurnTimer));
+            Vector3 newRot = new Vector3(cCameraTransform.eulerAngles.x, newAngle, cCameraTransform.eulerAngles.z);
+
+            cCameraTransform.eulerAngles = newRot;
+            yield return null;
+
+        }
+        cameraMoving = false;
+    }
+
+    private void UnitPanControl()
+    {
         if (Input.GetKeyDown(KeyCode.UpArrow) && TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
         {
             if (currentUnitCamera != null)
@@ -74,13 +151,14 @@ public class CameraManager : MonoBehaviour
 
                 ClickSelection.instance.ClickedSelection(unitCameraList[currentIndex].Follow.gameObject);
             }
-            else if(unitCameraList.Count > 0)
+            else if (unitCameraList.Count > 0)
             {
                 currentUnitCamera = unitCameraList[0];
                 ClickSelection.instance.ClickedSelection(currentUnitCamera.Follow.gameObject);
             }
-        }
-        if (Input.GetKeyDown(KeyCode.DownArrow) && TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
+        } // Controls panning from 1 Unit to the next.
+
+        if (Input.GetKeyDown(KeyCode.DownArrow) && TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput) // Controls panning from 1 Unit to the next.
         {
             if (currentUnitCamera != null)
             {
@@ -93,63 +171,70 @@ public class CameraManager : MonoBehaviour
 
                 ClickSelection.instance.ClickedSelection(unitCameraList[currentIndex].Follow.gameObject);
             }
-            else if(unitCameraList.Count > 0)
+            else if (unitCameraList.Count > 0)
             {
                 currentUnitCamera = unitCameraList[0];
                 ClickSelection.instance.ClickedSelection(currentUnitCamera.Follow.gameObject);
 
-            }          
+            }
         }
-
-
-        RotateCameraLoader();
     }
 
-    public void SetCameraTargetBasic(CinemachineVirtualCamera selectedCamera) //Controls Cinemachine camera movement between Units. Should honestly be on another script. 
+    private void ZoomControl()
     {
-        if (currentUnitCamera != null)
+        if (currentUnitCamera != null && currentFramingTransposer != null) //Controls zoom.
         {
-            currentUnitCamera.Priority = 10;
+            if (Input.GetAxis("Mouse ScrollWheel") > 0)
+            {
+                currentFramingTransposer.m_CameraDistance -= Input.GetAxis("Mouse ScrollWheel") * scrollSpeed;
+                currentFramingTransposer.m_CameraDistance = Mathf.Clamp(currentFramingTransposer.m_CameraDistance, scrollMinDistance, scrollMaxDistance);
+            }
+            if (Input.GetAxis("Mouse ScrollWheel") < 0)
+            {
+                currentFramingTransposer.m_CameraDistance -= Input.GetAxis("Mouse ScrollWheel") * scrollSpeed;
+                currentFramingTransposer.m_CameraDistance = Mathf.Clamp(currentFramingTransposer.m_CameraDistance, scrollMinDistance, scrollMaxDistance);
+            }
         }
-
-        selectedCamera.gameObject.transform.eulerAngles = new Vector3(selectedCamera.gameObject.transform.eulerAngles.x, currentCameraAngle, selectedCamera.gameObject.transform.eulerAngles.z);
-        selectedCamera.Priority = 11;
-
-        currentUnitCamera = selectedCamera;
     }
 
-    private void RotateCameraLoader()
+    private void FreeMoveControl()
     {
-        if (!cameraMoving && angleAlterations.Count > 0)
+        if(Input.GetAxis("Horizontal") > 0)
         {
-            StartCoroutine(RotateCamera(angleAlterations.Dequeue()));
+            Debug.Log("Axis");
+            if(currentUnitCamera != freeCamera)
+            {
+                SetCameraTargetBasic(freeCamera);
+            }
+            freeCamera.Follow.transform.position += freeCamera.gameObject.transform.right * freeMoveSpeed * Input.GetAxis("Horizontal") * Time.deltaTime;
         }
-
+        if (Input.GetAxis("Horizontal") < 0)
+        {
+            if (currentUnitCamera != freeCamera)
+            {
+                SetCameraTargetBasic(freeCamera);
+            }
+            freeCamera.Follow.transform.position += freeCamera.gameObject.transform.right * freeMoveSpeed * Input.GetAxis("Horizontal") * Time.deltaTime;
+        }
+        if (Input.GetAxis("Vertical") > 0)
+        {
+            if (currentUnitCamera != freeCamera)
+            {
+                SetCameraTargetBasic(freeCamera);
+            }
+            freeCamera.Follow.transform.position += freeCamera.gameObject.transform.forward * freeMoveSpeed * Input.GetAxis("Vertical") * Time.deltaTime;
+        }
+        if (Input.GetAxis("Vertical") < 0)
+        {
+            if (currentUnitCamera != freeCamera)
+            {
+                SetCameraTargetBasic(freeCamera);
+            }
+            freeCamera.Follow.transform.position += freeCamera.gameObject.transform.forward * freeMoveSpeed * Input.GetAxis("Vertical") * Time.deltaTime;
+        }
     }
 
-    IEnumerator RotateCamera(float angleToAdd)
-    {
-        cameraMoving = true;
-        timer = 0;
+    private float freeMoveSpeed = 10f;
 
-        Transform cCameraTransform = currentUnitCamera.gameObject.transform;
-
-        float startRotation = cCameraTransform.rotation.eulerAngles.y;
-        float endRotation = startRotation + angleToAdd;
-
-        while (timer < 1f)
-        {
-            timer = timer + Time.deltaTime;
-         
-            float newAngle = Mathf.LerpAngle(startRotation, endRotation, customCurve.Evaluate(timer));
-            Vector3 newRot = new Vector3(cCameraTransform.eulerAngles.x, newAngle, cCameraTransform.eulerAngles.z);
-            currentCameraAngle = newAngle;
-
-            cCameraTransform.eulerAngles = newRot;
-            yield return null;
-
-        }
-        cameraMoving = false;
-    }
 
 }
