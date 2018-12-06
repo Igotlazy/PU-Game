@@ -93,7 +93,7 @@ public class ClickSelection : MonoBehaviour
 
             if (hit && (hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy))
             {
-                ClickedSelection(hitInfo.collider.gameObject);
+                ClickedSelection(hitInfo.collider.gameObject.transform);
             }
             else
             {
@@ -103,17 +103,17 @@ public class ClickSelection : MonoBehaviour
         }
     }
 
-    public void ClickedSelection(GameObject newSelection)
+    public void ClickedSelection(Transform newSelection)
     {
         hasSelection = true;
 
-        selectedUnitObj = newSelection;
+        selectedUnitObj = newSelection.gameObject;
         selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
         selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
 
         //DrawMoveZone();
         ResetToDefault();
-        CameraManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow selected Unit.
+        CameraManager.instance.SetCameraTargetBasic(selectedUnitObj.transform); //Makes camera follow selected Unit.
     }
 
     public void ClearSelection()

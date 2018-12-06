@@ -8,10 +8,20 @@ public class CameraManager : MonoBehaviour
 
     public static CameraManager instance;
 
-    public List<CinemachineVirtualCamera> unitCameraList = new List<CinemachineVirtualCamera>();
+    public List<Transform> unitTransformList = new List<Transform>();
     public CinemachineVirtualCamera currentUnitCamera;
-    public CinemachineVirtualCamera freeCamera;
     private CinemachineFramingTransposer currentFramingTransposer;
+    
+    [Space]
+    public CinemachineVirtualCamera mainCam1;
+    public CinemachineVirtualCamera mainCam2;
+    public GameObject freeTacker;
+    public bool onMCam1;
+    public bool isFreeMoving;
+    private float freeAndPanTimer;
+
+    private int panIndex;
+
     public float currentCameraAngle = 45f;
     public bool cameraOtherControl;
     public bool cameraMoving;
@@ -25,7 +35,7 @@ public class CameraManager : MonoBehaviour
     private float scrollMinDistance = 7.5f;
     [SerializeField]
     private float scrollMaxDistance = 30f;
-    [SerializeField]  
+    public float turnSpeed = 0.75f; 
     private float cameraTurnTimer;
     [SerializeField]
     private AnimationCurve turnCurve;
@@ -39,8 +49,10 @@ public class CameraManager : MonoBehaviour
     {
         foreach (GameObject currentPlayer in ReferenceObjects.UnitList)
         {
-            unitCameraList.Add(currentPlayer.GetComponent<Unit>().unitCamera);
+            unitTransformList.Add(currentPlayer.transform);
         }
+        currentUnitCamera = mainCam1;
+        panIndex = 0;
     }
 
     // Update is called once per frame
@@ -53,29 +65,51 @@ public class CameraManager : MonoBehaviour
 
         ZoomControl();
 
-        FreeMoveControl();
+        if(freeAndPanTimer < Time.time)
+        {
+
+            FreeMoveControl();
+        }
     }
 
-    public void SetCameraTargetBasic(CinemachineVirtualCamera selectedCamera) //Controls Cinemachine camera movement between Units. Should honestly be on another script. 
+    public void SetCameraTargetBasic(Transform selectedTarget) //Controls Cinemachine camera movement between Units. Should honestly be on another script. 
     {
+        isFreeMoving = false;
+        freeAndPanTimer = Camera.main.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time + Time.time; //Stops freeMove during camera changes. 
+
+        CinemachineVirtualCamera newCam = null;
+        if (onMCam1)
+        {
+            onMCam1 = false;
+            newCam = mainCam2;
+
+        }
+        else
+        {
+            onMCam1 = true;
+            newCam = mainCam1;
+        }
+
         if (currentUnitCamera != null)
         {
             currentUnitCamera.Priority = 10;
         }
 
         //Makes it so new Camera inherits Rotation. 
-        selectedCamera.gameObject.transform.eulerAngles = new Vector3(selectedCamera.gameObject.transform.eulerAngles.x, currentCameraAngle, selectedCamera.gameObject.transform.eulerAngles.z);
+        newCam.gameObject.transform.eulerAngles = new Vector3(newCam.gameObject.transform.eulerAngles.x, currentCameraAngle, newCam.gameObject.transform.eulerAngles.z);
+        newCam.Follow = selectedTarget; //Gives new cam the follow target. 
 
-        CinemachineFramingTransposer newTransposer = selectedCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        CinemachineFramingTransposer newTransposer = newCam.GetCinemachineComponent<CinemachineFramingTransposer>();
         if(currentFramingTransposer != null)
         {
             newTransposer.m_CameraDistance = currentFramingTransposer.m_CameraDistance; //Makes it so new Camera inherits Zoom. 
         }
 
-        selectedCamera.Priority = 11; //Changes priority to new Camera.
+        newCam.Priority = 11; //Changes priority to new Camera.
 
-        currentUnitCamera = selectedCamera;
+        currentUnitCamera = newCam;
         currentFramingTransposer = newTransposer;
+        
     }
 
     private void RotateCameraControl()
@@ -84,21 +118,21 @@ public class CameraManager : MonoBehaviour
         {
             if (angleAlterations.Count < 3)
             {
-                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                if (Input.GetKeyDown(KeyCode.E))
                 {
                     if (angleAlterations.Count > 0 && angleAlterations.Peek() == 90f) //Cancels other movements if an opposite input is given.
                     {
                         angleAlterations.Clear();
                     }
-                    angleAlterations.Enqueue(-90f);
+                    angleAlterations.Enqueue(-45f);
                 }
-                if (Input.GetKeyDown(KeyCode.RightArrow))
+                if (Input.GetKeyDown(KeyCode.Q))
                 {
                     if (angleAlterations.Count > 0 && angleAlterations.Peek() == -90f) //Cancels other movement if an opposite inpit is given.
                     {
                         angleAlterations.Clear();
                     }
-                    angleAlterations.Enqueue(90f);
+                    angleAlterations.Enqueue(45f);
                 }
             }
         }
@@ -117,6 +151,13 @@ public class CameraManager : MonoBehaviour
         cameraTurnTimer = 0;
 
         Transform cCameraTransform = currentUnitCamera.gameObject.transform;
+        CinemachineFramingTransposer cCameraTransposer = currentUnitCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+
+        Vector3 originalDampings = new Vector3(cCameraTransposer.m_XDamping, cCameraTransposer.m_YDamping, cCameraTransposer.m_ZDamping);
+        cCameraTransposer.m_XDamping = 0;
+        cCameraTransposer.m_YDamping = 0;
+        cCameraTransposer.m_ZDamping= 0;
+
 
         float startRotation = cCameraTransform.rotation.eulerAngles.y;
         float endRotation = startRotation + angleToAdd;
@@ -124,7 +165,7 @@ public class CameraManager : MonoBehaviour
 
         while (cameraTurnTimer < 1f)
         {
-            cameraTurnTimer = cameraTurnTimer + Time.deltaTime;
+            cameraTurnTimer = cameraTurnTimer + (Time.deltaTime * (1f/turnSpeed));
          
             float newAngle = Mathf.LerpAngle(startRotation, endRotation, turnCurve.Evaluate(cameraTurnTimer));
             Vector3 newRot = new Vector3(cCameraTransform.eulerAngles.x, newAngle, cCameraTransform.eulerAngles.z);
@@ -133,50 +174,37 @@ public class CameraManager : MonoBehaviour
             yield return null;
 
         }
+
+        cCameraTransposer.m_XDamping = originalDampings.x;
+        cCameraTransposer.m_YDamping = originalDampings.y;
+        cCameraTransposer.m_ZDamping = originalDampings.z;
+
+
         cameraMoving = false;
     }
 
     private void UnitPanControl()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow) && TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
+        if (Input.GetKeyDown(KeyCode.UpArrow) && TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput && unitTransformList.Count > 0)
         {
-            if (currentUnitCamera != null)
+            panIndex++;
+            if (panIndex == unitTransformList.Count)
             {
-                int currentIndex = unitCameraList.IndexOf(currentUnitCamera);
-                currentIndex++;
-                if (currentIndex == unitCameraList.Count)
-                {
-                    currentIndex = 0;
-                }
+                panIndex = 0;
+            }
 
-                ClickSelection.instance.ClickedSelection(unitCameraList[currentIndex].Follow.gameObject);
-            }
-            else if (unitCameraList.Count > 0)
-            {
-                currentUnitCamera = unitCameraList[0];
-                ClickSelection.instance.ClickedSelection(currentUnitCamera.Follow.gameObject);
-            }
+            ClickSelection.instance.ClickedSelection(unitTransformList[panIndex]);
         } // Controls panning from 1 Unit to the next.
 
-        if (Input.GetKeyDown(KeyCode.DownArrow) && TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput) // Controls panning from 1 Unit to the next.
+        if (Input.GetKeyDown(KeyCode.DownArrow) && TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput && unitTransformList.Count > 0) // Controls panning from 1 Unit to the next.
         {
-            if (currentUnitCamera != null)
+            panIndex--;
+            if (panIndex < 0)
             {
-                int currentIndex = unitCameraList.IndexOf(currentUnitCamera);
-                currentIndex--;
-                if (currentIndex < 0)
-                {
-                    currentIndex = unitCameraList.Count - 1;
-                }
-
-                ClickSelection.instance.ClickedSelection(unitCameraList[currentIndex].Follow.gameObject);
+                panIndex = unitTransformList.Count - 1;
             }
-            else if (unitCameraList.Count > 0)
-            {
-                currentUnitCamera = unitCameraList[0];
-                ClickSelection.instance.ClickedSelection(currentUnitCamera.Follow.gameObject);
 
-            }
+            ClickSelection.instance.ClickedSelection(unitTransformList[panIndex]);
         }
     }
 
@@ -202,36 +230,44 @@ public class CameraManager : MonoBehaviour
         if(Input.GetAxis("Horizontal") > 0)
         {
             Debug.Log("Axis");
-            if(currentUnitCamera != freeCamera)
+            if(!isFreeMoving)
             {
-                SetCameraTargetBasic(freeCamera);
+                FreeMoveSetUp();
             }
-            freeCamera.Follow.transform.position += freeCamera.gameObject.transform.right * freeMoveSpeed * Input.GetAxis("Horizontal") * Time.deltaTime;
+            freeTacker.transform.position += Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up) * freeMoveSpeed * Input.GetAxis("Horizontal") * Time.deltaTime;
         }
         if (Input.GetAxis("Horizontal") < 0)
         {
-            if (currentUnitCamera != freeCamera)
+            if (!isFreeMoving)
             {
-                SetCameraTargetBasic(freeCamera);
+                FreeMoveSetUp();
             }
-            freeCamera.Follow.transform.position += freeCamera.gameObject.transform.right * freeMoveSpeed * Input.GetAxis("Horizontal") * Time.deltaTime;
+            freeTacker.transform.position += Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up) * freeMoveSpeed * Input.GetAxis("Horizontal") * Time.deltaTime;
         }
         if (Input.GetAxis("Vertical") > 0)
         {
-            if (currentUnitCamera != freeCamera)
+            if (!isFreeMoving)
             {
-                SetCameraTargetBasic(freeCamera);
+                FreeMoveSetUp();
             }
-            freeCamera.Follow.transform.position += freeCamera.gameObject.transform.forward * freeMoveSpeed * Input.GetAxis("Vertical") * Time.deltaTime;
+            freeTacker.transform.position += Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up) * freeMoveSpeed * Input.GetAxis("Vertical") * Time.deltaTime;
         }
         if (Input.GetAxis("Vertical") < 0)
         {
-            if (currentUnitCamera != freeCamera)
+            if (!isFreeMoving)
             {
-                SetCameraTargetBasic(freeCamera);
+                FreeMoveSetUp();
             }
-            freeCamera.Follow.transform.position += freeCamera.gameObject.transform.forward * freeMoveSpeed * Input.GetAxis("Vertical") * Time.deltaTime;
+            freeTacker.transform.position += Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up) * freeMoveSpeed * Input.GetAxis("Vertical") * Time.deltaTime;
         }
+    }
+
+    private void FreeMoveSetUp()
+    {
+        isFreeMoving = true;
+        freeTacker.transform.position = currentUnitCamera.Follow.transform.position;
+        currentUnitCamera.Follow = freeTacker.transform;
+
     }
 
     private float freeMoveSpeed = 10f;

@@ -22,7 +22,7 @@ public class SingleTargetSelector : AttackSelection
     {
         base.Update();
 
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.B))
         {
             GatherClick();
         }

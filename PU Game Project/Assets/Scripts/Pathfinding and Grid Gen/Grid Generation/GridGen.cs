@@ -1,5 +1,5 @@
-﻿//Generates the Grid. Forms a grid of size equal to gridWorldSize. Divides the region into nodes based on the given Node radius. Currently it is set to 0.5. Note, TilePrefabs are spawned here and
-//WILL NOT change size based on the Node radius. 
+﻿//Generates the Grid. Forms a grid of size equal to gridWorldSize. Divides the region into nodes based on the given Node radius. Currently it is set to 0.75. Note, TilePrefabs are spawned here and
+//WILL NOT change size based on the Node radius. They need to be changed manually.  
 
 using UnityEngine;
 using System.Collections;
