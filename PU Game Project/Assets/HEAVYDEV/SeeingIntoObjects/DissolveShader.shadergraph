@@ -4,7 +4,7 @@
             "typeInfo": {
                 "fullName": "UnityEditor.ShaderGraph.ColorShaderProperty"
             },
-            "JSONnodeData": "{\n    \"m_Value\": {\n        \"r\": 0.0,\n        \"g\": 0.7735849022865295,\n        \"b\": 0.7426620125770569,\n        \"a\": 0.0\n    },\n    \"m_Name\": \"Dissolve Color\",\n    \"m_GeneratePropertyBlock\": true,\n    \"m_Guid\": {\n        \"m_GuidSerialized\": \"1545222d-6651-48f4-8372-1ac1eec1c2d6\"\n    },\n    \"m_OverrideReferenceName\": \"_dissolveColor\",\n    \"m_ColorMode\": 0,\n    \"m_Hidden\": false\n}"
+            "JSONnodeData": "{\n    \"m_Value\": {\n        \"r\": 0.0,\n        \"g\": 1.545098066329956,\n        \"b\": 1.4823529720306397,\n        \"a\": 0.0\n    },\n    \"m_Name\": \"Dissolve Color\",\n    \"m_GeneratePropertyBlock\": true,\n    \"m_Guid\": {\n        \"m_GuidSerialized\": \"1545222d-6651-48f4-8372-1ac1eec1c2d6\"\n    },\n    \"m_OverrideReferenceName\": \"_dissolveColor\",\n    \"m_ColorMode\": 1,\n    \"m_Hidden\": false\n}"
         },
         {
             "typeInfo": {

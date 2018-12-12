@@ -28,36 +28,10 @@ public class AbilityBasicMove : CharAbility {
 
         for (int i = 0; i < path.Count; i++) //Store Path Location Data (not really needed in this case)
         {
-            effectPacket.SetValueAtKey("MovePath", path[i]);
+            effectPacket.AppendValueAtKey("MovePath", path[i]);
         }
 
-        List<BattleEffect> effectsToPass = new List<BattleEffect>(); //Effects to send to the Resolver
-
-        /*
-        EffectGridMove move = new EffectGridMove(effectPacket)
-        {
-            pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false).Last(),
-            moveSpeed = 7f,
-            moveTarget = associatedCreature
-        };
-        effectsToPass.Add(move);
-        
-        for(int i = path.Count - 1; i >= 0; i--) //Creation of Effects
-        {
-            EffectGridMove moveEffect = new EffectGridMove(effectPacket)
-            {
-                pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false)[i],
-                moveSpeed = 7f,
-                moveTarget = associatedCreature
-            };
-
-
-            if (previousEffect != null) { previousEffect.CancelEffectAuxCalls += moveEffect.CancelEffect; } //If a move is cancelled, all of them down the line will also be cancelled. 
-            previousEffect = moveEffect;
-
-            effectsToPass.Add(moveEffect);
-        }
-        */
+        List<BattleEffect> effectsToPass = new List<BattleEffect>(); //Effects to send to the Resolver/
 
         for (int i = 0; i < path.Count; i++) //Creation of Effects
         {

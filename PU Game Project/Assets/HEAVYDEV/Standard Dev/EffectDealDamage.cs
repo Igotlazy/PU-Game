@@ -15,8 +15,8 @@ public class EffectDealDamage : BattleEffect {
             recordDamageAttack = true;
         }
     }
-    public bool recordDamageAttack;
-    public Attack damageAttack;
+    bool recordDamageAttack;
+    Attack damageAttack;
 
     string damageTargetKey;
     public string DamageTargetKey
@@ -27,8 +27,8 @@ public class EffectDealDamage : BattleEffect {
             recordDamageTarget = true;
         }
     }
-    public bool recordDamageTarget;
-    public LivingCreature damageTarget;
+    bool recordDamageTarget;
+    LivingCreature damageTarget;
 
     
 
@@ -69,11 +69,11 @@ public class EffectDealDamage : BattleEffect {
 
             if (recordDamageAttack)
             {
-                effectData.SetValueAtKey(damageAttackKey, damageAttack);
+                effectData.AppendValueAtKey(damageAttackKey, damageAttack);
             }
             if (recordDamageTarget)
             {
-                effectData.SetValueAtKey(damageTargetKey, damageTarget);
+                effectData.AppendValueAtKey(damageTargetKey, damageTarget);
             }
         }
     }

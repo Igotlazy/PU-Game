@@ -9,6 +9,7 @@ public class BasicMoveSelector : AttackSelection {
     int targetIndex;
     public bool hasSuccessfulPath;
     private Node lastHitNode;
+    private RaycastHit hitInfo;
 
     protected override void Update()
     {
@@ -19,7 +20,6 @@ public class BasicMoveSelector : AttackSelection {
 
     private void SetMovePath() //Drawing of path happens in the pathfinding script. 
     {
-        RaycastHit hitInfo = new RaycastHit();
         bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 500f, CombatUtils.gameTerrainMask);
 
         if (hit && (GridGen.instance.NodeFromWorldPoint(hitInfo.point) != lastHitNode) && hitInfo.transform.gameObject.CompareTag("Tile") && hitInfo.collider.gameObject.activeInHierarchy) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 

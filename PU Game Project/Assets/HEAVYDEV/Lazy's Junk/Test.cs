@@ -6,28 +6,49 @@ namespace MHA.DebugGame
 {
     public class Test : MonoBehaviour
     {
-        public float speedMultiplier;
-        float xMove;
-        float zMove;
-        Rigidbody rb;
-        Animator anim;
+        public Transform thingToMove;
+        public float spinDuration;
 
-        void Start()
+        private float spinTimer;
+
+        private void Start()
         {
-            rb = GetComponent<Rigidbody>();
-           // anim = GetComponent<Animator>();
+            spinTimer = 1;
         }
 
         void Update()
         {
-            xMove = Input.GetAxis("Horizontal");
-            zMove = Input.GetAxis("Vertical");
-            //anim.SetFloat("Speed", xMove);
+            if(spinTimer < 1)
+            {
+                spinTimer += Time.deltaTime/spinDuration;
+                thingToMove.eulerAngles = new Vector3(thingToMove.eulerAngles.x, Mathf.Lerp(0f, 360f, spinTimer), thingToMove.eulerAngles.z);
+            }
         }
 
-        private void FixedUpdate()
+        public void StartRotation()
         {
-            rb.velocity = new Vector3((xMove * speedMultiplier), rb.velocity.y, (zMove * speedMultiplier));
+            if(spinTimer >= 1)
+            {
+                spinTimer = 0;
+            }
         }
     }
+
+    public class Player : MonoBehaviour
+    {
+        void Update()
+        {
+            if (Input.GetButtonDown("Use"))
+            {
+                RaycastHit hitInfo = new RaycastHit();
+                bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 10f);
+
+                if (hitInfo.collider.gameObject.CompareTag("Button") && hitInfo.collider.gameObject.GetComponent<Test>() != null)
+                {
+                    hitInfo.collider.gameObject.GetComponent<Test>().StartRotation();
+                }
+            }
+        }
+    }
+
 }

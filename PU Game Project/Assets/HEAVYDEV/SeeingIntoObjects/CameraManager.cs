@@ -16,7 +16,7 @@ public class CameraManager : MonoBehaviour
     public CinemachineVirtualCamera mainCam1;
     public CinemachineVirtualCamera mainCam2;
     public GameObject freeTacker;
-    public bool onMCam1;
+    private bool onMCam1 = true;
     public bool isFreeMoving;
     private float freeAndPanTimer;
 
@@ -30,11 +30,15 @@ public class CameraManager : MonoBehaviour
 
     [Header("Camera Controls:")]
     [SerializeField]
-    private float scrollSpeed = 5f;
+    private float freeMoveSpeed = 15f;
     [SerializeField]
-    private float scrollMinDistance = 7.5f;
+    private AnimationCurve freeMoveCurve;
     [SerializeField]
-    private float scrollMaxDistance = 30f;
+    private float zoomSpeed = 5f;
+    [SerializeField]
+    private float zoomMinDistance = 7.5f;
+    [SerializeField]
+    private float zoomMaxDistance = 30f;
     public float turnSpeed = 0.75f; 
     private float cameraTurnTimer;
     [SerializeField]
@@ -51,7 +55,13 @@ public class CameraManager : MonoBehaviour
         {
             unitTransformList.Add(currentPlayer.transform);
         }
+
         currentUnitCamera = mainCam1;
+        currentFramingTransposer = mainCam1.GetCinemachineComponent<CinemachineFramingTransposer>();
+        if(unitTransformList.Count > 0)
+        {
+            mainCam1.Follow = unitTransformList[0];
+        }
         panIndex = 0;
     }
 
@@ -120,7 +130,7 @@ public class CameraManager : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    if (angleAlterations.Count > 0 && angleAlterations.Peek() == 90f) //Cancels other movements if an opposite input is given.
+                    if (angleAlterations.Count > 0 && angleAlterations.Peek() == 45f) //Cancels other movements if an opposite input is given.
                     {
                         angleAlterations.Clear();
                     }
@@ -128,7 +138,7 @@ public class CameraManager : MonoBehaviour
                 }
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
-                    if (angleAlterations.Count > 0 && angleAlterations.Peek() == -90f) //Cancels other movement if an opposite inpit is given.
+                    if (angleAlterations.Count > 0 && angleAlterations.Peek() == -45f) //Cancels other movement if an opposite inpit is given.
                     {
                         angleAlterations.Clear();
                     }
@@ -214,13 +224,13 @@ public class CameraManager : MonoBehaviour
         {
             if (Input.GetAxis("Mouse ScrollWheel") > 0)
             {
-                currentFramingTransposer.m_CameraDistance -= Input.GetAxis("Mouse ScrollWheel") * scrollSpeed;
-                currentFramingTransposer.m_CameraDistance = Mathf.Clamp(currentFramingTransposer.m_CameraDistance, scrollMinDistance, scrollMaxDistance);
+                currentFramingTransposer.m_CameraDistance -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
+                currentFramingTransposer.m_CameraDistance = Mathf.Clamp(currentFramingTransposer.m_CameraDistance, zoomMinDistance, zoomMaxDistance);
             }
             if (Input.GetAxis("Mouse ScrollWheel") < 0)
             {
-                currentFramingTransposer.m_CameraDistance -= Input.GetAxis("Mouse ScrollWheel") * scrollSpeed;
-                currentFramingTransposer.m_CameraDistance = Mathf.Clamp(currentFramingTransposer.m_CameraDistance, scrollMinDistance, scrollMaxDistance);
+                currentFramingTransposer.m_CameraDistance -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
+                currentFramingTransposer.m_CameraDistance = Mathf.Clamp(currentFramingTransposer.m_CameraDistance, zoomMinDistance, zoomMaxDistance);
             }
         }
     }
@@ -234,7 +244,8 @@ public class CameraManager : MonoBehaviour
             {
                 FreeMoveSetUp();
             }
-            freeTacker.transform.position += Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up) * freeMoveSpeed * Input.GetAxis("Horizontal") * Time.deltaTime;
+            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up);
+            freeTacker.transform.position += rotVector * freeMoveSpeed * freeMoveCurve.Evaluate(Input.GetAxis("Horizontal")) * Time.deltaTime;
         }
         if (Input.GetAxis("Horizontal") < 0)
         {
@@ -242,7 +253,8 @@ public class CameraManager : MonoBehaviour
             {
                 FreeMoveSetUp();
             }
-            freeTacker.transform.position += Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up) * freeMoveSpeed * Input.GetAxis("Horizontal") * Time.deltaTime;
+            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up);
+            freeTacker.transform.position += rotVector * freeMoveSpeed * -freeMoveCurve.Evaluate(Input.GetAxis("Horizontal")) * Time.deltaTime;
         }
         if (Input.GetAxis("Vertical") > 0)
         {
@@ -250,7 +262,8 @@ public class CameraManager : MonoBehaviour
             {
                 FreeMoveSetUp();
             }
-            freeTacker.transform.position += Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up) * freeMoveSpeed * Input.GetAxis("Vertical") * Time.deltaTime;
+            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up);
+            freeTacker.transform.position += rotVector * freeMoveSpeed * freeMoveCurve.Evaluate(Input.GetAxis("Vertical")) * Time.deltaTime;
         }
         if (Input.GetAxis("Vertical") < 0)
         {
@@ -258,7 +271,8 @@ public class CameraManager : MonoBehaviour
             {
                 FreeMoveSetUp();
             }
-            freeTacker.transform.position += Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up) * freeMoveSpeed * Input.GetAxis("Vertical") * Time.deltaTime;
+            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up);
+            freeTacker.transform.position += rotVector * freeMoveSpeed * -freeMoveCurve.Evaluate(Input.GetAxis("Vertical")) * Time.deltaTime;
         }
     }
 
@@ -269,8 +283,6 @@ public class CameraManager : MonoBehaviour
         currentUnitCamera.Follow = freeTacker.transform;
 
     }
-
-    private float freeMoveSpeed = 10f;
 
 
 }
