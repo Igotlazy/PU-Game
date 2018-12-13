@@ -16,7 +16,7 @@ public class EffectDealDamage : BattleEffect {
         }
     }
     bool recordDamageAttack;
-    Attack damageAttack;
+    public Attack damageAttack;
 
     string damageTargetKey;
     public string DamageTargetKey
@@ -28,57 +28,60 @@ public class EffectDealDamage : BattleEffect {
         }
     }
     bool recordDamageTarget;
-    LivingCreature damageTarget;
+    public List<LivingCreature> damageTarget = new List<LivingCreature>();
 
     
 
-    public EffectDealDamage(EffectDataPacket _effectData) : base(_effectData)
+    public EffectDealDamage(EffectDataPacket _effectData, int _runAmount) : base(_effectData, _runAmount)
     {
 
     }
 
 
-    public override void RunEffectImpl()
+    protected override void RunEffectImpl(int index)
     {
-        DealDamage();
+        DealDamage(index);
     }
 
-    public override void WarnEffect()
+    protected override void WarnEffect(int index)
     {
         Debug.Log("Deal Damage: Warning Event Not Implemented");
     }
 
-    private void DealDamage()
+    private void DealDamage(int index)
     {
+        damageTarget[index].CreatureHit(damageAttack);
+        Debug.Log("DEALING DAMAGE");
 
-        //damageTodeal
+        new BBDealDamageAnim(damageTarget[index], damageTarget[index].currentHealth, damageAttack);
 
-        if (damageTarget != null)
+        EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs
         {
-            damageTarget.CreatureHit(damageAttack);
-            Debug.Log("DEALING DAMAGE");
+            damageValue = damageAttack.damageValue,
+            source = (LivingCreature)effectData.GetValueAtKey("caster", false)[0],
+            target = damageTarget[index]
+        });
 
-            new BBDealDamageAnim(damageTarget, damageTarget.currentHealth, damageAttack);
-
-            EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs
-            {
-                damageValue = damageAttack.damageValue,
-                source = (LivingCreature)effectData.GetValueAtKey("caster", false)[0],
-                target = damageTarget
-            });
-
-            if (recordDamageAttack)
-            {
-                effectData.AppendValueAtKey(damageAttackKey, damageAttack);
-            }
-            if (recordDamageTarget)
-            {
-                effectData.AppendValueAtKey(damageTargetKey, damageTarget);
-            }
+        if (recordDamageAttack)
+        {
+            effectData.AppendValueAtKey(damageAttackKey, damageAttack);
+        }
+        if (recordDamageTarget)
+        {
+            effectData.AppendValueAtKey(damageTargetKey, damageTarget);
         }
     }
 
-    public override void CancelEffectImpl()
+    protected override bool EffectSpecificCondition(int index)
+    {
+        if(damageTarget[index] != null)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    protected override void CancelEffectImpl()
     {
 
     }

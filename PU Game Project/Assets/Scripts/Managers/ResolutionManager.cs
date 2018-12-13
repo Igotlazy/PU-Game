@@ -95,8 +95,7 @@ public class ResolutionManager : MonoBehaviour {
             {
                 currentResolutionCalls = 0;
                 yield return null;
-            }
-            
+            }       
         }
 
         CharAbility.totalCastIndex = 0; //Resets individual cast tracker when Resolution empties. 

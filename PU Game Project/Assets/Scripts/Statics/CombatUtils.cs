@@ -3,6 +3,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public static class CombatUtils {
 
@@ -86,7 +87,7 @@ public static class CombatUtils {
             return false; 
         }
 
-        float randomRange = Random.Range(0f, 100f);
+        float randomRange = UnityEngine.Random.Range(0f, 100f);
 
         if(randomRange <= hitPercent)
         {
@@ -209,8 +210,11 @@ public static class CombatUtils {
 
             for (int i = startIndex; i <= endIndex; i++)
             {
-                if (previousEffect != null) { previousEffect.CancelEffectAuxCalls += givenEffects[i].CancelEffect; } //If a move is cancelled, all of them down the line will also be cancelled. 
-
+                if (previousEffect != null)
+                {
+                    previousEffect.cancelEffectAuxCalls += givenEffects[i].CancelEffect; //If a move is cancelled, all of them down the line will also be cancelled. 
+                } 
+                givenEffects[i].isInternalCancelDependent = true;
                 previousEffect = givenEffects[i];
             }
         }
@@ -225,8 +229,11 @@ public static class CombatUtils {
 
         for (int i = 0; i < givenEffects.Count; i++)
         {
-            if (previousEffect != null) { previousEffect.CancelEffectAuxCalls += givenEffects[i].CancelEffect; } //If a move is cancelled, all of them down the line will also be cancelled. 
-
+            if (previousEffect != null)
+            {
+                previousEffect.cancelEffectAuxCalls += givenEffects[i].CancelEffect; //If a move is cancelled, all of them down the line will also be cancelled. 
+            } 
+            givenEffects[i].isInternalCancelDependent = true;
             previousEffect = givenEffects[i];
         }
     }

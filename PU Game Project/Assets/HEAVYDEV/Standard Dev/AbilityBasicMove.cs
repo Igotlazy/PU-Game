@@ -10,7 +10,7 @@ public class AbilityBasicMove : CharAbility {
     public AbilityBasicMove(LivingCreature livingCreature) : base (livingCreature)
     {
         castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
-        targetSelectors.Add(new List<GameObject> {CharacterAbilityPrefabRef.instance.NodeCollectors[2]});
+        targetSelectors.Add(new List<GameObject> {AbilityPrefabRef.instance.GiveNodeCollectorPrefab(AbilityPrefabRef.instance.BasicMoveSelector)});
     }
 
 
@@ -26,32 +26,43 @@ public class AbilityBasicMove : CharAbility {
 
         associatedCreature.CurrentEnergy -= path.Count;
 
+
+
         for (int i = 0; i < path.Count; i++) //Store Path Location Data (not really needed in this case)
         {
             effectPacket.AppendValueAtKey("MovePath", path[i]);
         }
+        effectPacket.AppendValueAtKey("MovingTarget", associatedCreature);
+
+
 
         List<BattleEffect> effectsToPass = new List<BattleEffect>(); //Effects to send to the Resolver/
-
         for (int i = 0; i < path.Count; i++) //Creation of Effects
         {
-            EffectGridMove moveEffect = new EffectGridMove(effectPacket)
+            EffectGridMove moveEffect = new EffectGridMove(effectPacket, 1)
             {
                 pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false)[i],
                 moveSpeed = 3.5f,
-                moveTarget = associatedCreature
             };
-
-
-            if (previousEffect != null) { previousEffect.CancelEffectAuxCalls += moveEffect.CancelEffect; } //If a move is cancelled, all of them down the line will also be cancelled. 
-            previousEffect = moveEffect;
+            moveEffect.moveTarget.Add((LivingCreature)effectPacket.GetValueAtKey("MovingTarget", false)[0]);
+            //moveEffect.conditionCheck += FreeMoveCONDITION;
 
             effectsToPass.Add(moveEffect);
         }
 
-
-        previousEffect = null;
+        CombatUtils.MakeEffectsDependent(effectsToPass);
         ResolutionManager.instance.LoadBattleEffect(effectsToPass);
     }
-    BattleEffect previousEffect;
+
+    /*
+    private bool FreeMoveCONDITION(EffectDataPacket givenPacket, BattleEffect givenEffect)
+    {
+        LivingCreature moveTarget = (LivingCreature)givenPacket.GetValueAtKey("MovingTarget", false)[givenEffect.runTracker];
+        if(moveTarget != null)
+        {
+            return true;
+        }
+        return false;
+    }
+    */
 }

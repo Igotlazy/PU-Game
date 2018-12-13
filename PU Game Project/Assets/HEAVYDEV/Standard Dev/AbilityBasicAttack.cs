@@ -9,7 +9,7 @@ public class AbilityBasicAttack : CharAbility
     public AbilityBasicAttack(LivingCreature livingCreature) : base(livingCreature)
     {
         castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
-        targetSelectors.Add(new List<GameObject> { CharacterAbilityPrefabRef.instance.NodeCollectors[3] }); //Loads selector.
+        targetSelectors.Add(new List<GameObject> { AbilityPrefabRef.instance.GiveNodeCollectorPrefab(AbilityPrefabRef.instance.BasicAttackSelector) }); //Loads selector.
     }
 
     private void Initialize(EffectDataPacket effectDataPacket)
@@ -17,7 +17,7 @@ public class AbilityBasicAttack : CharAbility
         List<GameObject> relevantObjects = ((TargetPacket)effectDataPacket.GetValueAtKey("Targets", false)[0]).ReturnObjectsOnNodes(0); //Gets access to GameObject Targets from Nodes.
         List<Vector3> movePositions = CombatUtils.ProjectilePathSplicer(associatedCreature.gameObject.GetComponent<Unit>(), relevantObjects[0].GetComponent<Unit>()); //Get the positions the projectile should travel.
 
-        GameObject projectile = GameObject.Instantiate(CharacterAbilityPrefabRef.instance.TakahiroPrefabs[0], movePositions[0], Quaternion.LookRotation(movePositions[1] - movePositions[0])); //Ceates projectile.
+        GameObject projectile = GameObject.Instantiate(AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.instance.TakahiroBasic), movePositions[0], Quaternion.LookRotation(movePositions[1] - movePositions[0])); //Ceates projectile.
 
 
 
@@ -25,17 +25,17 @@ public class AbilityBasicAttack : CharAbility
 
         for(int i = 1; i < movePositions.Count; i++)
         {
-            EffectFreeMove effect = new EffectFreeMove(effectDataPacket)
-            {
+            EffectFreeMove effect = new EffectFreeMove(effectDataPacket, 1)
+            {               
                 destination = movePositions[i],
                 moveSpeed = 5f + 0.5f*i,
-                moveTarget = projectile
             };
+            effect.moveTarget.Add(projectile);
 
             if(i == movePositions.Count - 1)
             {
                 effect.destroyAtEnd = true;
-                effect.FinishedEffectAuxCall += new Action<EffectDataPacket>(DamageOnImpact);
+                effect.finishedEffectAuxCall += DamageOnImpact;
             }
 
             sendList.Add(effect);
@@ -51,11 +51,17 @@ public class AbilityBasicAttack : CharAbility
     {
         Debug.Log("dealing damage");
         List<GameObject> relevantObjects = ((TargetPacket)effectDataPacket.GetValueAtKey("Targets", false)[0]).ReturnObjectsOnNodes(0); //Gets access to GameObject Targets from Nodes.
+        List<LivingCreature> creatureList = new List<LivingCreature>();
+        foreach (GameObject obj in relevantObjects)
+        {
+            creatureList.Add(obj.GetComponent<LivingCreature>());
+        }
 
-        EffectDealDamage effect = new EffectDealDamage(effectDataPacket)
+
+        EffectDealDamage effect = new EffectDealDamage(effectDataPacket, creatureList.Count)
         {
             damageAttack = new Attack(100, Attack.DamageType.Physical),
-            damageTarget = relevantObjects[0].GetComponent<LivingCreature>()
+            damageTarget = creatureList
         };
 
         ResolutionManager.instance.LoadBattleEffect(effect);

@@ -7,33 +7,21 @@ public abstract class BattleEffect {
 
     public EffectDataPacket effectData; //Reference to data for this Effect.
 
-    private Action cancelEffectAuxCalls; //Methods that can be called when this effect is cancelled. For closely related strings of effects that need to all get cancelled should one of them get cancelled. Add the Cancel Effect of the last one to this.
-    public Action CancelEffectAuxCalls
-    {
-        get { return cancelEffectAuxCalls; }
-        set
-        {
-            cancelEffectAuxCalls += value;
-            //Makes it so when the effect that it's depending on is cancelled, it also will get cancelled.
-        }
-    }
-    private Action<EffectDataPacket> finishedEffectAuxCall; //Methods that can be called when this is effect finishes. 
-    public Action<EffectDataPacket> FinishedEffectAuxCall
-    {
-        get {return finishedEffectAuxCall;}
-        set
-        {
-            finishedEffectAuxCall += value;
-        }
-    }
+    public Action cancelEffectAuxCalls; //Methods that can be called when this effect is cancelled. For closely related strings of effects that need to all get cancelled should one of them get cancelled. Add the Cancel Effect of the last one to this.
+    public Action<EffectDataPacket> finishedEffectAuxCall; //Methods that can be called when this is effect finishes. 
+    public Func<EffectDataPacket, BattleEffect, bool> conditionCheck; //Method that checks wether the condition for activating still applies.
     public bool isCancelled;
-    public bool isFinished;
     bool hasWarned;
 
+    public int runTracker;
+    public int runAmount;
+    public bool isInternalCancelDependent;
 
-    public BattleEffect(EffectDataPacket _effectData)
+
+    public BattleEffect(EffectDataPacket _effectData, int _runAmount)
     {
-        this.effectData = _effectData;   
+        this.effectData = _effectData;
+        this.runAmount = _runAmount;
     }
 
 
@@ -41,41 +29,68 @@ public abstract class BattleEffect {
     {
         if (!hasWarned)
         {
-            WarnEffect();
+            WarnEffect(runTracker);
             hasWarned = true;
         }
         else
         {
-            RunEffectImpl();
+            bool conditionResult = true;
+            if (!isCancelled && conditionCheck != null) //Checks set position if the effect hasn't already been cancelled.
+            {
+                conditionResult = conditionCheck.Invoke(effectData, this);
+            }
 
-            FinishEffect();
-        }      
+            if (!isCancelled && conditionResult && EffectSpecificCondition(runTracker)) //Does effect if it hasn't been cancelled, and all conditions have been met. 
+            {
+                RunEffectImpl(runTracker);
+                FinishEffect();               
+            }
+            else
+            {
+                isCancelled = false;
+            }
+
+            runTracker++;
+            if (runTracker > runAmount - 1)
+            {
+                RemoveSelfFromResolveList();
+            }
+            else
+            {
+                hasWarned = false;
+            }
+        }
     }
-    public abstract void WarnEffect();
-    public abstract void RunEffectImpl();
+    protected abstract void WarnEffect(int index);
+    protected abstract bool EffectSpecificCondition(int index);
+    protected abstract void RunEffectImpl(int index);
 
 
     public void CancelEffect()
     {
         Debug.Log("Effect Cancelled");
+
         isCancelled = true;
-        RemoveSelfFromResolveList();
-        if(cancelEffectAuxCalls != null)
+        if (isInternalCancelDependent)
+        {
+            RemoveSelfFromResolveList();
+        }
+
+        if(cancelEffectAuxCalls!= null)
         {
             cancelEffectAuxCalls.Invoke();
         }
+
         CancelEffectImpl();
     }
-    public abstract void CancelEffectImpl();
+    protected abstract void CancelEffectImpl();
 
     private void FinishEffect()
     {
         if (!isCancelled)
         {
-            RemoveSelfFromResolveList();
             if(finishedEffectAuxCall != null) { finishedEffectAuxCall.Invoke(effectData); }          
         }
-        isFinished = true;
     }
 
 
