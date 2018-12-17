@@ -25,11 +25,15 @@ public class ClickSelection : MonoBehaviour
     public bool prepAttack;
     public bool prepInv;
 
-    public GameObject basicAttackProjectile; //Testing
-
     private bool particlesPlaying;
 
     public static ClickSelection instance;
+
+    public delegate void NewUnitSelection(GameObject newSelection);
+    public event NewUnitSelection NewSelectionEvent;
+
+    public delegate void ClearUnitSelection();
+    public event ClearUnitSelection ClearSelectionEvent;
 
     private void Awake()
     {
@@ -38,7 +42,7 @@ public class ClickSelection : MonoBehaviour
 
     void Start()
     {
-
+        
     }
 
     void Update()
@@ -84,13 +88,6 @@ public class ClickSelection : MonoBehaviour
 
         if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {
-            /*
-            if (selectedUnitObj != null)
-            {
-                selectedUnitObj.GetComponent<HeroCharacter>().UnitAbilityCleanup();
-            }
-            */
-
             if (hit && (hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy))
             {
                 ClickedSelection(hitInfo.collider.gameObject.transform);
@@ -103,17 +100,24 @@ public class ClickSelection : MonoBehaviour
         }
     }
 
-    public void ClickedSelection(Transform newSelection)
+    public void ClickedSelection(Transform potentialNewSelection)
     {
         hasSelection = true;
 
-        selectedUnitObj = newSelection.gameObject;
-        selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
-        selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
+        if(potentialNewSelection.gameObject != selectedUnitObj)
+        {
+            selectedUnitObj = potentialNewSelection.gameObject;
+            selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
+            selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
 
-        //DrawMoveZone();
-        ResetToDefault();
-        CameraManager.instance.SetCameraTargetBasic(selectedUnitObj.transform); //Makes camera follow selected Unit.
+            if (NewSelectionEvent != null)
+            {
+                NewSelectionEvent(selectedUnitObj); //EVENT TO RESPOND TO NEW SELECTION;
+            }
+
+            ResetToDefault();
+            CameraManager.instance.SetCameraTargetBasic(selectedUnitObj.transform); //Makes camera follow selected Unit.
+        }
     }
 
     public void ClearSelection()
@@ -122,6 +126,11 @@ public class ClickSelection : MonoBehaviour
         selectedUnitObj = null;
         selectedUnitScript = null;
         selectedCreatureScript = null;
+
+        if(ClearSelectionEvent != null)
+        {
+            ClearSelectionEvent(); //EVENT TO RESPOND TO CLEARED SELECTION.
+        }
     }
 
     public void ResetToDefault()
@@ -133,69 +142,11 @@ public class ClickSelection : MonoBehaviour
         prepMoving = false;
     }
 
-    /*
-    private void MoveClick()
-    {
-        if(selectedCreatureScript.CurrentEnergy >= selectedUnitScript.path.Length && selectedUnitScript.hasSuccessfulPath)
-        {                  
-            selectedCreatureScript.CurrentEnergy -= selectedUnitScript.path.Length; //Reduces energy by the size of length of the path. (1 Node Movement = 1 Energy).
-            DrawIndicators.instance.ClearTileMatStates(true, true, true);
-            selectedUnitScript.RunFollowPath(); //Starts the path move. 
-        }
-    }
-    */
-
     public void DrawMoveZone() //Draws where the places can move.
     {
         //DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears tiles if you selected a new target and already had one selected.
 
         List<Node> availableNodes = Pathfinding.instance.DisplayAvailableMoves(selectedUnitScript.currentNode, selectedCreatureScript.CurrentEnergy); //BFS Call to get nodes.
         DrawIndicators.instance.BFSSelectableSet(availableNodes); //Sets nodes as selectable.
-    }
-
-    /*
-    private void SetMovePath() //Drawing of path happens in the pathfinding script. 
-    {
-        RaycastHit hitInfo = new RaycastHit();
-        bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
-
-        if (hit && (GridGen.instance.NodeFromWorldPoint(hitInfo.point) != lastHitNode) && hitInfo.transform.gameObject.CompareTag("Tile") && hitInfo.collider.gameObject.activeInHierarchy) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 
-        {
-            lastHitNode = GridGen.instance.NodeFromWorldPoint(hitInfo.point);
-
-            if (lastHitNode.IsSelectable)
-            {
-                selectedUnitObj.GetComponent<Unit>().SelectionPathRequest(hitInfo.point);
-            }
-            else
-            {
-                selectedUnitScript.path = null;
-                selectedUnitScript.hasSuccessfulPath = false;
-
-                DrawIndicators.instance.ClearTileMatStates(true, false, false);
-            }
-        }
-    }
-    */
-
-
-    private void AttackClick()
-    {
-        RaycastHit hitInfo = new RaycastHit();
-        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.clickLayerMask);
-
-        if (hit && hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy)
-        {
-            Unit targetUnitScript = hitInfo.collider.gameObject.GetComponent<Unit>();
-
-            if (targetUnitScript.currentNode.IsAttackable)
-            {
-                Attack attack = new Attack(5, Attack.DamageType.Magical);
-                //BattleAbility battleAttack = new BattleAbility(attack, basicAttackProjectile, selectedUnitObj, new List<Node> { hitInfo.collider.gameObject.GetComponent<Unit>().currentNode });
-                //TurnManager.instance.EventResolutionReceiver(battleAttack);
-
-                CombatUtils.AttackHitCalculation(selectedUnitObj, hitInfo.collider.gameObject); //[TESTING FOR % CHECK.]                    
-            }
-        }
     }
 }

@@ -348,8 +348,6 @@ GameObject:
   - component: {fileID: 114317298502121490}
   - component: {fileID: 114946478123526644}
   - component: {fileID: 55929108}
-  - component: {fileID: 4013024562611328448}
-  - component: {fileID: 3818965312826325955}
   m_Layer: 0
   m_Name: Battle Manager
   m_TagString: Untagged
@@ -424,23 +422,37 @@ MonoBehaviour:
   mainCam1: {fileID: 68198933}
   mainCam2: {fileID: 1584088828}
   freeTacker: {fileID: 23288862}
-  onMCam1: 0
   isFreeMoving: 0
   currentCameraAngle: 135
   cameraOtherControl: 0
   cameraMoving: 0
-  scrollSpeed: 14
-  scrollMinDistance: 7.5
-  scrollMaxDistance: 30
-  cameraTurnTimer: 0
-  turnCurve:
+  freeMoveSpeed: 12
+  freeMoveCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 2
-      outSlope: 2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.3
+      value: 0.2
+      inSlope: 1.3059657
+      outSlope: 1.3059657
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.20483463
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.7
+      value: 0.8
+      inSlope: 1.7946391
+      outSlope: 1.7946391
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
@@ -448,129 +460,48 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: 0.05080814
+      outSlope: 0.05080814
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0.60294324
       outWeight: 0.33333334
-    m_PreInfinity: 2
+    m_PreInfinity: 0
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &4013024562611328448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1382013232624852}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d6a174997baef94085b108ccda4c182, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unitTransformList: []
-  currentUnitCamera: {fileID: 0}
-  mainCam1: {fileID: 68198933}
-  mainCam2: {fileID: 1584088828}
-  freeTacker: {fileID: 23288862}
-  onMCam1: 0
-  isFreeMoving: 0
-  currentCameraAngle: 135
-  cameraOtherControl: 0
-  cameraMoving: 0
-  scrollSpeed: 14
-  scrollMinDistance: 7.5
-  scrollMaxDistance: 30
-  cameraTurnTimer: 0
+  zoomSpeed: 5
+  zoomMinDistance: 7.5
+  zoomMaxDistance: 30
+  turnSpeed: 0.75
   turnCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 3.9315727
-      outSlope: 3.9315727
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.08826983
-    - serializedVersion: 3
-      time: 0.3026805
-      value: 0.70047456
-      inSlope: 1.1421695
-      outSlope: 1.1421695
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.26231638
-      outWeight: 0.08592176
-    - serializedVersion: 3
-      time: 1
-      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!114 &3818965312826325955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1382013232624852}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d6a174997baef94085b108ccda4c182, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unitTransformList: []
-  currentUnitCamera: {fileID: 0}
-  mainCam1: {fileID: 0}
-  mainCam2: {fileID: 0}
-  freeTacker: {fileID: 0}
-  onMCam1: 0
-  isFreeMoving: 0
-  currentCameraAngle: 135
-  cameraOtherControl: 0
-  cameraMoving: 0
-  scrollSpeed: 14
-  scrollMinDistance: 7.5
-  scrollMaxDistance: 30
-  cameraTurnTimer: 0
-  turnCurve:
-    serializedVersion: 2
-    m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 3.9315727
-      outSlope: 3.9315727
+      time: 0.7
+      value: 0.8
+      inSlope: 1.7946391
+      outSlope: 1.7946391
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.08826983
-    - serializedVersion: 3
-      time: 0.3026805
-      value: 0.70047456
-      inSlope: 1.1421695
-      outSlope: 1.1421695
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.26231638
-      outWeight: 0.08592176
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: 0.05080814
+      outSlope: 0.05080814
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0.60294324
       outWeight: 0.33333334
     m_PreInfinity: 2
     m_PostInfinity: 2

@@ -8,35 +8,24 @@ public class BasicMoveSelector : AttackSelection {
     public Vector3[] path;
     int targetIndex;
     public bool hasSuccessfulPath;
-    private Node lastHitNode;
     private RaycastHit hitInfo;
+
+    protected override void Start()
+    {
+        CursorController.instance.CursorNewNodeEVENT += SetMovePath;
+    }
 
     protected override void Update()
     {
         base.Update();
-
-        SetMovePath();
     }
 
-    private void SetMovePath() //Drawing of path happens in the pathfinding script. 
+    private void SetMovePath(Node givenNode) //Drawing of path happens in the pathfinding script. 
     {
-        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 500f, CombatUtils.gameTerrainMask);
-
-        if (hit && (GridGen.instance.NodeFromWorldPoint(hitInfo.point) != lastHitNode) && hitInfo.transform.gameObject.CompareTag("Tile") && hitInfo.collider.gameObject.activeInHierarchy) //Makes it so the script doesnt run every frame, only when a new tile is hovered over. 
+        if (givenNode.IsSelectable)
         {
-            lastHitNode = GridGen.instance.NodeFromWorldPoint(hitInfo.point);
-            //Debug.Log(hitInfo.point);
-
-            if (lastHitNode != null && lastHitNode.IsSelectable)
-            {
-                SelectionPathRequest(hitInfo.point);
-            }
-            else
-            {
-                path = null;
-                hasSuccessfulPath = false;
-                DrawIndicators.instance.ClearTileMatStates(true, false, false);
-            }
+            //DrawIndicators.instance.ClearTileMatStates(true, false, false);
+            SelectionPathRequest(givenNode.worldPosition);
         }
     }
 

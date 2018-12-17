@@ -239,12 +239,11 @@ public class CameraManager : MonoBehaviour
     {
         if(Input.GetAxis("Horizontal") > 0)
         {
-            Debug.Log("Axis");
             if(!isFreeMoving)
             {
                 FreeMoveSetUp();
             }
-            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up);
+            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up).normalized;
             freeTacker.transform.position += rotVector * freeMoveSpeed * freeMoveCurve.Evaluate(Input.GetAxis("Horizontal")) * Time.deltaTime;
         }
         if (Input.GetAxis("Horizontal") < 0)
@@ -253,7 +252,7 @@ public class CameraManager : MonoBehaviour
             {
                 FreeMoveSetUp();
             }
-            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up);
+            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up).normalized;
             freeTacker.transform.position += rotVector * freeMoveSpeed * -freeMoveCurve.Evaluate(Input.GetAxis("Horizontal")) * Time.deltaTime;
         }
         if (Input.GetAxis("Vertical") > 0)
@@ -262,7 +261,7 @@ public class CameraManager : MonoBehaviour
             {
                 FreeMoveSetUp();
             }
-            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up);
+            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up).normalized;
             freeTacker.transform.position += rotVector * freeMoveSpeed * freeMoveCurve.Evaluate(Input.GetAxis("Vertical")) * Time.deltaTime;
         }
         if (Input.GetAxis("Vertical") < 0)
@@ -271,7 +270,7 @@ public class CameraManager : MonoBehaviour
             {
                 FreeMoveSetUp();
             }
-            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up);
+            Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up).normalized;
             freeTacker.transform.position += rotVector * freeMoveSpeed * -freeMoveCurve.Evaluate(Input.GetAxis("Vertical")) * Time.deltaTime;
         }
     }

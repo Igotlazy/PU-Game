@@ -27,7 +27,7 @@ public class CameraDissolveManager : MonoBehaviour
     {
         if (ClickSelection.instance.selectedUnitObj != null)
         {
-            GameObject clickObject = ClickSelection.instance.selectedUnitObj;
+            GameObject clickObject = CursorController.instance.gameObject;
             Vector3 rayDir = clickObject.transform.position - Camera.main.transform.position;
 
             hitInfos = Physics.RaycastAll(Camera.main.transform.position, rayDir, Mathf.Clamp(rayDir.magnitude -1, 0f, 1000), CombatUtils.objectFadeMask);

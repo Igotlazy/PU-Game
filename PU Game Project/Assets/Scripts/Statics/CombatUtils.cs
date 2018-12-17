@@ -12,6 +12,7 @@ public static class CombatUtils {
     private static LayerMask coverCheckShotMask = (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade"));
     public static LayerMask clickLayerMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     public static LayerMask gameTerrainMask = (1 << LayerMask.NameToLayer("GameTerrain"));
+    public static LayerMask gameTerrainAndFade = (1 << LayerMask.NameToLayer("GameTerrain")) | (1 << LayerMask.NameToLayer("GameTerrainFade"));
     public static LayerMask gameEntityMask = (1 << LayerMask.NameToLayer("GameEntity"));
     public static LayerMask objectFadeMask = (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade") | (1 << LayerMask.NameToLayer("Obstacle")));
 

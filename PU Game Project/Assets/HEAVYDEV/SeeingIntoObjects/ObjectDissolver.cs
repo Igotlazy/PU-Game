@@ -6,7 +6,7 @@ public class ObjectDissolver : MonoBehaviour
 {
     public MeshRenderer meshRend;
     private Material material;
-    private float dissolveRate = 4f;
+    private float dissolveRate = 5f;
     public bool amDissolved;
 
     private void Start()
@@ -17,14 +17,12 @@ public class ObjectDissolver : MonoBehaviour
 
     public void CallDissolveMesh()
     {
-        Debug.Log("Dissolve Mesh");
         StopCoroutine("ReformMesh");
         StartCoroutine("DissolveMesh");
     }
 
     public void CallReformMesh()
     {
-        Debug.Log("Reform Mesh");
         StopCoroutine("DissolveMesh");
         StartCoroutine("ReformMesh");
     }

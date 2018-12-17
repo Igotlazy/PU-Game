@@ -59,6 +59,11 @@ public class Node : IHeapItem<Node> {
 		return -compare;
 	}
 
+    public Vector3 GetGridVariables()
+    {
+        return new Vector3(gridX, gridY, gridZ);
+    }
+
     //Node States
     private bool isWalkable;
     public bool IsWalkable

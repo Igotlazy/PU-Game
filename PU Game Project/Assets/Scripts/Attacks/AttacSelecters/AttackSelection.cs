@@ -11,7 +11,10 @@ public abstract class AttackSelection : MonoBehaviour {
     public TargetPacket attachedTargetPacket;
 
 
+    protected virtual void Start()
+    {
 
+    }
 
     protected virtual void Update()
     {

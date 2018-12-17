@@ -44,6 +44,10 @@ public class Unit : MonoBehaviour {
     private void StartNodeFind() //Gives the unit reference to the Node below it.
     {
         Node foundNode = GridGen.instance.NodeFromWorldPoint(transform.position);
+        if(foundNode == null)
+        {
+            Debug.Log("WARNING: Unit was not able to initialize itself to the Grid");
+        }
         currentNode = foundNode;
         if (foundNode.IsWalkable)
         {

@@ -9,6 +9,7 @@ TagManager:
   - Tile
   - Map Base
   - Map
+  - Ceiling
   layers:
   - Default
   - TransparentFX

@@ -14,7 +14,8 @@ public class GridGen : MonoBehaviour {
     public LayerMask baseMapGenMask;
 	private Vector3 gridWorldSize;
     public float nodeRadius = 0.5f;
-    public int maxCielingHeight = 4;
+    public readonly float nodeHeightDif = 1f;
+    public int minCielingHeight = 4;
     public float tileGraphicSpawnHeight = 0.05f;
     public GameObject tilePrefab;
 	public Node[,,] grid;
@@ -22,7 +23,22 @@ public class GridGen : MonoBehaviour {
     RaycastHit[] hitObjects;
 
 	float nodeDiameter;
-	int gridSizeX, gridSizeY, gridSizeZ;
+    public float NodeDiameter
+    {
+        get
+        {
+            return nodeDiameter;
+        }
+    }
+    public Vector3 GridWorldSize
+    {
+        get
+        {
+            return gridWorldSize;
+        }
+    }
+
+    int gridSizeX, gridSizeY, gridSizeZ;
 
     public static GridGen instance;
 
@@ -43,7 +59,7 @@ public class GridGen : MonoBehaviour {
 		nodeDiameter = nodeRadius*2;
 
 		gridSizeX = Mathf.RoundToInt(gridWorldSize.x/nodeDiameter);
-		gridSizeY = Mathf.RoundToInt(gridWorldSize.y);
+		gridSizeY = Mathf.RoundToInt(gridWorldSize.y /nodeHeightDif);
         gridSizeZ = Mathf.RoundToInt(gridWorldSize.z/nodeDiameter);
 
         //StartCoroutine(CreateGrid());
@@ -71,13 +87,13 @@ public class GridGen : MonoBehaviour {
                 hitObjects = Physics.RaycastAll(worldPoint, Vector3.down, gridSizeY, CombatUtils.gameTerrainMask);
                 Debug.DrawRay(worldPoint, Vector3.down * gridSizeY, Color.blue, 2f);
 
-                hitObjects = hitObjects.OrderBy(hitObject => Vector3.Distance(worldPoint, hitObject.collider.bounds.center)).ToArray();
+                hitObjects = hitObjects.OrderBy(hitObject => Vector3.Distance(worldPoint, hitObject.collider.bounds.max)).ToArray();
 
                 Collider lastCollider = null;
                 foreach (RaycastHit currentHit in hitObjects)
                 {
                     if (lastCollider != null &&
-                        (lastCollider.bounds.center.y - (lastCollider.bounds.size.y / 2) < currentHit.collider.bounds.center.y + (currentHit.collider.bounds.size.y / 2) + maxCielingHeight)) 
+                        (lastCollider.bounds.min.y < currentHit.collider.bounds.max.y + minCielingHeight)) 
                     {
                         continue;
                     }
@@ -88,7 +104,7 @@ public class GridGen : MonoBehaviour {
 
                     //Debug.Log("Current Hit Y: " + currentHit.point.y);
                     //Debug.Log("Node Point Y: " + nodePoint.y);
-                    int yGridPos = (int)(gridSizeY - currentHit.distance);
+                    int yGridPos = (int)(gridSizeY - (currentHit.distance - 0.05f)); // Magic number as raycast reports strange distance on rotated colliders. 
 
                     GameObject tileObject = Instantiate(tilePrefab, new Vector3(nodePoint.x, nodePoint.y + tileGraphicSpawnHeight, nodePoint.z), Quaternion.identity);
                     tileObject.name = "Tile " + x + "," + yGridPos + "," + z;
@@ -181,9 +197,13 @@ public class GridGen : MonoBehaviour {
 
         float posY = 0;
         if (fromtTile)
-        { posY = ((worldPosition.y - transform.position.y - tileGraphicSpawnHeight) + gridWorldSize.y * 0.5f);}
+        {
+            posY = ((worldPosition.y - transform.position.y - tileGraphicSpawnHeight) + gridWorldSize.y * 0.5f) / nodeHeightDif;
+        }
         else
-        { posY = ((worldPosition.y - transform.position.y) + gridWorldSize.y * 0.5f);}
+        {
+            posY = ((worldPosition.y - transform.position.y) + gridWorldSize.y * 0.5f) / nodeHeightDif;
+        }
 
         float posZ = ((worldPosition.z - transform.position.z) + gridWorldSize.z * 0.5f) / nodeDiameter;
 
@@ -195,9 +215,8 @@ public class GridGen : MonoBehaviour {
         int y = Mathf.FloorToInt(posY);
         int z = Mathf.FloorToInt(posZ);
 
-        //Debug.Log("Given Grid Index: " + x + ", " + y + ", " + z);
-
-        return grid[x, y, z];
+        Node resultNode = grid[x, y, z];
+        return resultNode;
     }
 
     /*
