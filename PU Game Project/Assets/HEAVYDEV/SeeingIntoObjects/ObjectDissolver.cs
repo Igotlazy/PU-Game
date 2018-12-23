@@ -8,29 +8,61 @@ public class ObjectDissolver : MonoBehaviour
     private Material material;
     private float dissolveRate = 5f;
     public bool amDissolved;
+    private bool faderLocked;
+    public bool FaderLocked
+    {
+        set
+        {
+            if(value == true)
+            {
+                faderLocked = true;
+                CallDissolveMesh();
+            }
+            else
+            {
+                faderLocked = false;
+                CallReformMesh();
+            }
+            //faderLocked = value;
+        }
+        get
+        {
+            return faderLocked;
+        }
+    }
+
+
+    private LayerMask originalLayerMask;
 
     private void Start()
     {
+        originalLayerMask = gameObject.layer;
         meshRend = GetComponent<MeshRenderer>();
         material = meshRend.materials[0];
     }
 
     public void CallDissolveMesh()
     {
-        StopCoroutine("ReformMesh");
-        StartCoroutine("DissolveMesh");
+        if (!amDissolved)
+        {
+            StopCoroutine("ReformMesh");
+            StartCoroutine("DissolveMesh");
+        }
     }
 
     public void CallReformMesh()
     {
-        StopCoroutine("DissolveMesh");
-        StartCoroutine("ReformMesh");
+        if (amDissolved && !faderLocked)
+        {
+            StopCoroutine("DissolveMesh");
+            StartCoroutine("ReformMesh");
+        }
     }
 
     IEnumerator ReformMesh()
     {
         amDissolved = false;
-        gameObject.layer = LayerMask.NameToLayer("GameTerrain");
+        gameObject.layer = originalLayerMask;
 
         float currentDissolve = material.GetFloat("_dissolveProgression");
         while(currentDissolve > -1.1f)

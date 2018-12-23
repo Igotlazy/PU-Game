@@ -8,24 +8,12 @@ public class CameraManager : MonoBehaviour
 
     public static CameraManager instance;
 
-    public List<Transform> unitTransformList = new List<Transform>();
-    public CinemachineVirtualCamera currentUnitCamera;
-    private CinemachineFramingTransposer currentFramingTransposer;
-    
-    [Space]
+    [Header("Camera Refereces:")]
+    [SerializeField]
     public CinemachineVirtualCamera mainCam1;
     public CinemachineVirtualCamera mainCam2;
-    public GameObject freeTacker;
-    private bool onMCam1 = true;
-    public bool isFreeMoving;
-    private float freeAndPanTimer;
-
-    private int panIndex;
-
-    public float currentCameraAngle = 45f;
-    public bool cameraOtherControl;
-    public bool cameraMoving;
-    private Queue<float> angleAlterations = new Queue<float>();
+    public GameObject cameraTracker; //Tracker.
+    public GameObject levelFader;
     [Space]
 
     [Header("Camera Controls:")]
@@ -33,6 +21,9 @@ public class CameraManager : MonoBehaviour
     private float freeMoveSpeed = 15f;
     [SerializeField]
     private AnimationCurve freeMoveCurve;
+    [SerializeField]
+    private float levelChangeSpeed = 5f;
+    private float levelChangeDistance = 5f;
     [SerializeField]
     private float zoomSpeed = 5f;
     [SerializeField]
@@ -43,6 +34,30 @@ public class CameraManager : MonoBehaviour
     private float cameraTurnTimer;
     [SerializeField]
     private AnimationCurve turnCurve;
+    [Space]
+
+
+    public List<Transform> unitTransformList = new List<Transform>();
+    public CinemachineVirtualCamera currentUnitCamera;
+    private CinemachineFramingTransposer currentFramingTransposer;
+
+    [Space]
+    private bool onMCam1 = true; //Swaps the two Cameras for panning. 
+    private float panLock; //Makes sure certain movements can't happen during a pan.
+    private int panIndex; //Keeps track of who the last pan target was. 
+    public float currentCameraAngle = 45f;
+    public bool cameraRotating; //To queue up roations. 
+    private Queue<float> angleAlterations = new Queue<float>();
+
+    //For moving levels;
+    Ray cameraRay;
+    Plane zeroPlane;
+    float faderY;
+    float trackerY;
+    int currentLevel = 0;
+
+
+
 
     private void Awake()
     {
@@ -56,13 +71,12 @@ public class CameraManager : MonoBehaviour
             unitTransformList.Add(currentPlayer.transform);
         }
 
-        currentUnitCamera = mainCam1;
-        currentFramingTransposer = mainCam1.GetCinemachineComponent<CinemachineFramingTransposer>();
-        if(unitTransformList.Count > 0)
+        if (unitTransformList.Count > 0)
         {
             mainCam1.Follow = unitTransformList[0];
         }
-        panIndex = 0;
+
+        SetCameraTargetBasic(cameraTracker.transform);
     }
 
     // Update is called once per frame
@@ -71,33 +85,38 @@ public class CameraManager : MonoBehaviour
         RotateCameraControl();
         RotateCameraLoader();
 
-        UnitPanControl();
-
         ZoomControl();
 
-        if(freeAndPanTimer < Time.time)
+        if(panLock < Time.time)
         {
-
+            UnitPanControl();
             FreeMoveControl();
+            MoveLevel();
         }
+    }
+    private void LateUpdate()
+    {
+        UpdatingFaderPosition();
     }
 
     public void SetCameraTargetBasic(Transform selectedTarget) //Controls Cinemachine camera movement between Units. Should honestly be on another script. 
     {
-        isFreeMoving = false;
-        freeAndPanTimer = Camera.main.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time + Time.time; //Stops freeMove during camera changes. 
+        panLock = Camera.main.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time + Time.time; //Stops freeMove during camera changes. 
 
         CinemachineVirtualCamera newCam = null;
+        CinemachineVirtualCamera oldCam = null;
         if (onMCam1)
         {
             onMCam1 = false;
             newCam = mainCam2;
+            oldCam = mainCam1;
 
         }
         else
         {
             onMCam1 = true;
             newCam = mainCam1;
+            oldCam = mainCam2;
         }
 
         if (currentUnitCamera != null)
@@ -107,7 +126,10 @@ public class CameraManager : MonoBehaviour
 
         //Makes it so new Camera inherits Rotation. 
         newCam.gameObject.transform.eulerAngles = new Vector3(newCam.gameObject.transform.eulerAngles.x, currentCameraAngle, newCam.gameObject.transform.eulerAngles.z);
-        newCam.Follow = selectedTarget; //Gives new cam the follow target. 
+        oldCam.Follow = null;
+        cameraTracker.transform.position = selectedTarget.transform.position;
+        newCam.Follow = cameraTracker.transform; //Gives new cam the follow target. 
+        SetLevelY(selectedTarget.transform.position.y); //Sets level relevant to new target. 
 
         CinemachineFramingTransposer newTransposer = newCam.GetCinemachineComponent<CinemachineFramingTransposer>();
         if(currentFramingTransposer != null)
@@ -124,7 +146,7 @@ public class CameraManager : MonoBehaviour
 
     private void RotateCameraControl()
     {
-        if (!cameraOtherControl && angleAlterations.Count < 3 && currentUnitCamera != null) // Controls Camera Turn
+        if (angleAlterations.Count < 3 && currentUnitCamera != null) // Controls Camera Turn
         {
             if (angleAlterations.Count < 3)
             {
@@ -149,7 +171,7 @@ public class CameraManager : MonoBehaviour
     }
     private void RotateCameraLoader()
     {
-        if (!cameraMoving && angleAlterations.Count > 0)
+        if (!cameraRotating && angleAlterations.Count > 0)
         {
             StartCoroutine(RotateCamera(angleAlterations.Dequeue()));
         }
@@ -157,7 +179,7 @@ public class CameraManager : MonoBehaviour
     }
     IEnumerator RotateCamera(float angleToAdd)
     {
-        cameraMoving = true;
+        cameraRotating = true;
         cameraTurnTimer = 0;
 
         Transform cCameraTransform = currentUnitCamera.gameObject.transform;
@@ -190,7 +212,7 @@ public class CameraManager : MonoBehaviour
         cCameraTransposer.m_ZDamping = originalDampings.z;
 
 
-        cameraMoving = false;
+        cameraRotating = false;
     }
 
     private void UnitPanControl()
@@ -239,49 +261,88 @@ public class CameraManager : MonoBehaviour
     {
         if(Input.GetAxis("Horizontal") > 0)
         {
-            if(!isFreeMoving)
-            {
-                FreeMoveSetUp();
-            }
             Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up).normalized;
-            freeTacker.transform.position += rotVector * freeMoveSpeed * freeMoveCurve.Evaluate(Input.GetAxis("Horizontal")) * Time.deltaTime;
+            cameraTracker.transform.position += rotVector * freeMoveSpeed * freeMoveCurve.Evaluate(Input.GetAxis("Horizontal")) * Time.deltaTime;
         }
         if (Input.GetAxis("Horizontal") < 0)
         {
-            if (!isFreeMoving)
-            {
-                FreeMoveSetUp();
-            }
             Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.right, Vector3.up).normalized;
-            freeTacker.transform.position += rotVector * freeMoveSpeed * -freeMoveCurve.Evaluate(Input.GetAxis("Horizontal")) * Time.deltaTime;
+            cameraTracker.transform.position += rotVector * freeMoveSpeed * -freeMoveCurve.Evaluate(Input.GetAxis("Horizontal")) * Time.deltaTime;
         }
         if (Input.GetAxis("Vertical") > 0)
         {
-            if (!isFreeMoving)
-            {
-                FreeMoveSetUp();
-            }
             Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up).normalized;
-            freeTacker.transform.position += rotVector * freeMoveSpeed * freeMoveCurve.Evaluate(Input.GetAxis("Vertical")) * Time.deltaTime;
+            cameraTracker.transform.position += rotVector * freeMoveSpeed * freeMoveCurve.Evaluate(Input.GetAxis("Vertical")) * Time.deltaTime;
         }
         if (Input.GetAxis("Vertical") < 0)
         {
-            if (!isFreeMoving)
-            {
-                FreeMoveSetUp();
-            }
             Vector3 rotVector = Vector3.ProjectOnPlane(currentUnitCamera.gameObject.transform.forward, Vector3.up).normalized;
-            freeTacker.transform.position += rotVector * freeMoveSpeed * -freeMoveCurve.Evaluate(Input.GetAxis("Vertical")) * Time.deltaTime;
+            cameraTracker.transform.position += rotVector * freeMoveSpeed * -freeMoveCurve.Evaluate(Input.GetAxis("Vertical")) * Time.deltaTime;
         }
     }
 
-    private void FreeMoveSetUp()
+    private void MoveLevel()
     {
-        isFreeMoving = true;
-        freeTacker.transform.position = currentUnitCamera.Follow.transform.position;
-        currentUnitCamera.Follow = freeTacker.transform;
-
+        if (Input.GetKeyDown(KeyCode.F) && currentLevel < 3)
+        {
+            currentLevel += 1;
+            SetLevelY(currentLevel);
+        }
+        if (Input.GetKeyDown(KeyCode.C) && currentLevel > 0)
+        {
+            currentLevel -= 1;
+            SetLevelY(currentLevel);
+        }
     }
+    private void SetLevelY(float givenY)
+    {
+        int newInt = 0;
+        if (givenY < (levelChangeDistance * 0.8f))
+        {
+            newInt = 0;
+        }
+        else if (givenY >= (levelChangeDistance - 0.5f) && givenY < (levelChangeDistance * 2f -0.5f)) //0.5  just to give a buffer. 
+        {
+            newInt = 1;
+        }
+        else if (givenY >= (levelChangeDistance * 2f - 0.5f) && givenY < (levelChangeDistance * 3f) - 0.5f)
+        {
+            newInt = 2;
+        }
+        else if (givenY >= (levelChangeDistance * 3f - 0.5f))
+        {
+            newInt = 3;
+        }
+
+        SetLevelY(newInt);
+    }
+    private void SetLevelY(int givenLevel)
+    {
+        currentLevel = givenLevel;
+        faderY = (givenLevel * levelChangeDistance) + levelChangeDistance + 0.5f; //Added 0.5 because the distance between the floor disappearing collider and the wall disappearing collider is 1 unit.
+        trackerY = givenLevel * levelChangeDistance;
+
+        levelFader.transform.position = new Vector3(levelFader.transform.position.x, faderY, levelFader.transform.position.z);
+        zeroPlane = new Plane(Vector3.up, new Vector3(0f, faderY, 0f));
+    }
+
+    private void UpdatingFaderPosition()
+    {
+        cameraRay = Camera.main.ViewportPointToRay(cameraPoint);
+
+        float distance;
+        zeroPlane.Raycast(cameraRay, out distance);
+        Vector3 hitPoint = cameraRay.GetPoint(distance);
+
+
+        levelFader.transform.position = new Vector3(hitPoint.x, faderY, hitPoint.z);
+        if(cameraTracker.transform.position.y != faderY)
+        {
+            Vector3 movePos = new Vector3(cameraTracker.transform.position.x, trackerY, cameraTracker.transform.position.z);
+            cameraTracker.transform.Translate((movePos - cameraTracker.transform.position) * Time.deltaTime * levelChangeSpeed);
+        }
+    }
+    Vector3 cameraPoint = new Vector3(0.5f, 0.5f, 0f);
 
 
 }

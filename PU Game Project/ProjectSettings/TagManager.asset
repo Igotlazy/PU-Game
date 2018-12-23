@@ -9,7 +9,7 @@ TagManager:
   - Tile
   - Map Base
   - Map
-  - Ceiling
+  - Floor
   layers:
   - Default
   - TransparentFX
@@ -22,9 +22,9 @@ TagManager:
   - PostProcessing
   - GameEntity
   - GameTerrain
-  - Obstacle
-  - GridGen
   - GameTerrainFade
+  - Obstacle
+  - 
   - 
   - 
   - 

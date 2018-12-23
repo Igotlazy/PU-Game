@@ -27,8 +27,7 @@ public class CameraDissolveManager : MonoBehaviour
     {
         if (ClickSelection.instance.selectedUnitObj != null)
         {
-            GameObject clickObject = CursorController.instance.gameObject;
-            Vector3 rayDir = clickObject.transform.position - Camera.main.transform.position;
+            Vector3 rayDir = CursorController.instance.currentNode.worldPosition - Camera.main.transform.position;
 
             hitInfos = Physics.RaycastAll(Camera.main.transform.position, rayDir, Mathf.Clamp(rayDir.magnitude -1, 0f, 1000), CombatUtils.objectFadeMask);
             Debug.DrawRay(Camera.main.transform.position, rayDir.normalized * Mathf.Clamp(rayDir.magnitude - 1, 0f, 1000), Color.red, 0.5f);
@@ -36,7 +35,7 @@ public class CameraDissolveManager : MonoBehaviour
             List<GameObject> hitObjectList = new List<GameObject>();
             foreach(RaycastHit currentHit in hitInfos) //Making sure it doesn't hit the base floor. 
             {
-                if(!currentHit.collider.gameObject.CompareTag("Map Base"))
+                if(currentHit.collider.gameObject.CompareTag("Map") || currentHit.collider.gameObject.CompareTag("Obstacle"))
                 {
                     hitObjectList.Add(currentHit.collider.gameObject);
                 }
@@ -44,7 +43,7 @@ public class CameraDissolveManager : MonoBehaviour
 
             foreach(GameObject currentObj in hitObjectList) //Add new ones to List and Dissolve them.
             {              
-                ObjectDissolver dissolveScript =currentObj.GetComponent<ObjectDissolver>();
+                ObjectDissolver dissolveScript = currentObj.GetComponent<ObjectDissolver>();
                 if(dissolveScript != null && !inViewOfPlayer.Contains(currentObj))
                 {
                     if (!objectsNearCamera.Contains(currentObj))
@@ -97,7 +96,7 @@ public class CameraDissolveManager : MonoBehaviour
 
     private void OnTriggerEnter(Collider enteredCollider)
     {
-        if(enteredCollider.gameObject.CompareTag("Map") || enteredCollider.gameObject.CompareTag("Obstacle"))
+        if(enteredCollider.gameObject.CompareTag("Map") || enteredCollider.gameObject.CompareTag("Obstacle") || enteredCollider.gameObject.CompareTag("Floor"))
         {
             ObjectDissolver dissolveScript = enteredCollider.gameObject.GetComponent<ObjectDissolver>();
             if(dissolveScript != null)
@@ -114,7 +113,7 @@ public class CameraDissolveManager : MonoBehaviour
 
     private void OnTriggerExit(Collider exitedCollider)
     {
-        if ((exitedCollider.gameObject.CompareTag("Map") || exitedCollider.gameObject.CompareTag("Obstacle")) && objectsNearCamera.Contains(exitedCollider.gameObject))
+        if (((exitedCollider.gameObject.CompareTag("Map") || exitedCollider.gameObject.CompareTag("Obstacle")) ||exitedCollider.gameObject.CompareTag("Floor")) && objectsNearCamera.Contains(exitedCollider.gameObject))
         {
             ObjectDissolver dissolveScript = exitedCollider.gameObject.GetComponent<ObjectDissolver>();
             if (!inViewOfPlayer.Contains(exitedCollider.gameObject))

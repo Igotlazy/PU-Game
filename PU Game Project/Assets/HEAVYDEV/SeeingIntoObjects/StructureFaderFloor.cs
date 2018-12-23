@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StructureFaderCeiling : MonoBehaviour
+public class StructureFaderFloor : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -12,12 +12,12 @@ public class StructureFaderCeiling : MonoBehaviour
 
     private void OnTriggerEnter(Collider enteredCollider)
     {
-        if (enteredCollider.gameObject.CompareTag("Ceiling"))
+        if (enteredCollider.gameObject.CompareTag("Floor"))
         {
             ObjectDissolver dissolveScript = enteredCollider.gameObject.GetComponent<ObjectDissolver>();
             if (dissolveScript != null)
             {
-                dissolveScript.CallDissolveMesh();
+                dissolveScript.FaderLocked = true;
             }
         }
         if (enteredCollider.gameObject.CompareTag("Tile"))
@@ -28,12 +28,12 @@ public class StructureFaderCeiling : MonoBehaviour
 
     private void OnTriggerExit(Collider exitedCollider)
     {
-        if (exitedCollider.gameObject.CompareTag("Ceiling"))
+        if (exitedCollider.gameObject.CompareTag("Floor"))
         {
             ObjectDissolver dissolveScript = exitedCollider.gameObject.GetComponent<ObjectDissolver>();
             if (dissolveScript != null)
             {
-                dissolveScript.CallReformMesh();
+                dissolveScript.FaderLocked = false;
             }
         }
         if (exitedCollider.gameObject.CompareTag("Tile"))

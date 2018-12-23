@@ -9,10 +9,14 @@ public class BasicMoveSelector : AttackSelection {
     int targetIndex;
     public bool hasSuccessfulPath;
     private RaycastHit hitInfo;
-
-    protected override void Start()
+    protected void Start()
     {
         CursorController.instance.CursorNewNodeEVENT += SetMovePath;
+    }
+
+    protected override void InitializeImpl(int selectorIndex)
+    {
+        
     }
 
     protected override void Update()
@@ -48,9 +52,10 @@ public class BasicMoveSelector : AttackSelection {
     AbilityBasicMove moveAbility;
 
 
-    public override void MadeSelectionImpl()
+    protected override void MadeSelectionImpl()
     {
-        if(path.Length > 0)
+        CursorController.instance.CursorNewNodeEVENT -= SetMovePath;
+        if (path.Length > 0)
         {
             foreach (Vector3 currentVector in path)
             {
@@ -59,8 +64,16 @@ public class BasicMoveSelector : AttackSelection {
         }
         else
         {
-
+            
         }
+    }
+    protected override void CancelSelectionImpl()
+    {
+        
+    }
+    private void OnDestroy()
+    {
+        CursorController.instance.CursorNewNodeEVENT -= SetMovePath;
     }
 
     public void OnDrawGizmos() //Displays path as Gizmo line. 
@@ -83,4 +96,6 @@ public class BasicMoveSelector : AttackSelection {
             }
         }
     }
+
+
 }

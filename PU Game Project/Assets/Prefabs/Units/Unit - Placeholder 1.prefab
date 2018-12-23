@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ConstrainRotation: 1
-  m_RestoreDefaultPose: 1
+  m_SolveFromDefaultPose: 1
   m_Weight: 1
   m_Chain:
     m_EffectorTransform: {fileID: 1084344379116204339}
@@ -1491,9 +1491,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fc39f64e36bde24fb4e162a5eff4701, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  associatedCreature: {fileID: 0}
   currentHealthImage: {fileID: 1047734427202578433}
   backHealthImage: {fileID: 1048065373864159869}
-  cam: {fileID: 0}
+  currentHealthValue: {fileID: 0}
+  hitChanceObject: {fileID: 0}
+  hitChanceText: {fileID: 0}
 --- !u!1 &1088000551129454003
 GameObject:
   m_ObjectHideFlags: 0
@@ -2789,7 +2792,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ConstrainRotation: 1
-  m_RestoreDefaultPose: 1
+  m_SolveFromDefaultPose: 1
   m_Weight: 1
   m_Chain:
     m_EffectorTransform: {fileID: 1084498713877204377}
@@ -8720,7 +8723,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ConstrainRotation: 1
-  m_RestoreDefaultPose: 1
+  m_SolveFromDefaultPose: 1
   m_Weight: 1
   m_Chain:
     m_EffectorTransform: {fileID: 1086121635613352313}
@@ -8871,7 +8874,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ConstrainRotation: 1
-  m_RestoreDefaultPose: 1
+  m_SolveFromDefaultPose: 1
   m_Weight: 1
   m_Chain:
     m_EffectorTransform: {fileID: 1086462282621298083}
@@ -9052,6 +9055,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6176410623358219083, guid: 05b476171e6f69544885d014d2c0274b,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 6176410623358219082, guid: 05b476171e6f69544885d014d2c0274b,
         type: 3}
       propertyPath: scalingMode
@@ -9076,11 +9084,6 @@ PrefabInstance:
         type: 3}
       propertyPath: InitialModule.startLifetime.scalar
       value: 1.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 6176410623358219083, guid: 05b476171e6f69544885d014d2c0274b,
-        type: 3}
-      propertyPath: m_SortingOrder
-      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 05b476171e6f69544885d014d2c0274b, type: 3}
@@ -9162,11 +9165,6 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 1.0000001
       objectReference: {fileID: 0}
-    - target: {fileID: 2728635301396550573, guid: fde9dccd8369fb7499e39f7506d91d12,
-        type: 3}
-      propertyPath: m_SortingOrder
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2728635301396550572, guid: fde9dccd8369fb7499e39f7506d91d12,
         type: 3}
       propertyPath: scalingMode
@@ -9231,6 +9229,11 @@ PrefabInstance:
         type: 3}
       propertyPath: ColorModule.gradient.maxGradient.ctime3
       value: 47224
+      objectReference: {fileID: 0}
+    - target: {fileID: 2728635301396550573, guid: fde9dccd8369fb7499e39f7506d91d12,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fde9dccd8369fb7499e39f7506d91d12, type: 3}
@@ -9312,6 +9315,11 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 1.0000001
       objectReference: {fileID: 0}
+    - target: {fileID: 6176410623358219083, guid: 05b476171e6f69544885d014d2c0274b,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6176410623358219082, guid: 05b476171e6f69544885d014d2c0274b,
         type: 3}
       propertyPath: scalingMode
@@ -9336,11 +9344,6 @@ PrefabInstance:
         type: 3}
       propertyPath: InitialModule.startLifetime.scalar
       value: 1.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 6176410623358219083, guid: 05b476171e6f69544885d014d2c0274b,
-        type: 3}
-      propertyPath: m_SortingOrder
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 05b476171e6f69544885d014d2c0274b, type: 3}
@@ -9507,11 +9510,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2728635301396550573, guid: fde9dccd8369fb7499e39f7506d91d12,
-        type: 3}
-      propertyPath: m_SortingOrder
-      value: 20
-      objectReference: {fileID: 0}
     - target: {fileID: 2728635301396550572, guid: fde9dccd8369fb7499e39f7506d91d12,
         type: 3}
       propertyPath: scalingMode
@@ -9576,6 +9574,11 @@ PrefabInstance:
         type: 3}
       propertyPath: ColorModule.gradient.maxGradient.ctime3
       value: 47224
+      objectReference: {fileID: 0}
+    - target: {fileID: 2728635301396550573, guid: fde9dccd8369fb7499e39f7506d91d12,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fde9dccd8369fb7499e39f7506d91d12, type: 3}

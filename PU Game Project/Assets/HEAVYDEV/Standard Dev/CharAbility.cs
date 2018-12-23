@@ -25,6 +25,7 @@ public class CharAbility{
     public int turnCooldown;
 
     protected List<List<GameObject>> targetSelectors = new List<List<GameObject>>();
+    protected TargetPacket targetData = new TargetPacket();
 
     public List<Action<EffectDataPacket>> castableAbilities = new List<Action<EffectDataPacket>>();
 
@@ -40,19 +41,20 @@ public class CharAbility{
 
     private IEnumerator CollectTargets(int abilityIndex)
     {
-        TargetPacket targets = new TargetPacket();
-        int collectorIndex = 0;
+        TargetPacket targets = targetData.Clone(targetData);
+        int selectorIndex = 0;
 
-        while(collectorIndex < targetSelectors.Count)
+        while(selectorIndex < targetSelectors.Count)
         {
-            GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][collectorIndex], associatedCreature.transform.position, Quaternion.identity);
+            GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][selectorIndex], associatedCreature.transform.position, Quaternion.identity);
             AttackSelection selectorScript = spawnedSelector.GetComponent<AttackSelection>();
             selectorScript.givenAbility = this;
             selectorScript.attachedTargetPacket = targets;
+            selectorScript.Initialize(selectorIndex);
 
             yield return new WaitUntil(() => selectorScript.hasLoadedTargets);
 
-            collectorIndex++;
+            selectorIndex++;
         }
 
         CastAbility(abilityIndex, targets);

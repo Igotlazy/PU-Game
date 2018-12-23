@@ -12,6 +12,8 @@ public class Pathfinding : MonoBehaviour {
     public List<Node> lastPath;
 	GridGen gridGenScript;
 
+    public LineRenderer givenRenderer;
+
     public static Pathfinding instance;
 	
 	void Awake() {
@@ -186,10 +188,96 @@ public class Pathfinding : MonoBehaviour {
             }
         }
 
+        //DrawLine(startNode, validNodes);
+
         return validNodes;
     }
 
+    private void DrawLine(Node startNode, List<Node> givenNodes) 
+    {
+        Node currentNode = startNode;
+        float length = GridGen.instance.nodeRadius;
 
+        Vector3 currentPos = new Vector3(startNode.worldPosition.x, startNode.worldPosition.y, startNode.worldPosition.z);
+        currentPos += Vector3.right * length * 2; //Extends out to check for any nodes. 
+
+        while (true)
+        {
+            bool foundNeighbour = false;
+
+            foreach(Node neighbour in currentNode.nodeNeighbors)
+            {
+                if(neighbour.worldPosition.Equals(currentPos))
+                {
+                    currentNode = neighbour;
+                    currentPos += Vector3.right * length * 2; //Extends out to check again.
+                    foundNeighbour = true;
+                    break;
+                }
+            }
+            if (!foundNeighbour)
+            {
+                currentPos += Vector3.left * length * 2; //Pulls back as nothing was found.
+                break;
+            }
+        }
+
+        StartCoroutine(TracePath(currentPos, givenNodes));
+
+        /*
+        Vector3[] posArray = new Vector3[] {startNode.worldPosition, currentPos };
+
+        givenRenderer.positionCount = posArray.Length;
+        givenRenderer.SetPositions(posArray);
+        */
+
+    }
     
+    IEnumerator TracePath(Vector3 startPos, List<Node> givenNodes)
+    {
+        WaitForSeconds wait = new WaitForSeconds(0.25f);
+        float length = GridGen.instance.nodeRadius;
+        Node currentNode = GridGen.instance.NodeFromWorldPoint(startPos);
+        Vector3 currentPos = currentNode.worldPosition;
+
+        List<Vector3> pointList = new List<Vector3>();
+        pointList.Add(new Vector3(currentPos.x + length, currentPos.y, currentPos.z + length));
+
+        while (true)
+        {
+            givenRenderer.positionCount = pointList.Count;
+            givenRenderer.SetPositions(pointList.ToArray());
+            Debug.Log("Hello");
+            yield return wait;
+            Debug.Log("Hello2");
+
+            bool foundNeighbour = false;
+            Vector3 forwardCompare = currentPos + (Vector3.back *length * 2);
+            foreach (Node neighbour in currentNode.nodeNeighbors)
+            {
+                if (neighbour.worldPosition.Equals(forwardCompare))
+                {
+                    currentNode = neighbour;
+                    pointList.Add(new Vector3(currentPos.x + length, currentPos.y, currentPos.z + length));
+                    foundNeighbour = true;
+                    break;
+                }
+            }
+            if (foundNeighbour)
+            {
+                if (currentPos.Equals(startPos))
+                {
+                    break;
+                }
+                continue;
+            }
+
+        }
+
+        Vector3[] posArray = new Vector3[] { startPos, currentPos };
+
+        givenRenderer.positionCount = posArray.Length;
+        givenRenderer.SetPositions(posArray);
+    }
 
 }

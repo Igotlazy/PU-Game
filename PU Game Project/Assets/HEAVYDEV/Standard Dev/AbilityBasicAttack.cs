@@ -15,11 +15,9 @@ public class AbilityBasicAttack : CharAbility
     private void Initialize(EffectDataPacket effectDataPacket)
     {
         List<GameObject> relevantObjects = ((TargetPacket)effectDataPacket.GetValueAtKey("Targets", false)[0]).ReturnObjectsOnNodes(0); //Gets access to GameObject Targets from Nodes.
-        List<Vector3> movePositions = CombatUtils.ProjectilePathSplicer(associatedCreature.gameObject.GetComponent<Unit>(), relevantObjects[0].GetComponent<Unit>()); //Get the positions the projectile should travel.
+        List<Vector3> movePositions = CombatUtils.ProjectilePathSplicer(CombatUtils.GiveShotConnector(associatedCreature.gameObject), CombatUtils.GiveShotConnector(relevantObjects[0])); //Get the positions the projectile should travel.
 
         GameObject projectile = GameObject.Instantiate(AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.instance.TakahiroBasic), movePositions[0], Quaternion.LookRotation(movePositions[1] - movePositions[0])); //Ceates projectile.
-
-
 
         List<BattleEffect> sendList = new List<BattleEffect>();
 

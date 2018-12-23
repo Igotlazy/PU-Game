@@ -10,7 +10,7 @@ public class CursorController : MonoBehaviour
     public Node currentNode;
     public Vector3 nodePos;
 
-    public float catchupSpeed;
+    public float catchupSpeed = 20f;
 
     private bool isActive;
 
@@ -40,18 +40,8 @@ public class CursorController : MonoBehaviour
     {
         if (isActive && transform.position != nodePos)
         {
-            transform.Translate((nodePos - transform.position) * Time.deltaTime * catchupSpeed);
+            visual.transform.Translate((nodePos - visual.transform.position) * Time.deltaTime * catchupSpeed);
         }
-        /*
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            MoveUpFloor();
-        }
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            MoveDownFloor();
-        }
-        */
     }
 
     void LateUpdate()
@@ -62,49 +52,22 @@ public class CursorController : MonoBehaviour
         }
     }
 
-    private void MoveUpFloor()
-    {
-        if (attemptFloorDown)
-        {
-            MoveFloorReset();
-        }
-        else
-        {
-            attemptFloorUp = true;
-            visual.transform.localScale = new Vector3(1f, 1.5f, 1f);
-        }
-    }
-
-    private void MoveDownFloor()
-    {
-        if (attemptFloorUp)
-        {
-            MoveFloorReset();
-        }
-        else
-        {
-            attemptFloorDown = true;
-            visual.transform.localScale = new Vector3(1f, 0.1f, 1f);
-        }
-    }
-
-    private void MoveFloorReset()
-    {
-        attemptFloorUp = false;
-        attemptFloorDown = false;
-        visual.transform.localScale = new Vector3(1f, 0.75f, 1f);
-    }
-
 
     private void SetPositionOfCursor()
     {
         Node foundNode = null;
-        RaycastHit hitInfo;
-        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, Mathf.Infinity, CombatUtils.gameTerrainMask);
-        if (hit)
+
+        RaycastHit[] hitInfos = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition), Mathf.Infinity, CombatUtils.gameTerrainMask);
+        System.Array.Sort(hitInfos, (x, y) => x.distance.CompareTo(y.distance));
+
+        foreach(RaycastHit currentHit in hitInfos)
         {
-            foundNode = GridGen.instance.NodeFromWorldPoint(hitInfo.point);
-            Debug.Log(hitInfo.collider.gameObject.name);
+            
+            if (currentHit.collider.CompareTag("Floor") || currentHit.collider.CompareTag("Map Base"))
+            {
+                foundNode = GridGen.instance.NodeFromWorldPoint(currentHit.point);
+                break;
+            }
         }
 
         if (foundNode != null && foundNode != currentNode)
@@ -125,7 +88,7 @@ public class CursorController : MonoBehaviour
         visual.SetActive(true);
         currentNode = GridGen.instance.NodeFromWorldPoint(selection.transform.position);
         nodePos = currentNode.worldPosition;
-        transform.position = currentNode.worldPosition;
+        visual.transform.position = currentNode.worldPosition;
     }
 
     private void ClearedSelection()

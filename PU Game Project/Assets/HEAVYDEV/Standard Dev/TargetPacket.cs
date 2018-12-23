@@ -18,6 +18,8 @@ public class TargetPacket {
         }
     }
 
+    public List<List<float>> targetSelectorSpecs = new List<List<float>>();
+
     public List<GameObject> ReturnObjectsOnNodes(int targetListIndex)
     {
         List<GameObject> returnList = new List<GameObject>();
@@ -66,5 +68,14 @@ public class TargetPacket {
         }
 
         return returnList;
+    }
+
+    public TargetPacket Clone(TargetPacket givenPacket)
+    {
+        TargetPacket returnPacket = new TargetPacket();
+        returnPacket.TargetNodes = new List<HashSet<Node>>(givenPacket.TargetNodes);
+        returnPacket.targetSelectorSpecs = new List<List<float>>(givenPacket.targetSelectorSpecs);
+
+        return returnPacket;
     }
 }

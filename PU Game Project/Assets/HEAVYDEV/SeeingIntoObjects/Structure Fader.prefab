@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6795686077657805179}
   - component: {fileID: 6795686077657805178}
   m_Layer: 0
-  m_Name: Cieling Fader
+  m_Name: Floor Fader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

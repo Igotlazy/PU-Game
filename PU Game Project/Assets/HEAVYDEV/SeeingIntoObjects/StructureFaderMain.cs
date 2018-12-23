@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class StructureFaderMain : MonoBehaviour
 {
-
-    public HashSet<GameObject> fadeList = new HashSet<GameObject>();
-
     void Start()
     {
         
@@ -20,20 +17,19 @@ public class StructureFaderMain : MonoBehaviour
             ObjectDissolver dissolveScript = enteredCollider.gameObject.GetComponent<ObjectDissolver>();
             if (dissolveScript != null)
             {
-                dissolveScript.CallDissolveMesh();
-                fadeList.Add(enteredCollider.gameObject);
+                dissolveScript.FaderLocked = true;
             }
         }
     }
 
     private void OnTriggerExit(Collider exitedCollider)
     {
-        if ((exitedCollider.gameObject.CompareTag("Map") || exitedCollider.gameObject.CompareTag("Obstacle")))
+        if (exitedCollider.gameObject.CompareTag("Map") || exitedCollider.gameObject.CompareTag("Obstacle"))
         {
             ObjectDissolver dissolveScript = exitedCollider.gameObject.GetComponent<ObjectDissolver>();
-            if (dissolveScript != null && fadeList.Contains(exitedCollider.gameObject))
+            if (dissolveScript != null)
             {
-                dissolveScript.CallReformMesh();
+                dissolveScript.FaderLocked = false;
             }
         }
     }

@@ -18,13 +18,13 @@ public class GameEntity : MonoBehaviour {
 
     protected virtual void Awake()
     {
-
+        currentHealth = baseHealth;
+        maxHealth.BaseValue = baseHealth;
     }
 
     protected virtual void Start ()
     {
-        currentHealth = baseHealth;
-        maxHealth.BaseValue = baseHealth;
+
     }
 
     protected virtual void Update ()

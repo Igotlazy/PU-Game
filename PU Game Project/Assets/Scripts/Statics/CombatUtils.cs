@@ -8,8 +8,7 @@ using System;
 public static class CombatUtils {
 
 
-    private static LayerMask initialShotMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade"));
-    private static LayerMask coverCheckShotMask = (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade"));
+    private static LayerMask shotMask = (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade"));
     public static LayerMask clickLayerMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     public static LayerMask gameTerrainMask = (1 << LayerMask.NameToLayer("GameTerrain"));
     public static LayerMask gameTerrainAndFade = (1 << LayerMask.NameToLayer("GameTerrain")) | (1 << LayerMask.NameToLayer("GameTerrainFade"));
@@ -29,10 +28,10 @@ public static class CombatUtils {
         Vector3 fireDirection = targetUnitScript.shotConnecter.transform.position - sourceUnitScript.shotConnecter.transform.position;
 
         Debug.DrawRay(sourceUnitScript.shotConnecter.transform.position, fireDirection, Color.blue, 10f);
-        Physics.Raycast(sourceUnitScript.shotConnecter.transform.position, fireDirection.normalized, out initialShotInfo, 100f, initialShotMask);
+        Physics.Raycast(sourceUnitScript.shotConnecter.transform.position, fireDirection.normalized, out initialShotInfo, fireDirection.magnitude, shotMask);
 
 
-        if (initialShotInfo.collider.gameObject != targetObject) //It the shot hits an obstacle, it immediately returns 0. 
+        if (initialShotInfo.collider != null) //It the shot hits an obstacle, it immediately returns 0. 
         {
             Debug.Log("The chance to Hit is: 0");
             return 0f;
@@ -46,7 +45,7 @@ public static class CombatUtils {
         Vector3 coverCheckFireDiection = -(new Vector3(fireDirection.x, 0f, fireDirection.z));
 
         Debug.DrawRay(targetUnitScript.partialCoverCheck.transform.position, coverCheckFireDiection.normalized * 1.5f, Color.blue, 10f);
-        bool coverCheckHit = Physics.Raycast(targetUnitScript.partialCoverCheck.transform.position, coverCheckFireDiection, out coverCheckInfo, 1.5f, coverCheckShotMask);
+        bool coverCheckHit = Physics.Raycast(targetUnitScript.partialCoverCheck.transform.position, coverCheckFireDiection, out coverCheckInfo, 1.5f, shotMask);
         if (coverCheckHit)
         {
             bool isPartialCover = coverCheckInfo.collider.gameObject.GetComponent<ObstacleData>().isPartialCover; //Checks to see if the obstacle is PartialCover

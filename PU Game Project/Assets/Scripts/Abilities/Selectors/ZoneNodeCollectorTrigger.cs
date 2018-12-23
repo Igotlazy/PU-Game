@@ -12,6 +12,11 @@ public class ZoneNodeCollectorTrigger : AttackSelection
         attackInd = GetComponent<AttackSelection>();
     }
 
+    protected override void InitializeImpl(int selectorIndex)
+    {
+
+    }
+
     private void OnTriggerEnter(Collider enteringCollider)
     {
         if (enteringCollider.gameObject.CompareTag("Tile"))
@@ -35,8 +40,14 @@ public class ZoneNodeCollectorTrigger : AttackSelection
         }
     }
 
-    public override void MadeSelectionImpl()
+    protected override void MadeSelectionImpl()
     {
 
     }
+    protected override void CancelSelectionImpl()
+    {
+
+    }
+
+
 }

@@ -11,10 +11,11 @@ public abstract class AttackSelection : MonoBehaviour {
     public TargetPacket attachedTargetPacket;
 
 
-    protected virtual void Start()
+    public void Initialize(int selectorIndex)
     {
-
+        InitializeImpl(selectorIndex);
     }
+    protected abstract void InitializeImpl(int selectorIndex);
 
     protected virtual void Update()
     {
@@ -31,23 +32,32 @@ public abstract class AttackSelection : MonoBehaviour {
     protected void MadeSelection()
     {
         NodeDisplayCleanup();
+
         MadeSelectionImpl();
         attachedTargetPacket.TargetNodes.Add(collectedNodes);
         hasLoadedTargets = true;
 
         Destroy(this.gameObject);
     }
-    public abstract void MadeSelectionImpl();
+    protected abstract void MadeSelectionImpl();
 
     protected void CancelSelection()
     {
         NodeDisplayCleanup();
+
+        CancelSelectionImpl();
         givenAbility.CancelTargets();
         Destroy(this.gameObject);
     }
+    protected abstract void CancelSelectionImpl();
 
     public virtual void NodeDisplayCleanup()
     {
         DrawIndicators.instance.ClearTileMatStates(true, true, true);
+    }
+
+    public virtual void AddToNodeSet(Node givenNode)
+    {
+
     }
 }

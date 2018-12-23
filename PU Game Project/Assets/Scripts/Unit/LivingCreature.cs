@@ -81,12 +81,6 @@ public class LivingCreature : GameEntity {
 
     protected override void Awake()
     {
-        base.Awake();
-    }
-
-    protected override void Start ()
-    {
-        //Initial Setting of Stats. 
         strength.BaseValue = baseStrength;
         maxEnergy.BaseValue = baseEnergy;
         CurrentEnergy = Mathf.RoundToInt(maxEnergy.Value);
@@ -95,6 +89,11 @@ public class LivingCreature : GameEntity {
         quirkResistance.BaseValue = baseQuirkResistance;
         range.BaseValue = baseRange;
 
+        base.Awake();
+    }
+
+    protected override void Start ()
+    {
         base.Start();
     }
 	

@@ -10,8 +10,6 @@ public class GridGen : MonoBehaviour {
 
 	public bool displayGridGizmos;
     public bool doDiagonal;
-	public LayerMask obstacleMask;
-    public LayerMask baseMapGenMask;
 	private Vector3 gridWorldSize;
     public float nodeRadius = 0.5f;
     public readonly float nodeHeightDif = 1f;
@@ -92,6 +90,10 @@ public class GridGen : MonoBehaviour {
                 Collider lastCollider = null;
                 foreach (RaycastHit currentHit in hitObjects)
                 {
+                    if (!currentHit.collider.gameObject.CompareTag("Map Base") && !currentHit.collider.gameObject.CompareTag("Floor"))
+                    {
+                        continue;
+                    }
                     if (lastCollider != null &&
                         (lastCollider.bounds.min.y < currentHit.collider.bounds.max.y + minCielingHeight)) 
                     {
@@ -100,7 +102,17 @@ public class GridGen : MonoBehaviour {
                     lastCollider = currentHit.collider;
 
                     Vector3 nodePoint = new Vector3(worldPoint.x, (int)currentHit.point.y, worldPoint.z);
-                    bool walkable = !(Physics.CheckSphere(nodePoint, nodeRadius, obstacleMask));
+
+                    RaycastHit[] obstacleHits = Physics.RaycastAll(new Vector3(nodePoint.x, (nodePoint.y - (nodeHeightDif/4f)), nodePoint.z), Vector3.up, nodeHeightDif/2f);
+                    bool walkable = true;
+                    foreach(RaycastHit obHit in obstacleHits)
+                    {
+                        if (obHit.collider.gameObject.CompareTag("Map") || obHit.collider.gameObject.CompareTag("Obstacle"))
+                        {
+                            walkable = false;
+                            break;
+                        }
+                    }
 
                     //Debug.Log("Current Hit Y: " + currentHit.point.y);
                     //Debug.Log("Node Point Y: " + nodePoint.y);
@@ -110,7 +122,10 @@ public class GridGen : MonoBehaviour {
                     tileObject.name = "Tile " + x + "," + yGridPos + "," + z;
                     tileObject.transform.SetParent(gridParent.transform);
 
+                    //Debug.Log(obstacleHits.Length);
+
                     grid[x, yGridPos, z] = new Node(walkable, nodePoint, x, yGridPos, z, tileObject);
+
 
                     //yield return null;
                 }

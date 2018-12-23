@@ -12,10 +12,8 @@ public class SingleTargetSelector : AttackSelection
     public GameObject spawnedIndicator;
     RaycastHit hitInfo;
 
-    void Start()
-    {
+    List<Collider> colliders = new List<Collider>();
 
-    }
 
 
     protected override void Update()
@@ -28,34 +26,62 @@ public class SingleTargetSelector : AttackSelection
         }
     }
 
+    protected override void InitializeImpl(int selectorIndex)
+    {
+        
+    }
+
     private void GatherClick()
     {
-        Debug.Log("Click click");
         bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.gameEntityMask);
 
         if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {
             if (hit && (hitInfo.transform.gameObject.CompareTag("Champion")))
             {
-                Debug.Log("Click click Click");
                 if (selectedObject !=  hitInfo.collider.gameObject)
                 {
-                    Debug.Log("Click click Click Click");
                     if (spawnedIndicator != null)
                     {
                         Destroy(spawnedIndicator);
                     }
 
                     selectedObject = hitInfo.collider.gameObject;
-                    Unit unitScript = hitInfo.collider.gameObject.GetComponent<Unit>();
+                    Unit unitScript = selectedObject.GetComponent<Unit>();
+                    LivingCreature livingScript = selectedObject.GetComponent<LivingCreature>();
+
+                    livingScript.healthBar.DisplayHitChance(CombatUtils.AttackHitCalculation(givenAbility.associatedCreature.gameObject, selectedObject));
+
+
                     spawnedIndicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
                 }                
             }
         }
     }
 
-    public override void MadeSelectionImpl()
+    protected override void MadeSelectionImpl()
     {
         collectedNodes.Add(selectedObject.GetComponent<Unit>().currentNode);
+        if(spawnedIndicator != null)
+        {
+            Destroy(spawnedIndicator);
+        }
+        if(selectedObject != null)
+        {
+            selectedObject.GetComponent<LivingCreature>().healthBar.HideHitChance();
+        }
     }
+    protected override void CancelSelectionImpl()
+    {
+        if (spawnedIndicator != null)
+        {
+            Destroy(spawnedIndicator);
+        }
+        if (selectedObject != null)
+        {
+            selectedObject.GetComponent<LivingCreature>().healthBar.HideHitChance();
+        }
+    }
+
+
 }
