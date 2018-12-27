@@ -13,6 +13,7 @@ public class CameraTest : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.T))
         {
             timer = 0f;
+            angle = 0f;
             StartCoroutine(RotateCamera(angle));
         }
     }

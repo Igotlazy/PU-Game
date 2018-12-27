@@ -25,7 +25,7 @@ public class CharAbility{
     public int turnCooldown;
 
     protected List<List<GameObject>> targetSelectors = new List<List<GameObject>>();
-    protected TargetPacket targetData = new TargetPacket();
+    protected List<List<TargetPacket>> targetPacketBaseData = new List<List<TargetPacket>>();
 
     public List<Action<EffectDataPacket>> castableAbilities = new List<Action<EffectDataPacket>>();
 
@@ -41,23 +41,27 @@ public class CharAbility{
 
     private IEnumerator CollectTargets(int abilityIndex)
     {
-        TargetPacket targets = targetData.Clone(targetData);
+        List<TargetPacket> targetPacketList = new List<TargetPacket>();
         int selectorIndex = 0;
 
         while(selectorIndex < targetSelectors.Count)
         {
+            TargetPacket targets = TargetPacket.Clone(targetPacketBaseData[abilityIndex][selectorIndex]);
+
             GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][selectorIndex], associatedCreature.transform.position, Quaternion.identity);
             AttackSelection selectorScript = spawnedSelector.GetComponent<AttackSelection>();
+
             selectorScript.givenAbility = this;
             selectorScript.attachedTargetPacket = targets;
             selectorScript.Initialize(selectorIndex);
 
             yield return new WaitUntil(() => selectorScript.hasLoadedTargets);
+            targetPacketList.Add(targets);
 
             selectorIndex++;
         }
 
-        CastAbility(abilityIndex, targets);
+        CastAbility(abilityIndex, targetPacketList);
     }
 
     public void CancelTargets()
@@ -68,11 +72,15 @@ public class CharAbility{
         }
     }
 
-    private void CastAbility(int abilityIndex, TargetPacket givenTargets)
+    private void CastAbility(int abilityIndex, List<TargetPacket> givenTargets)
     {
         totalCastIndex += 1;
 
-        EffectDataPacket effectPacket = new EffectDataPacket(associatedCreature, this, totalCastIndex, givenTargets);
+        EffectDataPacket effectPacket = new EffectDataPacket(associatedCreature, this, totalCastIndex);
+        foreach(TargetPacket currentPacket in givenTargets)
+        {
+            effectPacket.AppendValue("Targets", currentPacket);
+        }
 
         castableAbilities[abilityIndex].Invoke(effectPacket);
     }

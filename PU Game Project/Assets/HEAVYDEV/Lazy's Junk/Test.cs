@@ -41,7 +41,7 @@ namespace MHA.DebugGame
             if (Input.GetButtonDown("Use"))
             {
                 RaycastHit hitInfo = new RaycastHit();
-                bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 10f);
+                Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 10f);
 
                 if (hitInfo.collider.gameObject.CompareTag("Button") && hitInfo.collider.gameObject.GetComponent<Test>() != null)
                 {

@@ -85,7 +85,6 @@ public class ResolutionManager : MonoBehaviour {
 
         while (resolvingEffects.Count > 0 )
         {
-            Debug.Log(resolvingEffects.Count);
             currentEffect = resolvingEffects.Last();
             currentEffect.RunEffect();
 
@@ -100,6 +99,7 @@ public class ResolutionManager : MonoBehaviour {
 
         CharAbility.totalCastIndex = 0; //Resets individual cast tracker when Resolution empties. 
         eventResolutionRunning = false;
+        ReturnToOriginalBattlePhase();
     }
 
     TurnManager.BattlePhase originalBattlePhase;
@@ -124,8 +124,15 @@ public class ResolutionManager : MonoBehaviour {
         }
         else
         {
-            Debug.Log("Return to Input");
             animQueueRunning = false;
+            ReturnToOriginalBattlePhase();
+        }
+    }
+
+    private void ReturnToOriginalBattlePhase()
+    {
+        if(!animQueueRunning && !eventResolutionRunning)
+        {
             TurnManager.instance.CurrentBattlePhase = originalBattlePhase;
             Debug.Log(originalBattlePhase.ToString());
         }

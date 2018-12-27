@@ -9,20 +9,12 @@ public class EffectDataPacket {
 
     public EffectDataPacket(LivingCreature _caster, CharAbility _charAbility, int _castIndex)
     {
-        AppendValueAtKey("Caster", _caster);
-        AppendValueAtKey("CharacterAbility", _charAbility);
-        AppendValueAtKey("CastIndex", _castIndex);
-    }
-    public EffectDataPacket(LivingCreature _caster, CharAbility _charAbility, int _castIndex, TargetPacket _targets)
-    {
-        AppendValueAtKey("Caster", _caster);
-        AppendValueAtKey("CharacterAbility", _charAbility);
-        AppendValueAtKey("CastIndex", _castIndex);
-        AppendValueAtKey("Targets", _targets);
+        AppendValue("Caster", _caster);
+        AppendValue("CharacterAbility", _charAbility);
+        AppendValue("CastIndex", _castIndex);
     }
 
-
-    public List<object> GetValueAtKey(string getKey, bool zero)
+    public List<object> GetValue(string getKey, bool zero)
     {
         if (blackboard.ContainsKey(getKey))
         {
@@ -42,7 +34,7 @@ public class EffectDataPacket {
         }
     }
 
-    public void AppendValueAtKey(string setKey, object setObject)
+    public void AppendValue(string setKey, object setObject)
     {
         if (blackboard.ContainsKey(setKey))
         {

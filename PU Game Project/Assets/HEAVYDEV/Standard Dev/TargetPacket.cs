@@ -4,9 +4,18 @@ using UnityEngine;
 
 public class TargetPacket {
 
+    public enum SelectionType
+    {
+        Single,
+        AoE,
+        HardAOE
+    }
+    public SelectionType selectionTypes;
 
-    private List<HashSet<Node>> targetNodes = new List<HashSet<Node>>();
-    public List<HashSet<Node>> TargetNodes
+
+
+    private HashSet<Node> targetNodes = new HashSet<Node>();
+    public HashSet<Node> TargetNodes
     {
         get
         {
@@ -14,17 +23,21 @@ public class TargetPacket {
         }
         set
         {
-            value = targetNodes;
+            targetNodes = value;
         }
     }
 
-    public List<List<float>> targetSelectorSpecs = new List<List<float>>();
+    public List<TargetSpecs> targetObjectSpecs = new List<TargetSpecs>();
+    public List<float> selectorSpecs = new List<float>();
+    public Vector3 spawnLocation;
 
-    public List<GameObject> ReturnObjectsOnNodes(int targetListIndex)
+
+
+    public List<GameObject> ReturnObjectsOnNodes()
     {
         List<GameObject> returnList = new List<GameObject>();
 
-        foreach(Node currentNode in targetNodes[targetListIndex])
+        foreach(Node currentNode in targetNodes)
         {
             if (currentNode.IsOccupied)
             {
@@ -35,11 +48,11 @@ public class TargetPacket {
         return returnList;
     }
 
-    public List<GameObject> ReturnObjectsOnNodes(int targetListIndex, Unit dontInclude)
+    public List<GameObject> ReturnObjectsOnNodes(Unit dontInclude)
     {
         List<GameObject> returnList = new List<GameObject>();
 
-        foreach (Node currentNode in targetNodes[targetListIndex])
+        foreach (Node currentNode in targetNodes)
         {
             if (currentNode.IsOccupied && (dontInclude != currentNode.occupant.GetComponent<Unit>()))
             {
@@ -50,11 +63,11 @@ public class TargetPacket {
         return returnList;
     }
 
-    public List<GameObject> ReturnObjectsOnNodes(int targetListIndex, int teamInt)
+    public List<GameObject> ReturnObjectsOnNodes(int teamInt)
     {
         List<GameObject> returnList = new List<GameObject>();
 
-        foreach (Node currentNode in targetNodes[targetListIndex])
+        foreach (Node currentNode in targetNodes)
         {
             if (currentNode.IsOccupied)
             {
@@ -70,11 +83,11 @@ public class TargetPacket {
         return returnList;
     }
 
-    public TargetPacket Clone(TargetPacket givenPacket)
+    public static TargetPacket Clone(TargetPacket givenPacket)
     {
         TargetPacket returnPacket = new TargetPacket();
-        returnPacket.TargetNodes = new List<HashSet<Node>>(givenPacket.TargetNodes);
-        returnPacket.targetSelectorSpecs = new List<List<float>>(givenPacket.targetSelectorSpecs);
+        //returnPacket.TargetNodes = new List<HashSet<Node>>(givenPacket.TargetNodes);
+        returnPacket.selectorSpecs = new List<float>(givenPacket.selectorSpecs);
 
         return returnPacket;
     }

@@ -237,4 +237,9 @@ public static class CombatUtils {
             previousEffect = givenEffects[i];
         }
     }
+
+    public static void AreaUpdate(TargetPacket givenPacket, List<Unit> givenUnits)
+    {
+
+    }
 }

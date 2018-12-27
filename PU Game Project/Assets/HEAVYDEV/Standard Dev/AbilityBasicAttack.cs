@@ -9,13 +9,14 @@ public class AbilityBasicAttack : CharAbility
     public AbilityBasicAttack(LivingCreature livingCreature) : base(livingCreature)
     {
         castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
+        targetPacketBaseData.Add(new List<TargetPacket> { new TargetPacket()});
         targetSelectors.Add(new List<GameObject> { AbilityPrefabRef.instance.GiveNodeCollectorPrefab(AbilityPrefabRef.instance.BasicAttackSelector) }); //Loads selector.
     }
 
     private void Initialize(EffectDataPacket effectDataPacket)
     {
-        List<GameObject> relevantObjects = ((TargetPacket)effectDataPacket.GetValueAtKey("Targets", false)[0]).ReturnObjectsOnNodes(0); //Gets access to GameObject Targets from Nodes.
-        List<Vector3> movePositions = CombatUtils.ProjectilePathSplicer(CombatUtils.GiveShotConnector(associatedCreature.gameObject), CombatUtils.GiveShotConnector(relevantObjects[0])); //Get the positions the projectile should travel.
+        List<TargetSpecs> relevantTargets = ((TargetPacket)effectDataPacket.GetValue("Targets", false)[0]).targetObjectSpecs; //Gets access to GameObject Targets from Nodes.
+        List<Vector3> movePositions = CombatUtils.ProjectilePathSplicer(CombatUtils.GiveShotConnector(associatedCreature.gameObject), CombatUtils.GiveShotConnector(relevantTargets[0].targetObj)); //Get the positions the projectile should travel.
 
         GameObject projectile = GameObject.Instantiate(AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.instance.TakahiroBasic), movePositions[0], Quaternion.LookRotation(movePositions[1] - movePositions[0])); //Ceates projectile.
 
@@ -34,7 +35,9 @@ public class AbilityBasicAttack : CharAbility
             {
                 effect.destroyAtEnd = true;
                 effect.finishedEffectAuxCall += DamageOnImpact;
+                effect.finishHitCheck[0] = CombatUtils.AttackHitPercentages(relevantTargets[0].hitChance);
             }
+            
 
             sendList.Add(effect);
         }
@@ -48,14 +51,14 @@ public class AbilityBasicAttack : CharAbility
     private void DamageOnImpact(EffectDataPacket effectDataPacket)
     {
         Debug.Log("dealing damage");
-        List<GameObject> relevantObjects = ((TargetPacket)effectDataPacket.GetValueAtKey("Targets", false)[0]).ReturnObjectsOnNodes(0); //Gets access to GameObject Targets from Nodes.
+        List<TargetSpecs> relevantObjects = ((TargetPacket)effectDataPacket.GetValue("Targets", false)[0]).targetObjectSpecs; //Gets access to GameObject Targets from Nodes.
         List<LivingCreature> creatureList = new List<LivingCreature>();
-        foreach (GameObject obj in relevantObjects)
+        foreach (TargetSpecs obj in relevantObjects)
         {
-            creatureList.Add(obj.GetComponent<LivingCreature>());
+            creatureList.Add(obj.targetLivRef);
         }
 
-
+        Debug.Log("Creature List: " + creatureList.Count);
         EffectDealDamage effect = new EffectDealDamage(effectDataPacket, creatureList.Count)
         {
             damageAttack = new Attack(100, Attack.DamageType.Physical),

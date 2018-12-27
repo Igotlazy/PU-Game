@@ -18,7 +18,6 @@ public class Unit : MonoBehaviour {
     public bool hasSuccessfulPath;
     public int teamValue;
 
-    public CinemachineVirtualCamera unitCamera;
     public Transform centerPoint;
     public bool[,] test = new bool[5,5];
 

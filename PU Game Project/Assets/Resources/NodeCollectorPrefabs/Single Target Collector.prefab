@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4774627252965194}
   - component: {fileID: 114790632196881238}
+  - component: {fileID: 958698220148032319}
+  - component: {fileID: 7676307536213791835}
   m_Layer: 0
   m_Name: Single Target Collector
   m_TagString: Untagged
@@ -51,8 +53,34 @@ MonoBehaviour:
     abilitySprite: {fileID: 0}
     energyCost: 0
     turnCooldown: 0
-  numOfSelections: 0
-  selectedObject: {fileID: 0}
   selectionIndicator: {fileID: 1464686660177392, guid: c714b8ada55d617468abc95a6f0ea078,
     type: 3}
-  spawnedIndicator: {fileID: 0}
+--- !u!135 &958698220148032319
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725770488097782}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 10
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &7676307536213791835
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725770488097782}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

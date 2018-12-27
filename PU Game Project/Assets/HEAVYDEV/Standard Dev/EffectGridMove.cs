@@ -28,7 +28,6 @@ public class EffectGridMove : BattleEffect {
 
     private void GridMove(int index)
     {
-        Debug.Log("Index: " + index);
         if (moveTarget[index] != null)
         {
             Unit moveTargetScript = moveTarget[index].gameObject.GetComponent<Unit>();

@@ -6,10 +6,6 @@ using UnityEngine.EventSystems;
 public class SingleTargetSelector : AttackSelection
 {
 
-    public int numOfSelections;
-    public GameObject selectedObject;
-    public GameObject selectionIndicator;
-    public GameObject spawnedIndicator;
     RaycastHit hitInfo;
 
     List<Collider> colliders = new List<Collider>();
@@ -19,11 +15,6 @@ public class SingleTargetSelector : AttackSelection
     protected override void Update()
     {
         base.Update();
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            GatherClick();
-        }
     }
 
     protected override void InitializeImpl(int selectorIndex)
@@ -31,55 +22,71 @@ public class SingleTargetSelector : AttackSelection
         
     }
 
-    private void GatherClick()
+    protected override void MadeSelectionImpl()
     {
-        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.gameEntityMask);
 
-        if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
+    }
+    protected override void CancelSelectionImpl()
+    {
+
+    }
+
+    private void OnTriggerEnter(Collider enteringCollider)
+    {
+        if (enteringCollider.gameObject.CompareTag("Tile"))
         {
-            if (hit && (hitInfo.transform.gameObject.CompareTag("Champion")))
+            Node enteringNode = GridGen.instance.NodeFromWorldPoint(enteringCollider.gameObject.transform.position);
+            enteringNode.IsAttackable = true;
+            collectedNodes.Add(enteringNode);
+        }
+        if (enteringCollider.gameObject.CompareTag("Champion"))
+        {
+            GameObject hitObject = enteringCollider.gameObject;
+
+            bool alreadyHas = false;
+            foreach (TargetSpecs currentSpec in attachedTargetPacket.targetObjectSpecs)
             {
-                if (selectedObject !=  hitInfo.collider.gameObject)
+                if (currentSpec.targetObj.Equals(hitObject))
                 {
-                    if (spawnedIndicator != null)
-                    {
-                        Destroy(spawnedIndicator);
-                    }
+                    attachedTargetPacket.targetObjectSpecs.Remove(currentSpec);
+                    currentSpec.targetLivRef.healthBar.HideHitChance();
+                    alreadyHas = true;
+                    break;
+                }
+            }
 
-                    selectedObject = hitInfo.collider.gameObject;
-                    Unit unitScript = selectedObject.GetComponent<Unit>();
-                    LivingCreature livingScript = selectedObject.GetComponent<LivingCreature>();
-
-                    livingScript.healthBar.DisplayHitChance(CombatUtils.AttackHitCalculation(givenAbility.associatedCreature.gameObject, selectedObject));
-
-
-                    spawnedIndicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
-                }                
+            if (!alreadyHas)
+            {
+                float hitChance = CombatUtils.AttackHitCalculation(givenAbility.associatedCreature.gameObject, hitObject);
+                TargetSpecs newSpecs = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject));
+                attachedTargetPacket.targetObjectSpecs.Add(newSpecs);
             }
         }
     }
 
-    protected override void MadeSelectionImpl()
+    private void OnTriggerExit(Collider exitingCollider)
     {
-        collectedNodes.Add(selectedObject.GetComponent<Unit>().currentNode);
-        if(spawnedIndicator != null)
+        if (exitingCollider.gameObject.CompareTag("Tile"))
         {
-            Destroy(spawnedIndicator);
+            Node exitingNode = GridGen.instance.NodeFromWorldPoint(exitingCollider.gameObject.transform.position);
+            if (collectedNodes.Contains(exitingNode))
+            {
+                exitingNode.IsAttackable = false;
+                collectedNodes.Remove(exitingNode);
+            }
         }
-        if(selectedObject != null)
+        if (exitingCollider.gameObject.CompareTag("Champion"))
         {
-            selectedObject.GetComponent<LivingCreature>().healthBar.HideHitChance();
-        }
-    }
-    protected override void CancelSelectionImpl()
-    {
-        if (spawnedIndicator != null)
-        {
-            Destroy(spawnedIndicator);
-        }
-        if (selectedObject != null)
-        {
-            selectedObject.GetComponent<LivingCreature>().healthBar.HideHitChance();
+            GameObject hitObject = exitingCollider.gameObject;
+            foreach (TargetSpecs currentSpec in attachedTargetPacket.targetObjectSpecs)
+            {
+                if (currentSpec.targetObj.Equals(hitObject))
+                {
+                    attachedTargetPacket.targetObjectSpecs.Remove(currentSpec);
+                    currentSpec.targetLivRef.healthBar.HideHitChance();
+                    break;
+                }
+            }
         }
     }
 

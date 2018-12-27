@@ -17,16 +17,31 @@ public abstract class BattleEffect {
     public int runAmount;
     public bool isInternalCancelDependent;
 
+    public List<bool> startHitCheck = new List<bool>();
+    public List<bool> finishHitCheck = new List<bool>();
+
 
     public BattleEffect(EffectDataPacket _effectData, int _runAmount)
     {
         this.effectData = _effectData;
         this.runAmount = _runAmount;
+
+        for(int i = 0; i < _runAmount; i++)
+        {
+            startHitCheck.Add(true);
+            finishHitCheck.Add(true);
+        }
     }
 
 
     public void RunEffect()
     {
+        if(runAmount <= 0)
+        {
+            Debug.LogAssertion("WARNING: Effect Was Given Run Amount of 0 or less");
+            RemoveSelfFromResolveList();
+            return;
+        }
         if (!hasWarned)
         {
             WarnEffect(runTracker);
@@ -34,8 +49,26 @@ public abstract class BattleEffect {
         }
         else
         {
+            if (startHitCheck[runTracker] == false)
+            {
+                runTracker++;
+                if (runTracker > runAmount - 1)
+                {
+                    RemoveSelfFromResolveList();
+                }
+                else
+                {
+                    hasWarned = false;
+                }
+
+                isCancelled = false;
+                Debug.LogWarning("MISSED");
+                //Add Miss Animation;
+                return;
+            }
+
             bool conditionResult = true;
-            if (!isCancelled && conditionCheck != null) //Checks set position if the effect hasn't already been cancelled.
+            if (!isCancelled && conditionCheck != null) //Checks set condition if the effect hasn't already been cancelled.
             {
                 conditionResult = conditionCheck.Invoke(effectData, this);
             }
@@ -43,7 +76,16 @@ public abstract class BattleEffect {
             if (!isCancelled && conditionResult && EffectSpecificCondition(runTracker)) //Does effect if it hasn't been cancelled, and all conditions have been met. 
             {
                 RunEffectImpl(runTracker);
-                FinishEffect();               
+
+                if (finishHitCheck[runTracker] == true)
+                {
+                    FinishEffect();
+                }
+                else
+                {
+                    Debug.LogWarning("MISSED");
+                }
+                
             }
             else
             {
@@ -85,7 +127,7 @@ public abstract class BattleEffect {
     }
     protected abstract void CancelEffectImpl();
 
-    private void FinishEffect()
+    protected void FinishEffect()
     {
         if (!isCancelled)
         {

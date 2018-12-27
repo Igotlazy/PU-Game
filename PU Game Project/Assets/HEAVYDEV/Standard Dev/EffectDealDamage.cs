@@ -58,17 +58,17 @@ public class EffectDealDamage : BattleEffect {
         EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs
         {
             damageValue = damageAttack.damageValue,
-            source = (LivingCreature)effectData.GetValueAtKey("caster", false)[0],
+            source = (LivingCreature)effectData.GetValue("caster", false)[0],
             target = damageTarget[index]
         });
 
         if (recordDamageAttack)
         {
-            effectData.AppendValueAtKey(damageAttackKey, damageAttack);
+            effectData.AppendValue(damageAttackKey, damageAttack);
         }
         if (recordDamageTarget)
         {
-            effectData.AppendValueAtKey(damageTargetKey, damageTarget);
+            effectData.AppendValue(damageTargetKey, damageTarget);
         }
     }
 

@@ -10,6 +10,9 @@ public class AbilityBasicMove : CharAbility {
     public AbilityBasicMove(LivingCreature livingCreature) : base (livingCreature)
     {
         castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
+
+        targetPacketBaseData.Add(new List<TargetPacket> { new TargetPacket() });
+
         targetSelectors.Add(new List<GameObject> {AbilityPrefabRef.instance.GiveNodeCollectorPrefab(AbilityPrefabRef.instance.BasicMoveSelector)});
     }
 
@@ -18,8 +21,8 @@ public class AbilityBasicMove : CharAbility {
     {
         List<Vector3> path = new List<Vector3>();
 
-        TargetPacket relevantTargets = (TargetPacket)effectPacket.GetValueAtKey("Targets", false)[0];
-        foreach (Node currentNode in relevantTargets.TargetNodes[0]) //Get Path Location Data
+        TargetPacket relevantTargets = (TargetPacket)effectPacket.GetValue("Targets", false)[0];
+        foreach (Node currentNode in relevantTargets.TargetNodes) //Get Path Location Data
         {
             path.Add(currentNode.worldPosition);
         }
@@ -30,9 +33,9 @@ public class AbilityBasicMove : CharAbility {
 
         for (int i = 0; i < path.Count; i++) //Store Path Location Data (not really needed in this case)
         {
-            effectPacket.AppendValueAtKey("MovePath", path[i]);
+            effectPacket.AppendValue("MovePath", path[i]);
         }
-        effectPacket.AppendValueAtKey("MovingTarget", associatedCreature);
+        effectPacket.AppendValue("MovingTarget", associatedCreature);
 
 
 
@@ -41,10 +44,10 @@ public class AbilityBasicMove : CharAbility {
         {
             EffectGridMove moveEffect = new EffectGridMove(effectPacket, 1)
             {
-                pathIndex = (Vector3)effectPacket.GetValueAtKey("MovePath", false)[i],
+                pathIndex = (Vector3)effectPacket.GetValue("MovePath", false)[i],
                 moveSpeed = 3.5f,
             };
-            moveEffect.moveTarget.Add((LivingCreature)effectPacket.GetValueAtKey("MovingTarget", false)[0]);
+            moveEffect.moveTarget.Add((LivingCreature)effectPacket.GetValue("MovingTarget", false)[0]);
             //moveEffect.conditionCheck += FreeMoveCONDITION;
 
             effectsToPass.Add(moveEffect);
