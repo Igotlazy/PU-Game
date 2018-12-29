@@ -6,20 +6,32 @@ using MHA.BattleBehaviours;
 
 public abstract class AttackSelection : MonoBehaviour {
 
-    protected int numOfSelections = 1;
+    protected int maxNumOfSelections;
     public bool hasLoadedTargets;
     public CharAbility givenAbility;
     protected HashSet<Node> collectedNodes = new HashSet<Node>();
+    protected List<TargetSpecs> selectedSpecs = new List<TargetSpecs>();
+    protected List<TargetSpecs> allSpecs = new List<TargetSpecs>();
     public TargetPacket attachedTargetPacket;
 
     public GameObject selectionIndicator;
 
+    protected TargetPacket.SelectionType selectType = TargetPacket.SelectionType.Null;
 
-    public void Initialize(int selectorIndex)
+
+    public void Initialize()
     {
-        InitializeImpl(selectorIndex);
+        selectType = attachedTargetPacket.selectionType;
+        Debug.Log(selectType);
+        if(selectType == TargetPacket.SelectionType.Single)
+        {
+            maxNumOfSelections = attachedTargetPacket.maxNumOfSelect;
+            Debug.Log(maxNumOfSelections);
+        }
+
+        InitializeImpl();
     }
-    protected abstract void InitializeImpl(int selectorIndex);
+    protected abstract void InitializeImpl();
 
     protected virtual void Update()
     {
@@ -31,7 +43,9 @@ public abstract class AttackSelection : MonoBehaviour {
         {
             CancelSelection();
         }
-        if (Input.GetKeyDown(KeyCode.B))
+
+
+        if (Input.GetKeyDown(KeyCode.B) && selectType == TargetPacket.SelectionType.Single)
         {
             GatherClick();
         }
@@ -39,16 +53,12 @@ public abstract class AttackSelection : MonoBehaviour {
 
     protected void MadeSelection()
     {
-        NodeDisplayCleanup();
-        foreach(TargetSpecs currentSpec in attachedTargetPacket.targetObjectSpecs)
-        {
-            currentSpec.targetLivRef.healthBar.HideHitChance();
-            Destroy(currentSpec.indicator);
-        }
+        DisplayCleanup();
+
+        attachedTargetPacket.targetObjectSpecs = selectedSpecs;
+        attachedTargetPacket.TargetNodes = collectedNodes;
 
         MadeSelectionImpl();
-
-        attachedTargetPacket.TargetNodes = collectedNodes;
 
         hasLoadedTargets = true;
 
@@ -58,13 +68,8 @@ public abstract class AttackSelection : MonoBehaviour {
 
     protected void CancelSelection()
     {
-        NodeDisplayCleanup();
+        DisplayCleanup();
 
-        foreach (TargetSpecs currentSpec in attachedTargetPacket.targetObjectSpecs)
-        {
-            currentSpec.targetLivRef.healthBar.HideHitChance();
-            Destroy(currentSpec.indicator);
-        }
         CancelSelectionImpl();
 
         givenAbility.CancelTargets();
@@ -73,7 +78,7 @@ public abstract class AttackSelection : MonoBehaviour {
     }
     protected abstract void CancelSelectionImpl();
 
-    public virtual void NodeDisplayCleanup()
+    public virtual void DisplayCleanup()
     {
         DrawIndicators.instance.ClearTileMatStates(true, true, true);
         foreach(Node currNode in collectedNodes)
@@ -83,11 +88,15 @@ public abstract class AttackSelection : MonoBehaviour {
                 currNode.IsAttackable = false;
             }
         }
-    }
+        foreach (TargetSpecs currentSpec in allSpecs)
+        {
+            currentSpec.targetLivRef.healthBar.HideHitChance();
 
-    public virtual void AddToNodeSet(Node givenNode)
-    {
-
+            if (currentSpec.indicator != null)
+            {
+                Destroy(currentSpec.indicator);
+            }
+        }
     }
 
     private void GatherClick()
@@ -100,39 +109,32 @@ public abstract class AttackSelection : MonoBehaviour {
             GameObject hitObject = hitInfo.collider.gameObject;
             if (hitObject.CompareTag("Champion") && hitObject.GetComponent<Unit>().currentNode.IsAttackable)
             {
-                bool alreadyHas = false;
-                foreach (TargetSpecs currentSpec in attachedTargetPacket.targetObjectSpecs)
+                foreach (TargetSpecs currentSpec in allSpecs)
                 {
                     if (currentSpec.targetObj.Equals(hitObject))
                     {
-                        if (currentSpec.indicator != null)
+                        if (currentSpec.indicator == null)
+                        {
+                            Unit unitScript = hitObject.GetComponent<Unit>();
+                            currentSpec.indicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
+                            currentSpec.targetLivRef.healthBar.DisplayHitChance();
+                            selectedSpecs.Add(currentSpec);
+
+                            if (selectedSpecs.Count > maxNumOfSelections)
+                            {
+                                Destroy(selectedSpecs[0].indicator);
+                                selectedSpecs[0].targetLivRef.healthBar.FadeHitChance();
+                                selectedSpecs.RemoveAt(0);
+                            }
+                        }
+                        else
                         {
                             Destroy(currentSpec.indicator);
+                            currentSpec.targetLivRef.healthBar.FadeHitChance();
+                            selectedSpecs.Remove(currentSpec);
                         }
-                        attachedTargetPacket.targetObjectSpecs.Remove(currentSpec);
-                        currentSpec.targetLivRef.healthBar.HideHitChance();
-                        alreadyHas = true;
                         break;
                     }
-                }
-
-                if (!alreadyHas)
-                {
-                    Debug.Log(numOfSelections);
-                    Debug.Log(attachedTargetPacket.targetObjectSpecs.Count);
-                    if(attachedTargetPacket.targetObjectSpecs.Count >= numOfSelections)
-                    {
-                        Debug.Log("We're Here");
-                        Destroy(attachedTargetPacket.targetObjectSpecs[0].indicator);
-                        attachedTargetPacket.targetObjectSpecs.RemoveAt(0);
-                    }
-
-                    float hitChance = CombatUtils.AttackHitCalculation(givenAbility.associatedCreature.gameObject, hitObject);
-                    TargetSpecs newSpecs = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject));
-                    attachedTargetPacket.targetObjectSpecs.Add(newSpecs);
-
-                    Unit unitScript = hitObject.GetComponent<Unit>();
-                    newSpecs.indicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
                 }
             }
         }

@@ -28,38 +28,38 @@ public class EffectDealDamage : BattleEffect {
         }
     }
     bool recordDamageTarget;
-    public List<LivingCreature> damageTarget = new List<LivingCreature>();
+    public LivingCreature damageTarget;
 
     
 
-    public EffectDealDamage(EffectDataPacket _effectData, int _runAmount) : base(_effectData, _runAmount)
+    public EffectDealDamage(EffectDataPacket _effectData) : base(_effectData)
     {
 
     }
 
 
-    protected override void RunEffectImpl(int index)
+    protected override void RunEffectImpl()
     {
-        DealDamage(index);
+        DealDamage();
     }
 
-    protected override void WarnEffect(int index)
+    protected override void WarnEffect()
     {
         Debug.Log("Deal Damage: Warning Event Not Implemented");
     }
 
-    private void DealDamage(int index)
+    private void DealDamage()
     {
-        damageTarget[index].CreatureHit(damageAttack);
+        damageTarget.CreatureHit(damageAttack);
         Debug.Log("DEALING DAMAGE");
 
-        new BBDealDamageAnim(damageTarget[index], damageTarget[index].currentHealth, damageAttack);
+        new BBDealDamageAnim(damageTarget, damageTarget.currentHealth, damageAttack);
 
         EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs
         {
             damageValue = damageAttack.damageValue,
             source = (LivingCreature)effectData.GetValue("caster", false)[0],
-            target = damageTarget[index]
+            target = damageTarget
         });
 
         if (recordDamageAttack)
@@ -72,9 +72,9 @@ public class EffectDealDamage : BattleEffect {
         }
     }
 
-    protected override bool EffectSpecificCondition(int index)
+    protected override bool EffectSpecificCondition()
     {
-        if(damageTarget[index] != null)
+        if(damageTarget != null)
         {
             return true;
         }

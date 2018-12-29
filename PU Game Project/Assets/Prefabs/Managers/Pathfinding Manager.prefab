@@ -50,12 +50,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayGridGizmos: 1
   doDiagonal: 0
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 4096
-  baseMapGenMask:
-    serializedVersion: 2
-    m_Bits: 1024
   nodeRadius: 0.75
   minCielingHeight: 3
   tileGraphicSpawnHeight: 0.05

@@ -6,30 +6,30 @@ public class EffectHeal : BattleEffect {
 
     float healAmount;
 
-    public EffectHeal (EffectDataPacket _effectData, int _runAmount) : base(_effectData, _runAmount)
+    public EffectHeal (EffectDataPacket _effectData) : base(_effectData)
     {
 
     }
 
 
-    protected override void RunEffectImpl(int index)
+    protected override void RunEffectImpl()
     {
-        HealTarget(index);
+        HealTarget();
     }
 
-    protected override void WarnEffect(int index)
+    protected override void WarnEffect()
     {
         Debug.Log("Heal: Warning Event Not Implemented");
     }
 
-    private void HealTarget(int index)
+    private void HealTarget()
     {
         //target.Heal(healAmount);
 
         //effectData.SetValueAtKey("Healed Amount", (float)effectData.blackboard["Healed Amount"] + healAmount);
     }
 
-    protected override bool EffectSpecificCondition(int index)
+    protected override bool EffectSpecificCondition()
     {
         return true;
     }

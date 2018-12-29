@@ -12,7 +12,7 @@ public class ZoneNodeCollectorTrigger : AttackSelection
         attackInd = GetComponent<AttackSelection>();
     }
 
-    protected override void InitializeImpl(int selectorIndex)
+    protected override void InitializeImpl()
     {
 
     }

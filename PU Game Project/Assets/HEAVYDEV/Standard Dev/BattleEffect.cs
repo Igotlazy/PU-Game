@@ -13,87 +13,43 @@ public abstract class BattleEffect {
     public bool isCancelled;
     bool hasWarned;
 
-    public int runTracker;
-    public int runAmount;
-    public bool isInternalCancelDependent;
-
-    public List<bool> startHitCheck = new List<bool>();
-    public List<bool> finishHitCheck = new List<bool>();
+    //For TPorters
+    protected bool TPorterRemoveOverride = true; //Turn to false for T porters to separate movements. 
+    protected bool TPorterFinishOverride = true;
 
 
-    public BattleEffect(EffectDataPacket _effectData, int _runAmount)
+    public BattleEffect(EffectDataPacket _effectData)
     {
         this.effectData = _effectData;
-        this.runAmount = _runAmount;
-
-        for(int i = 0; i < _runAmount; i++)
-        {
-            startHitCheck.Add(true);
-            finishHitCheck.Add(true);
-        }
     }
 
 
     public void RunEffect()
     {
-        if(runAmount <= 0)
-        {
-            Debug.LogAssertion("WARNING: Effect Was Given Run Amount of 0 or less");
-            RemoveSelfFromResolveList();
-            return;
-        }
         if (!hasWarned)
         {
-            WarnEffect(runTracker);
+            WarnEffect();
             hasWarned = true;
         }
         else
         {
-            if (startHitCheck[runTracker] == false)
-            {
-                runTracker++;
-                if (runTracker > runAmount - 1)
-                {
-                    RemoveSelfFromResolveList();
-                }
-                else
-                {
-                    hasWarned = false;
-                }
-
-                isCancelled = false;
-                Debug.LogWarning("MISSED");
-                //Add Miss Animation;
-                return;
-            }
-
             bool conditionResult = true;
             if (!isCancelled && conditionCheck != null) //Checks set condition if the effect hasn't already been cancelled.
             {
                 conditionResult = conditionCheck.Invoke(effectData, this);
             }
 
-            if (!isCancelled && conditionResult && EffectSpecificCondition(runTracker)) //Does effect if it hasn't been cancelled, and all conditions have been met. 
+            if (!isCancelled && conditionResult && EffectSpecificCondition()) //Does effect if it hasn't been cancelled, and all conditions have been met. 
             {
-                RunEffectImpl(runTracker);
+                RunEffectImpl();
 
-                if (finishHitCheck[runTracker] == true)
+                if (TPorterFinishOverride)
                 {
                     FinishEffect();
                 }
-                else
-                {
-                    Debug.LogWarning("MISSED");
-                }
-                
-            }
-            else
-            {
-                isCancelled = false;
             }
 
-            runTracker++;
-            if (runTracker > runAmount - 1)
+            if (TPorterRemoveOverride)
             {
                 RemoveSelfFromResolveList();
             }
@@ -103,9 +59,9 @@ public abstract class BattleEffect {
             }
         }
     }
-    protected abstract void WarnEffect(int index);
-    protected abstract bool EffectSpecificCondition(int index);
-    protected abstract void RunEffectImpl(int index);
+    protected abstract void WarnEffect();
+    protected abstract bool EffectSpecificCondition();
+    protected abstract void RunEffectImpl();
 
 
     public void CancelEffect()
@@ -113,12 +69,10 @@ public abstract class BattleEffect {
         Debug.Log("Effect Cancelled");
 
         isCancelled = true;
-        if (isInternalCancelDependent)
-        {
-            RemoveSelfFromResolveList();
-        }
 
-        if(cancelEffectAuxCalls!= null)
+        RemoveSelfFromResolveList();
+
+        if (cancelEffectAuxCalls!= null)
         {
             cancelEffectAuxCalls.Invoke();
         }

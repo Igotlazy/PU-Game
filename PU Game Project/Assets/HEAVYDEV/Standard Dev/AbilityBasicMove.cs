@@ -11,7 +11,7 @@ public class AbilityBasicMove : CharAbility {
     {
         castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
 
-        targetPacketBaseData.Add(new List<TargetPacket> { new TargetPacket() });
+        targetPacketBaseData.Add(new List<TargetPacket> { new TargetPacket(TargetPacket.SelectionType.Null) });
 
         targetSelectors.Add(new List<GameObject> {AbilityPrefabRef.instance.GiveNodeCollectorPrefab(AbilityPrefabRef.instance.BasicMoveSelector)});
     }
@@ -42,12 +42,12 @@ public class AbilityBasicMove : CharAbility {
         List<BattleEffect> effectsToPass = new List<BattleEffect>(); //Effects to send to the Resolver/
         for (int i = 0; i < path.Count; i++) //Creation of Effects
         {
-            EffectGridMove moveEffect = new EffectGridMove(effectPacket, 1)
+            EffectGridMove moveEffect = new EffectGridMove(effectPacket)
             {
                 pathIndex = (Vector3)effectPacket.GetValue("MovePath", false)[i],
                 moveSpeed = 3.5f,
             };
-            moveEffect.moveTarget.Add((LivingCreature)effectPacket.GetValue("MovingTarget", false)[0]);
+            moveEffect.moveTarget = (LivingCreature)effectPacket.GetValue("MovingTarget", false)[0];
             //moveEffect.conditionCheck += FreeMoveCONDITION;
 
             effectsToPass.Add(moveEffect);

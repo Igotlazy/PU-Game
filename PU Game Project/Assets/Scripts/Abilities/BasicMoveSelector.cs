@@ -14,7 +14,7 @@ public class BasicMoveSelector : AttackSelection {
         CursorController.instance.CursorNewNodeEVENT += SetMovePath;
     }
 
-    protected override void InitializeImpl(int selectorIndex)
+    protected override void InitializeImpl()
     {
         
     }

@@ -7,30 +7,30 @@ public class EffectGridMove : BattleEffect {
 
     public Vector3 pathIndex;
     public float moveSpeed = 3.5f;
-    public List<LivingCreature> moveTarget = new List<LivingCreature>();
+    public LivingCreature moveTarget;
     public bool destroyAtEnd;
 
-    public EffectGridMove(EffectDataPacket _effectData, int _runAmount) : base(_effectData, _runAmount)
+    public EffectGridMove(EffectDataPacket _effectData) : base(_effectData)
     {
 
     }
 
 
-    protected override void RunEffectImpl(int index)
+    protected override void RunEffectImpl()
     {
-        GridMove(index);
+        GridMove();
     }
 
-    protected override void WarnEffect(int index)
+    protected override void WarnEffect()
     {
         Debug.Log("Grid Move: Warning Event Not Implemented");
     }
 
-    private void GridMove(int index)
+    private void GridMove()
     {
-        if (moveTarget[index] != null)
+        if (moveTarget != null)
         {
-            Unit moveTargetScript = moveTarget[index].gameObject.GetComponent<Unit>();
+            Unit moveTargetScript = moveTarget.gameObject.GetComponent<Unit>();
             Node newNode = GridGen.instance.NodeFromWorldPoint(pathIndex);
 
             if (moveTargetScript != null)
@@ -39,15 +39,15 @@ public class EffectGridMove : BattleEffect {
                 moveTargetScript.currentNode = newNode; //So the player knows which Node they're on. 
             }
             newNode.IsOccupied = true;
-            newNode.occupant = moveTarget[index].gameObject; //Sets last Node to now be Occupied.
+            newNode.occupant = moveTarget.gameObject; //Sets last Node to now be Occupied.
 
-            new AnimMoveToPos(pathIndex, moveTarget[index].gameObject, moveSpeed, destroyAtEnd);
+            new AnimMoveToPos(pathIndex, moveTarget.gameObject, moveSpeed, destroyAtEnd);
         }
     }
 
-    protected override bool EffectSpecificCondition(int index)
+    protected override bool EffectSpecificCondition()
     {
-        if(moveTarget[runTracker] != null)
+        if(moveTarget != null)
         {
             return true;
         }

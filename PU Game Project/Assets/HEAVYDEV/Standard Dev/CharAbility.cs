@@ -53,7 +53,7 @@ public class CharAbility{
 
             selectorScript.givenAbility = this;
             selectorScript.attachedTargetPacket = targets;
-            selectorScript.Initialize(selectorIndex);
+            selectorScript.Initialize();
 
             yield return new WaitUntil(() => selectorScript.hasLoadedTargets);
             targetPacketList.Add(targets);

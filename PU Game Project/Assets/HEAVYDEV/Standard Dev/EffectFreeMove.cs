@@ -7,34 +7,34 @@ public class EffectFreeMove : BattleEffect
 {
     public Vector3 destination;
     public float moveSpeed = 5f;
-    public List<GameObject> moveTarget = new List<GameObject>();
+    public GameObject moveTarget;
     public bool destroyAtEnd;
 
-    public EffectFreeMove(EffectDataPacket _effectData, int _runAmount) : base(_effectData, _runAmount)
+    public EffectFreeMove(EffectDataPacket _effectData) : base(_effectData)
     {
 
     }
 
 
-    protected override void RunEffectImpl(int index)
+    protected override void RunEffectImpl()
     {
-        FreeMove(index);
+        FreeMove();
     }
 
-    protected override void WarnEffect(int index)
+    protected override void WarnEffect()
     {
         //Debug.Log("Grid Move: Warning Event Not Implemented");
     }
 
-    private void FreeMove(int index)
+    private void FreeMove()
     {
         //Debug.Log("I'm going here: " + destination);
-        new AnimMoveToPos(destination, moveTarget[index], moveSpeed, destroyAtEnd);
+        new AnimMoveToPos(destination, moveTarget, moveSpeed, destroyAtEnd);
     }
 
-    protected override bool EffectSpecificCondition(int index)
+    protected override bool EffectSpecificCondition()
     {
-        if(moveTarget[index] != null)
+        if(moveTarget != null)
         {
             return true;
         }

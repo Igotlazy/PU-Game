@@ -11,6 +11,7 @@ public class TargetSpecs
     public List<string> relevantDescriptions = new List<string>();
 
     public Vector3 fireOriginPoint;
+    public GameObject indicator;
 
     public TargetSpecs(GameObject _targetObj, Vector2 _damageRange, float _hitChance, string _description, Vector3 _fireOriginPoint)
     {
@@ -21,10 +22,6 @@ public class TargetSpecs
         this.relevantDescriptions.Add(_description);
         this.fireOriginPoint = _fireOriginPoint;
 
-        targetLivRef.healthBar.DisplayHitChance(_hitChance);
+        targetLivRef.healthBar.SetHitChance(_hitChance);
     }
-
-    public GameObject indicator;
-
-
 }

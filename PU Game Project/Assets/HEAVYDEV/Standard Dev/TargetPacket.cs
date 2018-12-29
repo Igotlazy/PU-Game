@@ -6,11 +6,13 @@ public class TargetPacket {
 
     public enum SelectionType
     {
+        Null,
         Single,
         AoE,
-        HardAOE
+        PureAOE
     }
-    public SelectionType selectionTypes;
+    public SelectionType selectionType;
+    public int maxNumOfSelect;
 
 
 
@@ -29,7 +31,13 @@ public class TargetPacket {
 
     public List<TargetSpecs> targetObjectSpecs = new List<TargetSpecs>();
     public List<float> selectorSpecs = new List<float>();
-    public Vector3 spawnLocation;
+
+
+
+    public TargetPacket(SelectionType _selectionType)
+    {
+        this.selectionType = _selectionType;
+    }
 
 
 
@@ -85,9 +93,15 @@ public class TargetPacket {
 
     public static TargetPacket Clone(TargetPacket givenPacket)
     {
-        TargetPacket returnPacket = new TargetPacket();
-        //returnPacket.TargetNodes = new List<HashSet<Node>>(givenPacket.TargetNodes);
-        returnPacket.selectorSpecs = new List<float>(givenPacket.selectorSpecs);
+        TargetPacket returnPacket = new TargetPacket(givenPacket.selectionType)
+        {
+            selectorSpecs = new List<float>(givenPacket.selectorSpecs)           
+        };
+
+        if(givenPacket.selectionType == SelectionType.Single)
+        {
+            returnPacket.maxNumOfSelect = givenPacket.maxNumOfSelect;
+        }
 
         return returnPacket;
     }

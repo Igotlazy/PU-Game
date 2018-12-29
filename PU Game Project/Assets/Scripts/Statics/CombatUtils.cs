@@ -8,7 +8,7 @@ using System;
 public static class CombatUtils {
 
 
-    private static LayerMask shotMask = (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade"));
+    public static LayerMask shotMask = (1 << LayerMask.NameToLayer("Obstacle")) | (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade"));
     public static LayerMask clickLayerMask = (1 << LayerMask.NameToLayer("GameEntity")) | (1 << LayerMask.NameToLayer("GameTerrain"));
     public static LayerMask gameTerrainMask = (1 << LayerMask.NameToLayer("GameTerrain"));
     public static LayerMask gameTerrainAndFade = (1 << LayerMask.NameToLayer("GameTerrain")) | (1 << LayerMask.NameToLayer("GameTerrainFade"));
@@ -16,10 +16,11 @@ public static class CombatUtils {
     public static LayerMask objectFadeMask = (1 << LayerMask.NameToLayer("GameTerrain") | 1 << LayerMask.NameToLayer("GameTerrainFade") | (1 << LayerMask.NameToLayer("Obstacle")));
 
     private static float maxAngleForPartialCover = 30f;
-    private static float hitPercentDistanceDropOff = 5f;
+    //private static float hitPercentDistanceDropOff = 5f;
 
+    //public static float MainFireCalculation(Vector3 sourcePos, )
 
-    public static float AttackHitCalculation(GameObject sourceObject, GameObject targetObject) //Figures out the chance of a given attack between two objects hitting.
+    public static float MainFireCalculation(GameObject sourceObject, GameObject targetObject) //Figures out the chance of a given attack between two objects hitting.
     {
         Unit sourceUnitScript = sourceObject.GetComponent<Unit>();
         Unit targetUnitScript = targetObject.GetComponent<Unit>();
@@ -38,32 +39,9 @@ public static class CombatUtils {
         }
 
         float hitDistance = fireDirection.magnitude;
-        int currentHitPercent = 0;
+        float currentHitPercent = coverCheckCalculation(fireDirection, targetUnitScript);
 
-
-        RaycastHit coverCheckInfo;
-        Vector3 coverCheckFireDiection = -(new Vector3(fireDirection.x, 0f, fireDirection.z));
-
-        Debug.DrawRay(targetUnitScript.partialCoverCheck.transform.position, coverCheckFireDiection.normalized * 1.5f, Color.blue, 10f);
-        bool coverCheckHit = Physics.Raycast(targetUnitScript.partialCoverCheck.transform.position, coverCheckFireDiection, out coverCheckInfo, 1.5f, shotMask);
-        if (coverCheckHit)
-        {
-            bool isPartialCover = coverCheckInfo.collider.gameObject.GetComponent<ObstacleData>().isPartialCover; //Checks to see if the obstacle is PartialCover
-            //Checks if the angle of the shot (relative to the ground) was above a certain number. If so, it acts like there never was a PartialCover. 
-            if (isPartialCover && Vector3.Angle(-fireDirection, coverCheckFireDiection) > maxAngleForPartialCover)                 
-            {
-                currentHitPercent = 100; //If it's in Partial Cover, but the fire angle relative to the ground came from above "maxAngelForPartialCover" degrees, it's 100%.
-            }
-            else
-            {
-                currentHitPercent = 50; //If it's in Partial Cover, but the fire angle relative to the ground came from below "maxAngelForPartialCover" degrees, it's 50%.
-            }
-        }
-        else
-        {
-            currentHitPercent = 100; //If it isn't in Partial Cover and it does hit, it's 100%.
-        }
-
+        /*
         if(hitPercentDistanceDropOff > 0) //Reduces %Hit by distance to target. 
         {
             while (hitDistance > hitPercentDistanceDropOff && currentHitPercent > 0)
@@ -72,9 +50,36 @@ public static class CombatUtils {
                 hitDistance -= hitPercentDistanceDropOff;
             }
         }
+        */
 
         Debug.Log("The chance to Hit is: " + currentHitPercent + "%");
         return currentHitPercent;      
+    }
+
+    public static float coverCheckCalculation(Vector3 fireDirection, Unit targetUnitScript)
+    {
+        Vector3 coverCheckFireDiection = -(new Vector3(fireDirection.x, 0f, fireDirection.z));
+
+        Debug.DrawRay(targetUnitScript.partialCoverCheck.transform.position, coverCheckFireDiection.normalized * GridGen.instance.nodeRadius * 2, Color.blue, 10f);
+        Debug.DrawRay(targetUnitScript.shotConnecter.transform.position, coverCheckFireDiection.normalized * GridGen.instance.nodeRadius * 2, Color.blue, 10f);
+        bool partialCheck = Physics.Raycast(targetUnitScript.partialCoverCheck.transform.position, coverCheckFireDiection, GridGen.instance.nodeRadius * 2, shotMask);
+        bool fullCheck = Physics.Raycast(targetUnitScript.shotConnecter.transform.position, coverCheckFireDiection, GridGen.instance.nodeRadius * 2, shotMask);
+        if (partialCheck)
+        {
+            //Checks if the angle of the shot (relative to the ground) was above a certain number. If so, it acts like there never was a PartialCover. 
+            if (Vector3.Angle(-fireDirection, coverCheckFireDiection) > maxAngleForPartialCover && !fullCheck)
+            {
+                return 100f; //If it's in Partial Cover, but the fire angle relative to the ground came from above "maxAngelForPartialCover" degrees, it's 100%.
+            }
+            else
+            {
+                return 50f; //If it's in Partial Cover, but the fire angle relative to the ground came from below "maxAngelForPartialCover" degrees, it's 50%.
+            }
+        }
+        else
+        {
+            return 100f; //If it isn't in Partial Cover and it does hit, it's 100%.
+        }
     }
 
 
@@ -214,7 +219,6 @@ public static class CombatUtils {
                 {
                     previousEffect.cancelEffectAuxCalls += givenEffects[i].CancelEffect; //If a move is cancelled, all of them down the line will also be cancelled. 
                 } 
-                givenEffects[i].isInternalCancelDependent = true;
                 previousEffect = givenEffects[i];
             }
         }
@@ -233,7 +237,6 @@ public static class CombatUtils {
             {
                 previousEffect.cancelEffectAuxCalls += givenEffects[i].CancelEffect; //If a move is cancelled, all of them down the line will also be cancelled. 
             } 
-            givenEffects[i].isInternalCancelDependent = true;
             previousEffect = givenEffects[i];
         }
     }
