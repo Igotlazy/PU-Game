@@ -16,6 +16,7 @@ public abstract class BattleEffect {
     //For TPorters
     protected bool TPorterRemoveOverride = true; //Turn to false for T porters to separate movements. 
     protected bool TPorterFinishOverride = true;
+    protected bool TPorterWarnOverride = true;
 
 
     public BattleEffect(EffectDataPacket _effectData)
@@ -28,7 +29,10 @@ public abstract class BattleEffect {
     {
         if (!hasWarned)
         {
-            WarnEffect();
+            if (TPorterWarnOverride)
+            {
+                WarnEffect();
+            }
             hasWarned = true;
         }
         else

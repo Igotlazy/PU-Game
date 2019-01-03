@@ -1,31 +1,55 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MHA.Events;
 
 public class TPorterInstant : BattleEffect
 {
     TargetPacket givenPacket;
-    List<TargetSpecs> givenSpecs;
+    List<TargetSpecs> givenTSpecs;
     GameObject fireObjectRef;
 
-    GameObject currentMovingObj;
     int indexTracker;
-    bool isTrue;
+    bool preIndexIncrease = false;
+    bool warnOnce;
 
     public string REPORTKEY;
 
-    public TPorterInstant(EffectDataPacket _effectData, TargetPacket _givenPacket, GameObject _fireObjectRef, bool _isTrue) : base(_effectData)
+
+    public TPorterInstant(EffectDataPacket _effectData, TargetPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData)
     {
         this.givenPacket = _givenPacket;
         this.fireObjectRef = _fireObjectRef;
-        this.isTrue = _isTrue;
+        if(givenPacket.selectionType == TargetPacket.SelectionType.AoE)
+        {
+            this.warnOnce = true;
+        }
 
-        this.givenSpecs = givenPacket.targetObjectSpecs;
+        this.givenTSpecs = givenPacket.targetObjectSpecs;
     }
 
     protected override void WarnEffect()
     {
+        if (!preIndexIncrease)
+        {
+            if (!givenPacket.isPure && (givenTSpecs[indexTracker].selectionType == TargetPacket.SelectionType.Target || givenTSpecs[indexTracker].selectionType == TargetPacket.SelectionType.AreaTarget))
+            {
+                TargetSpecs currentSpec = givenTSpecs[indexTracker];
+                Vector3 targetShot = CombatUtils.GiveShotConnector(currentSpec.targetObj);
+                Vector3 targetPartial = CombatUtils.GivePartialCheck(currentSpec.targetObj);
+                CombatUtils.MainFireCalculation(currentSpec.fireOriginPoint, targetShot, targetPartial, out currentSpec.didPeek, out currentSpec.fireOriginPoint);
 
+                if (currentSpec.didPeek)
+                {
+                    Unit sourceObj = ((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.GetComponent<Unit>();
+                    EventFlags.ANIMStartPeek(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOriginPoint, sourceObj.gameObject.transform.position)); //EVENT
+                }
+            }
+        }
+        if (warnOnce)
+        {
+            TPorterWarnOverride = false;
+        }
     }
 
     protected override void RunEffectImpl()
@@ -33,63 +57,69 @@ public class TPorterInstant : BattleEffect
         TPorterFinishOverride = false;
         TPorterRemoveOverride = false;
 
-        if (indexTracker == 0) //If it's the first, instantiate the projectile.
+        if (!preIndexIncrease)
         {
-            //Quaternion lookRotation = Quaternion.LookRotation(targetPaths[listTracker][1] - targetPaths[listTracker][0]);
-            currentMovingObj = GameObject.Instantiate(fireObjectRef, ((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.transform.position, Quaternion.identity);
-        }
-
-        /*
-        Node currentSpecNode = givenSpecs[indexTracker].targetObj.GetComponent<Unit>().currentNode;
-        if (givenPacket.TargetNodes.Contains(currentSpecNode))
-        {
-            CombatUtils.MainFireCalculation()
-        }
-
-
-        indexTracker++;
-
-        if (indexTracker >= targetPaths[listTracker].Count - 1)
-        {
-            if (givenPacket[listTracker].targetObj.transform.position == originalTargetPositions[listTracker]) //May check this condition (Checks if target is still in same position. 
+            if (indexTracker == 0 && fireObjectRef != null) //If it's the first, instantiate the projectile.
             {
+                Quaternion lookRotation = Quaternion.LookRotation(givenTSpecs[indexTracker].targetObj.GetComponent<Unit>().shotConnecter.transform.position - givenTSpecs[indexTracker].fireOriginPoint);
+                GameObject.Instantiate(fireObjectRef, ((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.transform.position, Quaternion.identity);
+            }
 
-                Unit unitScript = givenPacket[listTracker].targetObj.GetComponent<Unit>();
-                if (unitScript == null)
+            Unit targetScript = givenTSpecs[indexTracker].targetObj.GetComponent<Unit>();
+            if (givenPacket.TargetNodes.Contains(targetScript.currentNode))
+            {
+                if (!givenPacket.isPure)
                 {
-                    effectData.AppendValue(REPORTKEY, givenPacket[listTracker].targetObj);
-                    TPorterFinishOverride = true;
-                }
-                else
-                {
-                    Vector3 fireDir = (targetPaths[listTracker][targetPaths[listTracker].Count - 1]) - (targetPaths[listTracker][targetPaths[listTracker].Count - 2]);
-
-                    if (CombatUtils.AttackHitPercentages(CombatUtils.coverCheckCalculation(fireDir, unitScript)))
+                    float result = CombatUtils.MainFireCalculation(givenTSpecs[indexTracker].fireOriginPoint, targetScript.shotConnecter.transform.position, targetScript.partialCoverCheck.transform.position);
+                    if (CombatUtils.AttackHitPercentages(result))
                     {
-                        effectData.AppendValue(REPORTKEY, givenPacket[listTracker].targetObj);
                         TPorterFinishOverride = true;
+                        effectData.AppendValue(REPORTKEY, givenTSpecs[indexTracker].targetObj);
                     }
                     else
                     {
-                        Debug.LogWarning("MISSED");
+                        Debug.LogWarning("INSTANT BLOCKED");
                     }
+                }
+                else
+                {
+                    TPorterFinishOverride = true;
+                    effectData.AppendValue(REPORTKEY, givenTSpecs[indexTracker].targetObj);
+                }
+            }
+
+            //foreach
+
+            preIndexIncrease = true;
+        }
+        else
+        {
+            if (givenTSpecs[indexTracker].didPeek && (givenTSpecs[indexTracker].selectionType == TargetPacket.SelectionType.Target || givenTSpecs[indexTracker].selectionType == TargetPacket.SelectionType.AreaTarget)) 
+            {
+                if(warnOnce)
+                {
+                    if(indexTracker >= givenTSpecs.Count)
+                    {
+                        EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.GetComponent<Unit>()));
+                    }
+                }
+                else 
+                {
+                    EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.GetComponent<Unit>()));
                 }
 
             }
-            else
-            {
-                Debug.LogWarning("MISSED");
-            }
 
-            indexTracker = 0;
-            listTracker++;
+            indexTracker++;
+            preIndexIncrease = false;
         }
 
-        if (listTracker >= targetPaths.Count)
+
+
+        if(indexTracker >= givenTSpecs.Count)
         {
             TPorterRemoveOverride = true;
         }
-        */
     }
 
 
@@ -100,15 +130,12 @@ public class TPorterInstant : BattleEffect
 
     public void SoftEffectCancel()
     {
-        /*
-        indexTracker = 0;
-        listTracker++;
+        indexTracker++;
 
-        if (listTracker >= targetPaths.Count)
+        if (indexTracker >= givenTSpecs.Count)
         {
             RemoveSelfFromResolveList();
-        }
-        */
+        }        
     }
 
     protected override bool EffectSpecificCondition()

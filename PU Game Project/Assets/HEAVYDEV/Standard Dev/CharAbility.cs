@@ -49,7 +49,8 @@ public class CharAbility{
             TargetPacket targets = TargetPacket.Clone(targetPacketBaseData[abilityIndex][selectorIndex]);
 
             GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][selectorIndex], associatedCreature.transform.position, Quaternion.identity);
-            AttackSelection selectorScript = spawnedSelector.GetComponent<AttackSelection>();
+            AttackSelection selectorScript = spawnedSelector.GetComponentInChildren<AttackSelection>();
+
 
             selectorScript.givenAbility = this;
             selectorScript.attachedTargetPacket = targets;

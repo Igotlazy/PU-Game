@@ -12,6 +12,8 @@ namespace MHA.BattleBehaviours
         float speed;
         bool destroyAtEnd;
 
+        public bool dontHoldUpQueue;
+
         public AnimMoveToPos(Vector3 _finalPos, GameObject _moveTarget, float _speed, bool _destroyAtEnd)
         {
             finalPos = _finalPos;
@@ -25,6 +27,10 @@ namespace MHA.BattleBehaviours
         protected override void PlayBattleAnimationImpl()
         {
             mono.StartCoroutine(GridMoveAnim());
+            if (dontHoldUpQueue)
+            {
+                AnimFinished = true;
+            }
         }
 
         private IEnumerator GridMoveAnim()
@@ -46,7 +52,10 @@ namespace MHA.BattleBehaviours
                 GameObject.Destroy(moveTarget);
             }
 
-            AnimFinished = true;
+            if (!dontHoldUpQueue)
+            {
+                AnimFinished = true;
+            }
         }
     }
 }

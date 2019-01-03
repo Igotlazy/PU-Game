@@ -23,7 +23,13 @@ namespace MHA.BattleBehaviours
 
         protected override void PlayBattleAnimationImpl()
         {
-            mono.StartCoroutine(DisplayDamage());
+            //mono.StartCoroutine(DisplayDamage());
+            givenCreature.healthBar.UpdateHealth(healthRemaining, givenCreature.maxHealth.Value);
+
+            GameObject indicatorObj = GameObject.Instantiate(givenCreature.damageIndicator, new Vector3(givenCreature.transform.position.x, givenCreature.transform.position.y + 2f, givenCreature.transform.position.z), Quaternion.identity);
+            indicatorObj.GetComponent<DamageIndicator>().SetText(givenAttack.damageValue);
+
+            AnimFinished = true;
         }
 
         private IEnumerator DisplayDamage()

@@ -6,35 +6,18 @@ using MHA.Events;
 
 public class EffectDealDamage : BattleEffect {
 
-    string damageAttackKey;
-    public string DamageAttackKey
-    {
-        set
-        {
-            damageAttackKey = value;
-            recordDamageAttack = true;
-        }
-    }
-    bool recordDamageAttack;
+    public string KEYdamageAttack;
     public Attack damageAttack;
 
-    string damageTargetKey;
-    public string DamageTargetKey
-    {
-        set
-        {
-            damageTargetKey = value;
-            recordDamageTarget = true;
-        }
-    }
-    bool recordDamageTarget;
+    public string KEYdamageTarget;
     public LivingCreature damageTarget;
 
     
 
-    public EffectDealDamage(EffectDataPacket _effectData) : base(_effectData)
+    public EffectDealDamage(EffectDataPacket _effectData, LivingCreature _damageTarget, Attack _damageAttack) : base(_effectData)
     {
-
+        this.damageTarget = _damageTarget;
+        this.damageAttack = _damageAttack;
     }
 
 
@@ -51,24 +34,18 @@ public class EffectDealDamage : BattleEffect {
     private void DealDamage()
     {
         damageTarget.CreatureHit(damageAttack);
-        Debug.Log("DEALING DAMAGE");
 
         new BBDealDamageAnim(damageTarget, damageTarget.currentHealth, damageAttack);
 
-        EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs
-        {
-            damageValue = damageAttack.damageValue,
-            source = (LivingCreature)effectData.GetValue("caster", false)[0],
-            target = damageTarget
-        });
+        EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs(damageAttack.damageValue, (LivingCreature)effectData.GetValue("caster", false)[0], damageTarget));
 
-        if (recordDamageAttack)
+        if (KEYdamageAttack != null)
         {
-            effectData.AppendValue(damageAttackKey, damageAttack);
+            effectData.AppendValue(KEYdamageAttack, damageAttack);
         }
-        if (recordDamageTarget)
+        if (KEYdamageTarget != null)
         {
-            effectData.AppendValue(damageTargetKey, damageTarget);
+            effectData.AppendValue(KEYdamageTarget, damageTarget);
         }
     }
 

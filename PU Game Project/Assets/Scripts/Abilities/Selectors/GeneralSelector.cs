@@ -33,7 +33,7 @@ public class GeneralSelector : AttackSelection
         if (enteringCollider.gameObject.CompareTag("Tile"))
         {
             Node enteringNode = GridGen.instance.NodeFromWorldPoint(enteringCollider.gameObject.transform.position);
-            if(givenAbility.associatedCreature.gameObject.GetComponent<Unit>().currentNode != enteringNode)
+            if(!collectedNodes.Contains(enteringNode) && givenAbility.associatedCreature.gameObject.GetComponent<Unit>().currentNode != enteringNode)
             {
                 enteringNode.IsAttackable = true;
                 collectedNodes.Add(enteringNode);
@@ -52,24 +52,67 @@ public class GeneralSelector : AttackSelection
                         }
                     }
 
-                    if (!alreadyHas && selectType == TargetPacket.SelectionType.Single)
+                    if (!alreadyHas && selectType == TargetPacket.SelectionType.Target)
                     {
-                        float hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedCreature.gameObject, hitObject);
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject));
+                        Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject);
+                        Vector3 targetShot = CombatUtils.GiveShotConnector(hitObject);
+                        Vector3 targetPartial = CombatUtils.GivePartialCheck(hitObject);
+                        bool peekResult = false;
+                        float hitChance = 0;
+                        if (attachedTargetPacket.isPure)
+                        {
+                            hitChance = 100f;
+                        }
+                        else
+                        {
+                            Vector3 newFireSource;
+                            hitChance = CombatUtils.MainFireCalculation(sourceShot, targetShot, targetPartial, out peekResult, out newFireSource);
+                        }
+
+                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", sourceShot, TargetPacket.SelectionType.Target);
+                        newSpec.didPeek = peekResult;
+
                         newSpec.targetLivRef.healthBar.FadeHitChance();
                         allSpecs.Add(newSpec);
                     }
-                    if(!alreadyHas && selectType == TargetPacket.SelectionType.AoE)
+                    if (!alreadyHas && selectType == TargetPacket.SelectionType.AreaTarget)
                     {
-                        float hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedCreature.gameObject, hitObject);
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject));
+                        Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject);
+                        Vector3 targetShot = CombatUtils.GiveShotConnector(hitObject);
+                        Vector3 targetPartial = CombatUtils.GivePartialCheck(hitObject);
+                        bool peekResult = false;
+                        float hitChance = 0;
+                        if (attachedTargetPacket.isPure)
+                        {
+                            hitChance = 100f;
+                        }
+                        else
+                        {
+                            Vector3 newFireSource;
+                            hitChance = CombatUtils.MainFireCalculation(sourceShot, targetShot, targetPartial, out peekResult, out newFireSource);
+                        }
+
+                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", sourceShot, TargetPacket.SelectionType.AreaTarget);
+                        newSpec.didPeek = peekResult;
+
                         newSpec.targetLivRef.healthBar.DisplayHitChance();
+                        Unit unitScript = hitObject.GetComponent<Unit>();
+                        newSpec.indicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
                         allSpecs.Add(newSpec);
                         selectedSpecs.Add(newSpec);
                     }
-                    if(!alreadyHas && selectType == TargetPacket.SelectionType.PureAOE)
+                    if (!alreadyHas && selectType == TargetPacket.SelectionType.AoE)
                     {
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), 100f, "", CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject));
+                        float hitChance = 0;
+                        if (attachedTargetPacket.isPure)
+                        {
+                            hitChance = 100f;
+                        }
+                        else
+                        {
+                            hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedCreature.gameObject, hitObject); 
+                        }
+                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject), TargetPacket.SelectionType.AoE);
                         newSpec.targetLivRef.healthBar.DisplayHitChance();
                         allSpecs.Add(newSpec);
                         selectedSpecs.Add(newSpec);
@@ -100,10 +143,12 @@ public class GeneralSelector : AttackSelection
                         {
                             if(currentSpec.indicator != null)
                             {
-                                Destroy(currentSpec.indicator);
+                                Destroy(currentSpec.indicator);                               
+                            }
+                            if (selectedSpecs.Contains(currentSpec))
+                            {
                                 selectedSpecs.Remove(currentSpec);
                             }
-
                             allSpecs.Remove(currentSpec);
                             currentSpec.targetLivRef.healthBar.HideHitChance();
                             break;

@@ -11,9 +11,9 @@ public class AbilityBasicMove : CharAbility {
     {
         castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
 
-        targetPacketBaseData.Add(new List<TargetPacket> { new TargetPacket(TargetPacket.SelectionType.Null) });
+        targetPacketBaseData.Add(new List<TargetPacket> { new TargetPacket(TargetPacket.SelectionType.Null, false) });
 
-        targetSelectors.Add(new List<GameObject> {AbilityPrefabRef.instance.GiveNodeCollectorPrefab(AbilityPrefabRef.instance.BasicMoveSelector)});
+        targetSelectors.Add(new List<GameObject> {AbilityPrefabRef.instance.GiveNodeSelectorPrefab(AbilityPrefabRef.instance.BasicMoveSelector)});
     }
 
 

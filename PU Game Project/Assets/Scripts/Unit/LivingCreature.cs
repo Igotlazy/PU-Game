@@ -121,7 +121,6 @@ public class LivingCreature : GameEntity {
         if (!isInvincible)
         {
             currentHealth -= receivedAttack.damageValue;
-            Debug.Log("TOOK DAMAGE");
 
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth.Value);
 

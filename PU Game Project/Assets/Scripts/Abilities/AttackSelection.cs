@@ -23,7 +23,7 @@ public abstract class AttackSelection : MonoBehaviour {
     {
         selectType = attachedTargetPacket.selectionType;
         Debug.Log(selectType);
-        if(selectType == TargetPacket.SelectionType.Single)
+        if(selectType == TargetPacket.SelectionType.Target)
         {
             maxNumOfSelections = attachedTargetPacket.maxNumOfSelect;
             Debug.Log(maxNumOfSelections);
@@ -45,7 +45,7 @@ public abstract class AttackSelection : MonoBehaviour {
         }
 
 
-        if (Input.GetKeyDown(KeyCode.B) && selectType == TargetPacket.SelectionType.Single)
+        if (Input.GetKeyDown(KeyCode.B) && (selectType == TargetPacket.SelectionType.Target))
         {
             GatherClick();
         }

@@ -17,7 +17,7 @@ public class ResolutionManager : MonoBehaviour {
 
 
     public int currentResolutionCalls = 0;
-    public int maxResolutionPerTurn;
+    public int maxResolutionPerFrame;
 
     private void Awake()
     {
@@ -90,7 +90,7 @@ public class ResolutionManager : MonoBehaviour {
 
             currentResolutionCalls++;
 
-            if (currentResolutionCalls > maxResolutionPerTurn)
+            if (currentResolutionCalls > maxResolutionPerFrame)
             {
                 currentResolutionCalls = 0;
                 yield return null;
@@ -99,7 +99,8 @@ public class ResolutionManager : MonoBehaviour {
 
         CharAbility.totalCastIndex = 0; //Resets individual cast tracker when Resolution empties. 
         eventResolutionRunning = false;
-        ReturnToOriginalBattlePhase();
+
+        NextQueueAnimation();
     }
 
     TurnManager.BattlePhase originalBattlePhase;
@@ -108,19 +109,21 @@ public class ResolutionManager : MonoBehaviour {
     public void QueueAnimation(BattleAnimation givenAnimation)
     {
         animationQueue.Enqueue(givenAnimation);
+        /*
         if (!animQueueRunning)
         {
             animQueueRunning = true;
             NextQueueAnimation();
         }
+        */
     }
 
     public void NextQueueAnimation()
     {
         if(animationQueue.Count > 0)
         {
-            BattleAnimation currentAnim = animationQueue.Dequeue();
-            currentAnim.PlayBattleAnimation();
+            animQueueRunning = true;
+            animationQueue.Dequeue().PlayBattleAnimation();
         }
         else
         {

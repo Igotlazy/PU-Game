@@ -7,12 +7,13 @@ public class TargetPacket {
     public enum SelectionType
     {
         Null,
-        Single,
+        Target,
+        AreaTarget,
         AoE,
-        PureAOE
     }
     public SelectionType selectionType;
     public int maxNumOfSelect;
+    public bool isPure;
 
 
 
@@ -34,9 +35,10 @@ public class TargetPacket {
 
 
 
-    public TargetPacket(SelectionType _selectionType)
+    public TargetPacket(SelectionType _selectionType, bool _isPure)
     {
         this.selectionType = _selectionType;
+        this.isPure = _isPure;
     }
 
 
@@ -93,12 +95,12 @@ public class TargetPacket {
 
     public static TargetPacket Clone(TargetPacket givenPacket)
     {
-        TargetPacket returnPacket = new TargetPacket(givenPacket.selectionType)
+        TargetPacket returnPacket = new TargetPacket(givenPacket.selectionType, givenPacket.isPure)
         {
             selectorSpecs = new List<float>(givenPacket.selectorSpecs)           
         };
 
-        if(givenPacket.selectionType == SelectionType.Single)
+        if(givenPacket.selectionType == SelectionType.Target)
         {
             returnPacket.maxNumOfSelect = givenPacket.maxNumOfSelect;
         }

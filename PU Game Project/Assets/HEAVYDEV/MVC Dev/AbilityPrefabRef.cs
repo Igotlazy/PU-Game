@@ -24,7 +24,7 @@ public class AbilityPrefabRef : MonoBehaviour {
     }
 
 
-    public GameObject GiveNodeCollectorPrefab(string keyString)
+    public GameObject GiveNodeSelectorPrefab(string keyString)
     {
         return retrieveFromDictionary(keyString, nodeSelectorPathBasic, nodeSelectorDictionary);
     }
@@ -54,10 +54,11 @@ public class AbilityPrefabRef : MonoBehaviour {
 
     //String paths to Resources.
 
-    public readonly string BasicAttackSelector = "Basic Attack Selector";
     public readonly string BasicMoveSelector = "Basic Move Selector";
     public readonly string CircleSelector = "Circle Selector";
     public readonly string LineAttackSelector = "Line Attack Selector";
 
     public readonly string TakahiroBasic = "Takahiro/Projectile";
+    public readonly string TakahiroA1 = "Takahiro/A1";
+    public readonly string TakahiroA3 = "Takahiro/A3";
 }

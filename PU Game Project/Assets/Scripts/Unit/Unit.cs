@@ -1,43 +1,65 @@
 ﻿//General methods a Unit should have access too.
 
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using Cinemachine;
 using MHA.BattleBehaviours;
+using MHA.Events;
 
 public class Unit : MonoBehaviour {
 
-	public float speed = 4f;
-
-	public Vector3[] path;
-	int targetIndex;
-
     public Node currentNode;
-    public LayerMask tileLayerMask;
-
-    public bool hasSuccessfulPath;
     public int teamValue;
 
-    public Transform centerPoint;
-    public bool[,] test = new bool[5,5];
+    public Transform centerPoint; //For Indicators and Buffs
 
     [Space]
     [Header("SHOT RESPONDERS:")]
     public GameObject shotConnecter;
     public GameObject partialCoverCheck;
 
-    [Space]
-    public GameObject projectile;
+    private LivingCreature creatureScript;
+    public LivingCreature CreatureScript
+    {
+        get
+        {
+            return creatureScript;
+        }
+    }
 
+    [Space]
+    [Header("REFERENCES:")]
+    [SerializeField]
+    private GameObject spriteRig;
+    public GameObject SpriteRig
+    {
+        get
+        {
+            return spriteRig;
+        }
+    }
 
     private void Awake()
     {
+        creatureScript = GetComponent<LivingCreature>();
+        if(creatureScript == null)
+        {
+            Debug.LogWarning("WARNING: No LivingCreature Script on: " + gameObject.name);
+        }
         ReferenceObjects.AddToPlayerList(this.gameObject);
     }
 
     void Start()
     {
         StartNodeFind();
+        EventFlags.StartPeek += UnitPeekAnim;
+        EventFlags.EndPeek += UnitUnPeekAnim;
+    }
+
+    private void OnDestroy()
+    {
+        EventFlags.StartPeek -= UnitPeekAnim;
+        EventFlags.EndPeek -= UnitUnPeekAnim;
     }
 
     private void StartNodeFind() //Gives the unit reference to the Node below it.
@@ -52,6 +74,28 @@ public class Unit : MonoBehaviour {
         {
             foundNode.IsOccupied = true;
             foundNode.occupant = this.gameObject;
+        }
+    }
+
+    public void UnitPeekAnim(object sender, EventFlags.EPeekStart peekArgs)
+    {
+        if (peekArgs.peekingObject == this)
+        {
+            Debug.Log("Peek: " + peekArgs.peekingObject.name);
+            peekArgs.peekPosition = new Vector3(peekArgs.peekPosition.x, spriteRig.transform.localPosition.y, peekArgs.peekPosition.z);
+
+            new AnimMoveToPos(peekArgs.peekPosition, spriteRig, 3f, false);
+            peekArgs.AddToPeek();
+        }
+    }
+
+    public void UnitUnPeekAnim(object sender, EventFlags.EPeekEnd peekArgs)
+    {
+        if (peekArgs.peekingObject == this)
+        {
+            Debug.Log("UnPeek: " + peekArgs.peekingObject.name);
+            new AnimMoveToPos(peekArgs.GiveOriginalPos(), spriteRig, 3f, false);
+            peekArgs.RemoveFromPeek();
         }
     }
 }
