@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TargetPacket {
+public class SelectorPacket {
 
     public enum SelectionType
     {
@@ -35,7 +35,7 @@ public class TargetPacket {
 
 
 
-    public TargetPacket(SelectionType _selectionType, bool _isPure)
+    public SelectorPacket(SelectionType _selectionType, bool _isPure)
     {
         this.selectionType = _selectionType;
         this.isPure = _isPure;
@@ -93,9 +93,9 @@ public class TargetPacket {
         return returnList;
     }
 
-    public static TargetPacket Clone(TargetPacket givenPacket)
+    public static SelectorPacket Clone(SelectorPacket givenPacket)
     {
-        TargetPacket returnPacket = new TargetPacket(givenPacket.selectionType, givenPacket.isPure)
+        SelectorPacket returnPacket = new SelectorPacket(givenPacket.selectionType, givenPacket.isPure)
         {
             selectorSpecs = new List<float>(givenPacket.selectorSpecs)           
         };

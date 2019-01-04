@@ -10,4 +10,6 @@ public class CharDataSO : ScriptableObject
 
     public GameObject spriteRig;
 
+    public List<CharAbility> characterAbilities = new List<CharAbility>();
+
 }

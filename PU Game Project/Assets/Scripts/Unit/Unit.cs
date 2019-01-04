@@ -8,24 +8,17 @@ using MHA.Events;
 
 public class Unit : MonoBehaviour {
 
+    public CharDataSO givenCharData;
+
     public Node currentNode;
     public int teamValue;
 
-    public Transform centerPoint; //For Indicators and Buffs
 
     [Space]
     [Header("SHOT RESPONDERS:")]
     public GameObject shotConnecter;
     public GameObject partialCoverCheck;
-
-    private LivingCreature creatureScript;
-    public LivingCreature CreatureScript
-    {
-        get
-        {
-            return creatureScript;
-        }
-    }
+    public Transform centerPoint;
 
     [Space]
     [Header("REFERENCES:")]
@@ -38,9 +31,19 @@ public class Unit : MonoBehaviour {
             return spriteRig;
         }
     }
+    private LivingCreature creatureScript;
+    public LivingCreature CreatureScript
+    {
+        get
+        {
+            return creatureScript;
+        }
+    }
 
     private void Awake()
     {
+        UnPackCharData();
+
         creatureScript = GetComponent<LivingCreature>();
         if(creatureScript == null)
         {
@@ -61,6 +64,41 @@ public class Unit : MonoBehaviour {
         EventFlags.StartPeek -= UnitPeekAnim;
         EventFlags.EndPeek -= UnitUnPeekAnim;
     }
+
+    private void UnPackCharData()
+    {
+        this.name = "Unit - " + givenCharData.heroName;
+        if(spriteRigProper != null)
+        {
+            Destroy(spriteRigProper);
+        }
+
+        spriteRigProper = Instantiate(givenCharData.spriteRig, spriteRig.transform);
+
+    }
+    private GameObject spriteRigProper;
+
+    /*
+    private void OnValidate()
+    {
+        if(givenCharData != null)
+        {
+            UnPackCharData();
+        }
+        else
+        {
+            Debug.Log("Hello?");
+            this.name = "Unit - Model";
+            if (spriteRigProper != null)
+            {
+                UnityEditor.EditorApplication.delayCall += () =>
+                {
+                    DestroyImmediate(spriteRigProper);
+                };
+            }
+        }
+    }
+    */
 
     private void StartNodeFind() //Gives the unit reference to the Node below it.
     {

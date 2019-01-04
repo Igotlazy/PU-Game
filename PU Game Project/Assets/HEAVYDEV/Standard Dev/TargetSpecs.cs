@@ -14,9 +14,9 @@ public class TargetSpecs
     public GameObject indicator;
 
     public bool didPeek = false;
-    public TargetPacket.SelectionType selectionType;
+    public SelectorPacket.SelectionType selectionType;
 
-    public TargetSpecs(GameObject _targetObj, Vector2 _damageRange, float _hitChance, string _description, Vector3 _fireOriginPoint, TargetPacket.SelectionType _selectionType)
+    public TargetSpecs(GameObject _targetObj, Vector2 _damageRange, float _hitChance, string _description, Vector3 _fireOriginPoint, SelectorPacket.SelectionType _selectionType)
     {
         this.targetObj = _targetObj;
         targetLivRef = targetObj.GetComponent<LivingCreature>();

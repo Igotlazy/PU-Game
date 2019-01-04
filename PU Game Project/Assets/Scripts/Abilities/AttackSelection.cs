@@ -12,18 +12,18 @@ public abstract class AttackSelection : MonoBehaviour {
     protected HashSet<Node> collectedNodes = new HashSet<Node>();
     protected List<TargetSpecs> selectedSpecs = new List<TargetSpecs>();
     protected List<TargetSpecs> allSpecs = new List<TargetSpecs>();
-    public TargetPacket attachedTargetPacket;
+    public SelectorPacket attachedTargetPacket;
 
     public GameObject selectionIndicator;
 
-    protected TargetPacket.SelectionType selectType = TargetPacket.SelectionType.Null;
+    protected SelectorPacket.SelectionType selectType = SelectorPacket.SelectionType.Null;
 
 
     public void Initialize()
     {
         selectType = attachedTargetPacket.selectionType;
         Debug.Log(selectType);
-        if(selectType == TargetPacket.SelectionType.Target)
+        if(selectType == SelectorPacket.SelectionType.Target)
         {
             maxNumOfSelections = attachedTargetPacket.maxNumOfSelect;
             Debug.Log(maxNumOfSelections);
@@ -45,7 +45,7 @@ public abstract class AttackSelection : MonoBehaviour {
         }
 
 
-        if (Input.GetKeyDown(KeyCode.B) && (selectType == TargetPacket.SelectionType.Target))
+        if (Input.GetKeyDown(KeyCode.B) && (selectType == SelectorPacket.SelectionType.Target))
         {
             GatherClick();
         }

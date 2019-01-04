@@ -5,7 +5,7 @@ using MHA.Events;
 
 public class TPorterInstant : BattleEffect
 {
-    TargetPacket givenPacket;
+    SelectorPacket givenPacket;
     List<TargetSpecs> givenTSpecs;
     GameObject fireObjectRef;
 
@@ -16,11 +16,11 @@ public class TPorterInstant : BattleEffect
     public string REPORTKEY;
 
 
-    public TPorterInstant(EffectDataPacket _effectData, TargetPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData)
+    public TPorterInstant(EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData)
     {
         this.givenPacket = _givenPacket;
         this.fireObjectRef = _fireObjectRef;
-        if(givenPacket.selectionType == TargetPacket.SelectionType.AoE)
+        if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
         {
             this.warnOnce = true;
         }
@@ -32,7 +32,7 @@ public class TPorterInstant : BattleEffect
     {
         if (!preIndexIncrease)
         {
-            if (!givenPacket.isPure && (givenTSpecs[indexTracker].selectionType == TargetPacket.SelectionType.Target || givenTSpecs[indexTracker].selectionType == TargetPacket.SelectionType.AreaTarget))
+            if (!givenPacket.isPure && (givenTSpecs[indexTracker].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[indexTracker].selectionType == SelectorPacket.SelectionType.AreaTarget))
             {
                 TargetSpecs currentSpec = givenTSpecs[indexTracker];
                 Vector3 targetShot = CombatUtils.GiveShotConnector(currentSpec.targetObj);
@@ -94,7 +94,7 @@ public class TPorterInstant : BattleEffect
         }
         else
         {
-            if (givenTSpecs[indexTracker].didPeek && (givenTSpecs[indexTracker].selectionType == TargetPacket.SelectionType.Target || givenTSpecs[indexTracker].selectionType == TargetPacket.SelectionType.AreaTarget)) 
+            if (givenTSpecs[indexTracker].didPeek && (givenTSpecs[indexTracker].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[indexTracker].selectionType == SelectorPacket.SelectionType.AreaTarget)) 
             {
                 if(warnOnce)
                 {

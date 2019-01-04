@@ -25,7 +25,7 @@ public class CharAbility{
     public int turnCooldown;
 
     protected List<List<GameObject>> targetSelectors = new List<List<GameObject>>();
-    protected List<List<TargetPacket>> targetPacketBaseData = new List<List<TargetPacket>>();
+    protected List<List<SelectorPacket>> targetPacketBaseData = new List<List<SelectorPacket>>();
 
     public List<Action<EffectDataPacket>> castableAbilities = new List<Action<EffectDataPacket>>();
 
@@ -41,12 +41,12 @@ public class CharAbility{
 
     private IEnumerator CollectTargets(int abilityIndex)
     {
-        List<TargetPacket> targetPacketList = new List<TargetPacket>();
+        List<SelectorPacket> targetPacketList = new List<SelectorPacket>();
         int selectorIndex = 0;
 
         while(selectorIndex < targetSelectors.Count)
         {
-            TargetPacket targets = TargetPacket.Clone(targetPacketBaseData[abilityIndex][selectorIndex]);
+            SelectorPacket targets = SelectorPacket.Clone(targetPacketBaseData[abilityIndex][selectorIndex]);
 
             GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][selectorIndex], associatedCreature.transform.position, Quaternion.identity);
             AttackSelection selectorScript = spawnedSelector.GetComponentInChildren<AttackSelection>();
@@ -73,12 +73,12 @@ public class CharAbility{
         }
     }
 
-    private void CastAbility(int abilityIndex, List<TargetPacket> givenTargets)
+    private void CastAbility(int abilityIndex, List<SelectorPacket> givenTargets)
     {
         totalCastIndex += 1;
 
         EffectDataPacket effectPacket = new EffectDataPacket(associatedCreature, this, totalCastIndex);
-        foreach(TargetPacket currentPacket in givenTargets)
+        foreach(SelectorPacket currentPacket in givenTargets)
         {
             effectPacket.AppendValue("Targets", currentPacket);
         }

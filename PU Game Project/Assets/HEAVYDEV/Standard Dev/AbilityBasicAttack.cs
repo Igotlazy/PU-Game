@@ -11,21 +11,21 @@ public class AbilityBasicAttack : CharAbility
     {
         castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
 
-        TargetPacket firstTP = new TargetPacket(TargetPacket.SelectionType.AoE, true)
+        SelectorPacket firstTP = new SelectorPacket(SelectorPacket.SelectionType.AreaTarget, false)
         {
             maxNumOfSelect = 3
         };
-        targetPacketBaseData.Add(new List<TargetPacket> {firstTP});
+        targetPacketBaseData.Add(new List<SelectorPacket> {firstTP});
 
         targetSelectors.Add(new List<GameObject> { AbilityPrefabRef.instance.GiveNodeSelectorPrefab(AbilityPrefabRef.instance.CircleSelector) }); //Loads selector.
     }
 
     private void Initialize(EffectDataPacket effectDataPacket)
     {
-        TargetPacket currentPacket = ((TargetPacket)effectDataPacket.GetValue("Targets", false)[0]); //Gives packet.
+        SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetValue("Targets", false)[0]); //Gives packet.
         GameObject projectile = AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.instance.TakahiroBasic);
 
-        TPorterInstant projectileEffect = new TPorterInstant(effectDataPacket, currentPacket, projectile);
+        TPorterProjectile projectileEffect = new TPorterProjectile(effectDataPacket, currentPacket, projectile);
         projectileEffect.REPORTKEY = "HitTargets";
         projectileEffect.finishedEffectAuxCall += DamageOnImpact;
 

@@ -396,7 +396,7 @@ public static class CombatUtils {
         }
     }
 
-    public static void AreaUpdate(TargetPacket givenPacket, List<Unit> givenUnits)
+    public static void AreaUpdate(SelectorPacket givenPacket, List<Unit> givenUnits)
     {
 
     }

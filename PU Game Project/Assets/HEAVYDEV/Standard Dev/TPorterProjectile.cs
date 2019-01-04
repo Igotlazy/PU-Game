@@ -7,7 +7,7 @@ using MHA.Events;
 
 public class TPorterProjectile : BattleEffect
 {
-    TargetPacket givenPacket;
+    SelectorPacket givenPacket;
     List<TargetSpecs> givenTSpecs;
     List<List<Vector3>> targetPaths = new List<List<Vector3>>();
     List<Vector3> originalTargetPositions = new List<Vector3>();
@@ -24,13 +24,13 @@ public class TPorterProjectile : BattleEffect
 
     bool preListIncrease = false;
 
-    public TPorterProjectile(EffectDataPacket _effectData, TargetPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData)
+    public TPorterProjectile(EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData)
     {
         this.givenPacket = _givenPacket;
         this.givenTSpecs = givenPacket.targetObjectSpecs;
         this.fireObjectRef = _fireObjectRef;
 
-        if(givenPacket.selectionType == TargetPacket.SelectionType.AoE)
+        if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
         {
             Debug.LogWarning("WARNING: AoE Selection Type for Projectile is AreaTarget without Peeking. It does not stop the warning.");
         }
@@ -48,7 +48,7 @@ public class TPorterProjectile : BattleEffect
     {
         if(indexTracker == 0 && !preListIncrease)
         {
-            if (!givenPacket.isPure && (givenTSpecs[listTracker].selectionType == TargetPacket.SelectionType.Target || givenTSpecs[listTracker].selectionType == TargetPacket.SelectionType.AreaTarget))
+            if (!givenPacket.isPure && (givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.AreaTarget))
             {
                 TargetSpecs currentSpec = givenTSpecs[listTracker];
                 Vector3 targetShot = CombatUtils.GiveShotConnector(currentSpec.targetObj);
@@ -154,7 +154,7 @@ public class TPorterProjectile : BattleEffect
         }
         else
         {
-            if (givenTSpecs[listTracker].didPeek && (givenTSpecs[listTracker].selectionType == TargetPacket.SelectionType.Target || givenTSpecs[listTracker].selectionType == TargetPacket.SelectionType.AreaTarget))
+            if (givenTSpecs[listTracker].didPeek && (givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.AreaTarget))
             {
                 EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.GetComponent<Unit>()));
             }

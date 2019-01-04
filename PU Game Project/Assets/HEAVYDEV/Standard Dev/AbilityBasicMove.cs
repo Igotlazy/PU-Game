@@ -11,7 +11,7 @@ public class AbilityBasicMove : CharAbility {
     {
         castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
 
-        targetPacketBaseData.Add(new List<TargetPacket> { new TargetPacket(TargetPacket.SelectionType.Null, false) });
+        targetPacketBaseData.Add(new List<SelectorPacket> { new SelectorPacket(SelectorPacket.SelectionType.Null, false) });
 
         targetSelectors.Add(new List<GameObject> {AbilityPrefabRef.instance.GiveNodeSelectorPrefab(AbilityPrefabRef.instance.BasicMoveSelector)});
     }
@@ -21,7 +21,7 @@ public class AbilityBasicMove : CharAbility {
     {
         List<Vector3> path = new List<Vector3>();
 
-        TargetPacket relevantTargets = (TargetPacket)effectPacket.GetValue("Targets", false)[0];
+        SelectorPacket relevantTargets = (SelectorPacket)effectPacket.GetValue("Targets", false)[0];
         foreach (Node currentNode in relevantTargets.TargetNodes) //Get Path Location Data
         {
             path.Add(currentNode.worldPosition);

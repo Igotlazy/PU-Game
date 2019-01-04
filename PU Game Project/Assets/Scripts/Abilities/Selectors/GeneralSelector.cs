@@ -52,7 +52,7 @@ public class GeneralSelector : AttackSelection
                         }
                     }
 
-                    if (!alreadyHas && selectType == TargetPacket.SelectionType.Target)
+                    if (!alreadyHas && selectType == SelectorPacket.SelectionType.Target)
                     {
                         Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject);
                         Vector3 targetShot = CombatUtils.GiveShotConnector(hitObject);
@@ -69,13 +69,13 @@ public class GeneralSelector : AttackSelection
                             hitChance = CombatUtils.MainFireCalculation(sourceShot, targetShot, targetPartial, out peekResult, out newFireSource);
                         }
 
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", sourceShot, TargetPacket.SelectionType.Target);
+                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", sourceShot, SelectorPacket.SelectionType.Target);
                         newSpec.didPeek = peekResult;
 
                         newSpec.targetLivRef.healthBar.FadeHitChance();
                         allSpecs.Add(newSpec);
                     }
-                    if (!alreadyHas && selectType == TargetPacket.SelectionType.AreaTarget)
+                    if (!alreadyHas && selectType == SelectorPacket.SelectionType.AreaTarget)
                     {
                         Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject);
                         Vector3 targetShot = CombatUtils.GiveShotConnector(hitObject);
@@ -92,7 +92,7 @@ public class GeneralSelector : AttackSelection
                             hitChance = CombatUtils.MainFireCalculation(sourceShot, targetShot, targetPartial, out peekResult, out newFireSource);
                         }
 
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", sourceShot, TargetPacket.SelectionType.AreaTarget);
+                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", sourceShot, SelectorPacket.SelectionType.AreaTarget);
                         newSpec.didPeek = peekResult;
 
                         newSpec.targetLivRef.healthBar.DisplayHitChance();
@@ -101,7 +101,7 @@ public class GeneralSelector : AttackSelection
                         allSpecs.Add(newSpec);
                         selectedSpecs.Add(newSpec);
                     }
-                    if (!alreadyHas && selectType == TargetPacket.SelectionType.AoE)
+                    if (!alreadyHas && selectType == SelectorPacket.SelectionType.AoE)
                     {
                         float hitChance = 0;
                         if (attachedTargetPacket.isPure)
@@ -112,7 +112,7 @@ public class GeneralSelector : AttackSelection
                         {
                             hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedCreature.gameObject, hitObject); 
                         }
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject), TargetPacket.SelectionType.AoE);
+                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject), SelectorPacket.SelectionType.AoE);
                         newSpec.targetLivRef.healthBar.DisplayHitChance();
                         allSpecs.Add(newSpec);
                         selectedSpecs.Add(newSpec);

@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70032397fda4fc744ad459a6c91c5163, type: 3}
-  m_Name: Sandy Stats
+  m_Name: Sandy Data
   m_EditorClassIdentifier: 
   heroName: Sandy
   realName: Cassandra Carcharias
-  spriteRig: {fileID: 0}
+  spriteRig: {fileID: 1846565169093048, guid: 740b0cca4b6288d418ecb4f9983bb4f5, type: 3}
