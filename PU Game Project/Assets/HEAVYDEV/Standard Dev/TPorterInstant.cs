@@ -41,7 +41,7 @@ public class TPorterInstant : BattleEffect
 
                 if (currentSpec.didPeek)
                 {
-                    Unit sourceObj = ((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.GetComponent<Unit>();
+                    Unit sourceObj = ((Unit)effectData.GetValue("Caster", false)[0]);
                     EventFlags.ANIMStartPeek(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOriginPoint, sourceObj.gameObject.transform.position)); //EVENT
                 }
             }
@@ -62,7 +62,7 @@ public class TPorterInstant : BattleEffect
             if (indexTracker == 0 && fireObjectRef != null) //If it's the first, instantiate the projectile.
             {
                 Quaternion lookRotation = Quaternion.LookRotation(givenTSpecs[indexTracker].targetObj.GetComponent<Unit>().shotConnecter.transform.position - givenTSpecs[indexTracker].fireOriginPoint);
-                GameObject.Instantiate(fireObjectRef, ((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.transform.position, Quaternion.identity);
+                GameObject.Instantiate(fireObjectRef, ((Unit)effectData.GetValue("Caster", false)[0]).gameObject.transform.position, Quaternion.identity);
             }
 
             Unit targetScript = givenTSpecs[indexTracker].targetObj.GetComponent<Unit>();
@@ -100,12 +100,12 @@ public class TPorterInstant : BattleEffect
                 {
                     if(indexTracker >= givenTSpecs.Count)
                     {
-                        EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.GetComponent<Unit>()));
+                        EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
                     }
                 }
                 else 
                 {
-                    EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.GetComponent<Unit>()));
+                    EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
                 }
 
             }

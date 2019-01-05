@@ -33,7 +33,7 @@ public class GeneralSelector : AttackSelection
         if (enteringCollider.gameObject.CompareTag("Tile"))
         {
             Node enteringNode = GridGen.instance.NodeFromWorldPoint(enteringCollider.gameObject.transform.position);
-            if(!collectedNodes.Contains(enteringNode) && givenAbility.associatedCreature.gameObject.GetComponent<Unit>().currentNode != enteringNode)
+            if(!collectedNodes.Contains(enteringNode) && givenAbility.associatedUnit.currentNode != enteringNode)
             {
                 enteringNode.IsAttackable = true;
                 collectedNodes.Add(enteringNode);
@@ -54,7 +54,7 @@ public class GeneralSelector : AttackSelection
 
                     if (!alreadyHas && selectType == SelectorPacket.SelectionType.Target)
                     {
-                        Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject);
+                        Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedUnit.gameObject);
                         Vector3 targetShot = CombatUtils.GiveShotConnector(hitObject);
                         Vector3 targetPartial = CombatUtils.GivePartialCheck(hitObject);
                         bool peekResult = false;
@@ -77,7 +77,7 @@ public class GeneralSelector : AttackSelection
                     }
                     if (!alreadyHas && selectType == SelectorPacket.SelectionType.AreaTarget)
                     {
-                        Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject);
+                        Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedUnit.gameObject);
                         Vector3 targetShot = CombatUtils.GiveShotConnector(hitObject);
                         Vector3 targetPartial = CombatUtils.GivePartialCheck(hitObject);
                         bool peekResult = false;
@@ -110,9 +110,9 @@ public class GeneralSelector : AttackSelection
                         }
                         else
                         {
-                            hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedCreature.gameObject, hitObject); 
+                            hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedUnit.gameObject, hitObject); 
                         }
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedCreature.gameObject), SelectorPacket.SelectionType.AoE);
+                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedUnit.gameObject), SelectorPacket.SelectionType.AoE);
                         newSpec.targetLivRef.healthBar.DisplayHitChance();
                         allSpecs.Add(newSpec);
                         selectedSpecs.Add(newSpec);

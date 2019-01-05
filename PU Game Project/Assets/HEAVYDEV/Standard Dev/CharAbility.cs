@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-[System.Serializable]
-public class CharAbility{
-
-    public LivingCreature associatedCreature;
+[Serializable]
+public class CharAbility : ScriptableObject
+{
+    [HideInInspector]
+    public Unit associatedUnit;
     IEnumerator collectorCoroutine;
     
-
-    public CharAbility(LivingCreature _associatedCreature)
-    {
-        associatedCreature = _associatedCreature;
-    }
 
     public static int totalCastIndex;
 
@@ -29,14 +25,16 @@ public class CharAbility{
 
     public List<Action<EffectDataPacket>> castableAbilities = new List<Action<EffectDataPacket>>();
 
-
-
+    public virtual void Initialize(Unit givenUnit)
+    {
+        this.associatedUnit = givenUnit;
+    }
 
     public void InitiateAbility(int abilityIndex)
     {
         CancelTargets();
         collectorCoroutine = CollectTargets(abilityIndex);
-        associatedCreature.StartCoroutine(collectorCoroutine);
+        associatedUnit.StartCoroutine(collectorCoroutine);
     }
 
     private IEnumerator CollectTargets(int abilityIndex)
@@ -48,7 +46,7 @@ public class CharAbility{
         {
             SelectorPacket targets = SelectorPacket.Clone(targetPacketBaseData[abilityIndex][selectorIndex]);
 
-            GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][selectorIndex], associatedCreature.transform.position, Quaternion.identity);
+            GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][selectorIndex], associatedUnit.transform.position, Quaternion.identity);
             AttackSelection selectorScript = spawnedSelector.GetComponentInChildren<AttackSelection>();
 
 
@@ -69,7 +67,7 @@ public class CharAbility{
     {
         if(collectorCoroutine != null)
         {
-            associatedCreature.StopCoroutine(collectorCoroutine);
+            associatedUnit.StopCoroutine(collectorCoroutine);
         }
     }
 
@@ -77,7 +75,7 @@ public class CharAbility{
     {
         totalCastIndex += 1;
 
-        EffectDataPacket effectPacket = new EffectDataPacket(associatedCreature, this, totalCastIndex);
+        EffectDataPacket effectPacket = new EffectDataPacket(associatedUnit, this, totalCastIndex);
         foreach(SelectorPacket currentPacket in givenTargets)
         {
             effectPacket.AppendValue("Targets", currentPacket);

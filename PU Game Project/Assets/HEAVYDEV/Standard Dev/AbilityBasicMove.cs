@@ -4,12 +4,16 @@ using UnityEngine;
 using System;
 using System.Linq;
 
+[CreateAssetMenu(fileName = "New Basic Move", menuName = "Abilities/General/BasicMove")]
 public class AbilityBasicMove : CharAbility {
 
 
-    public AbilityBasicMove(LivingCreature livingCreature) : base (livingCreature)
+    public override void Initialize(Unit givenUnit)
     {
-        castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
+        base.Initialize(givenUnit);
+        Debug.Log("Hello?");
+
+        castableAbilities.Add(new Action<EffectDataPacket>(Run));
 
         targetPacketBaseData.Add(new List<SelectorPacket> { new SelectorPacket(SelectorPacket.SelectionType.Null, false) });
 
@@ -17,7 +21,7 @@ public class AbilityBasicMove : CharAbility {
     }
 
 
-    private void Initialize(EffectDataPacket effectPacket)
+    private void Run(EffectDataPacket effectPacket)
     {
         List<Vector3> path = new List<Vector3>();
 
@@ -27,7 +31,7 @@ public class AbilityBasicMove : CharAbility {
             path.Add(currentNode.worldPosition);
         }
 
-        associatedCreature.CurrentEnergy -= path.Count;
+        associatedUnit.CreatureScript.CurrentEnergy -= path.Count;
 
 
 
@@ -35,7 +39,7 @@ public class AbilityBasicMove : CharAbility {
         {
             effectPacket.AppendValue("MovePath", path[i]);
         }
-        effectPacket.AppendValue("MovingTarget", associatedCreature);
+        effectPacket.AppendValue("MovingTarget", associatedUnit);
 
 
 
@@ -47,7 +51,7 @@ public class AbilityBasicMove : CharAbility {
                 pathIndex = (Vector3)effectPacket.GetValue("MovePath", false)[i],
                 moveSpeed = 3.5f,
             };
-            moveEffect.moveTarget = (LivingCreature)effectPacket.GetValue("MovingTarget", false)[0];
+            moveEffect.moveTarget = (Unit)effectPacket.GetValue("MovingTarget", false)[0];
             //moveEffect.conditionCheck += FreeMoveCONDITION;
 
             effectsToPass.Add(moveEffect);

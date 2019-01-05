@@ -57,7 +57,7 @@ public class TPorterProjectile : BattleEffect
 
                 if (currentSpec.didPeek)
                 {
-                    Unit sourceObj = ((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.GetComponent<Unit>();
+                    Unit sourceObj = ((Unit)effectData.GetValue("Caster", false)[0]);
                     EventFlags.ANIMStartPeek(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOriginPoint, sourceObj.gameObject.transform.position)); //EVENT
                 }
             }
@@ -156,7 +156,7 @@ public class TPorterProjectile : BattleEffect
         {
             if (givenTSpecs[listTracker].didPeek && (givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.AreaTarget))
             {
-                EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((LivingCreature)effectData.GetValue("Caster", false)[0]).gameObject.GetComponent<Unit>()));
+                EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
             }
             indexTracker = 0;
             listTracker++;

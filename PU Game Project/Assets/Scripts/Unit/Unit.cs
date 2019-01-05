@@ -8,8 +8,29 @@ using MHA.Events;
 
 public class Unit : MonoBehaviour {
 
-    public CharDataSO givenCharData;
+    [Header("CHARACTER DATA:")]
+    [SerializeField]
+    private CharDataSO givenCharData;
+    [Space]
 
+    [Header("Abilities")]
+    [SerializeField]
+    private List<CharAbility> movementAbilities = new List<CharAbility>();
+    [SerializeField]
+    private List<CharAbility> passiveAbilities = new List<CharAbility>();
+    [SerializeField]
+    private List<CharAbility> activatableAbilities = new List<CharAbility>();
+    [Space]
+
+    [HideInInspector]
+    public List<CharAbility> movementAbilitiesInsta = new List<CharAbility>();
+    [HideInInspector]
+    public List<CharAbility> passiveAbilitiesInsta = new List<CharAbility>();
+    [HideInInspector]
+    public List<CharAbility> activatableAbilitiesInsta = new List<CharAbility>();
+    [HideInInspector]
+
+    [Header("Other")]    
     public Node currentNode;
     public int teamValue;
 
@@ -42,8 +63,6 @@ public class Unit : MonoBehaviour {
 
     private void Awake()
     {
-        UnPackCharData();
-
         creatureScript = GetComponent<LivingCreature>();
         if(creatureScript == null)
         {
@@ -54,7 +73,10 @@ public class Unit : MonoBehaviour {
 
     void Start()
     {
+        UnPackCharData();
+        PrepAbilities(out movementAbilitiesInsta, out passiveAbilitiesInsta, out activatableAbilitiesInsta);
         StartNodeFind();
+
         EventFlags.StartPeek += UnitPeekAnim;
         EventFlags.EndPeek += UnitUnPeekAnim;
     }
@@ -66,17 +88,35 @@ public class Unit : MonoBehaviour {
     }
 
     private void UnPackCharData()
-    {
-        this.name = "Unit - " + givenCharData.heroName;
-        if(spriteRigProper != null)
-        {
-            Destroy(spriteRigProper);
-        }
-
-        spriteRigProper = Instantiate(givenCharData.spriteRig, spriteRig.transform);
-
+    { 
+        
     }
-    private GameObject spriteRigProper;
+
+    public void PrepAbilities(out List<CharAbility> movementAb, out List<CharAbility> passiveAb, out List<CharAbility> activatableAb)
+    {
+        movementAb = new List<CharAbility>();
+        passiveAb = new List<CharAbility>();
+        activatableAb = new List<CharAbility>();
+        foreach (CharAbility currentChar in movementAbilities)
+        {
+            CharAbility newOne = Instantiate(currentChar);
+            movementAb.Add(newOne);
+            newOne.Initialize(this);
+        }
+        foreach (CharAbility currentChar in passiveAbilities)
+        {
+            CharAbility newOne = Instantiate(currentChar);
+            passiveAb.Add(newOne);
+            newOne.Initialize(this);
+        }
+        foreach (CharAbility currentChar in activatableAbilities)
+        {
+            CharAbility newOne = Instantiate(currentChar);
+            activatableAb.Add(newOne);
+            newOne.Initialize(this);
+        }
+    }
+
 
     /*
     private void OnValidate()

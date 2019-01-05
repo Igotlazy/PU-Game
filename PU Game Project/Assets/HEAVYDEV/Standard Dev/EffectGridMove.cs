@@ -7,7 +7,7 @@ public class EffectGridMove : BattleEffect {
 
     public Vector3 pathIndex;
     public float moveSpeed = 3.5f;
-    public LivingCreature moveTarget;
+    public Unit moveTarget;
     public bool destroyAtEnd;
 
     public EffectGridMove(EffectDataPacket _effectData) : base(_effectData)

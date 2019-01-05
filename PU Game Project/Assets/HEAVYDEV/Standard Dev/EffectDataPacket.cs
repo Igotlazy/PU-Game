@@ -7,7 +7,7 @@ public class EffectDataPacket {
     public Dictionary<string, List<object>> blackboard = new Dictionary<string, List<object>>();
 
 
-    public EffectDataPacket(LivingCreature _caster, CharAbility _charAbility, int _castIndex)
+    public EffectDataPacket(Unit _caster, CharAbility _charAbility, int _castIndex)
     {
         AppendValue("Caster", _caster);
         AppendValue("CharacterAbility", _charAbility);
@@ -22,6 +22,7 @@ public class EffectDataPacket {
         }
         else
         {
+            Debug.LogWarning("WARNING: KEY TO ON EDP DOES NOT EXIST");
             if (zero)
             {
                 blackboard.Add(getKey, new List<object> { 0 });

@@ -4,12 +4,16 @@ using UnityEngine;
 using System;
 using System.Linq;
 
+[CreateAssetMenu(fileName = "New Basic Attack" , menuName = "Abilities/General/BasicAttack")]
 public class AbilityBasicAttack : CharAbility
 {
 
-    public AbilityBasicAttack(LivingCreature livingCreature) : base(livingCreature)
+    public override void Initialize(Unit givenUnit)
     {
-        castableAbilities.Add(new Action<EffectDataPacket>(Initialize));
+        base.Initialize(givenUnit);
+
+
+        castableAbilities.Add(new Action<EffectDataPacket>(Run));
 
         SelectorPacket firstTP = new SelectorPacket(SelectorPacket.SelectionType.AreaTarget, false)
         {
@@ -20,7 +24,7 @@ public class AbilityBasicAttack : CharAbility
         targetSelectors.Add(new List<GameObject> { AbilityPrefabRef.instance.GiveNodeSelectorPrefab(AbilityPrefabRef.instance.CircleSelector) }); //Loads selector.
     }
 
-    private void Initialize(EffectDataPacket effectDataPacket)
+    private void Run(EffectDataPacket effectDataPacket)
     {
         SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetValue("Targets", false)[0]); //Gives packet.
         GameObject projectile = AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.instance.TakahiroBasic);

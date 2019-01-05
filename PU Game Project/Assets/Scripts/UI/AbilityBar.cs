@@ -94,8 +94,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepMoving = true;
-            Debug.Log("Cast Ability");
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().abilityList[0].InitiateAbility(0);
+            ClickSelection.instance.selectedUnitObj.GetComponent<Unit>().movementAbilitiesInsta[0].InitiateAbility(0);
             ClickSelection.instance.DrawMoveZone();
         }
 
@@ -109,8 +108,7 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepMoving = true;
-            Debug.Log("Cast Ability");
-            ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().abilityList[1].InitiateAbility(0);
+            ClickSelection.instance.selectedUnitObj.GetComponent<Unit>().activatableAbilitiesInsta[0].InitiateAbility(0);
         }
 
         public void A1ButtonPress()
