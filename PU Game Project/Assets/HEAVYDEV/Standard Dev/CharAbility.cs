@@ -6,19 +6,22 @@ using System;
 [Serializable]
 public class CharAbility : ScriptableObject
 {
+    [Header("Ability Properties")]
+    public string abilityName;
+    [TextArea]
+    public string abilityDescription;
+    public Sprite abilitySprite;
+
+    public int energyCost;
+    public int turnCooldown;
+
+
     [HideInInspector]
     public Unit associatedUnit;
     IEnumerator collectorCoroutine;
     
 
     public static int totalCastIndex;
-
-    public string abilityName;
-    public string abilityDescription;
-    public Sprite abilitySprite;
-
-    public int energyCost;
-    public int turnCooldown;
 
     protected List<List<GameObject>> targetSelectors = new List<List<GameObject>>();
     protected List<List<SelectorPacket>> targetPacketBaseData = new List<List<SelectorPacket>>();
@@ -82,6 +85,11 @@ public class CharAbility : ScriptableObject
         }
 
         castableAbilities[abilityIndex].Invoke(effectPacket);
+    }
+
+    protected virtual void PayEnergyCost()
+    {
+        
     }
 
 

@@ -73,10 +73,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1084756164167057755}
   - component: {fileID: 1047839386628443335}
-  - component: {fileID: 1048056410718013427}
+  - component: {fileID: 5433111017211015716}
   - component: {fileID: 1151430960058287343}
   m_Layer: 9
-  m_Name: Unit - Model
+  m_Name: (Model) - Unit
   m_TagString: Champion
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -112,12 +112,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   givenCharData: {fileID: 0}
+  movementAbilities: []
+  passiveAbilities: []
+  activatableAbilities: []
+  movementAbilitiesInsta: []
+  passiveAbilitiesInsta: []
+  activatableAbilitiesInsta: []
   teamValue: 0
   shotConnecter: {fileID: 1088529150218017969}
   partialCoverCheck: {fileID: 1087863511881545123}
   centerPoint: {fileID: 1708930509399549286}
   spriteRig: {fileID: 2117131912469951019}
---- !u!114 &1048056410718013427
+--- !u!114 &5433111017211015716
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -126,46 +132,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 1088056736798936513}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cec1ba7bacc0dff4d840f77cfc5674f3, type: 3}
+  m_Script: {fileID: 11500000, guid: b2be02a94d2c2474491f0537fdf39e33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHealth: 500
   currentHealth: 0
   maxHealth:
     BaseValue: 0
-  baseStrength: 6
-  baseEnergy: 20
-  baseQuirkPower: 0
-  basePhysicalResistance: 0
-  baseQuirkResistance: 0
-  baseRange: 0
-  currentLevel: 1
-  strength:
-    BaseValue: 0
   maxEnergy:
     BaseValue: 0
-  quirkPower:
+  currentStrength:
     BaseValue: 0
-  physicalResistance:
+  currentDefense:
     BaseValue: 0
-  quirkResistance:
+  currentLuck:
     BaseValue: 0
-  range:
-    BaseValue: 0
-  healthGrowth: 0
-  energyGrowth: 0
-  strengthGrowth: 0
-  attackSpeedGrowth: 0
-  physicalResistanceGrowth: 0
-  quirkResistanceGrowth: 0
-  currentExperience: 0
-  amRanged: 0
   isInvincible: 0
   amDead: 0
   healthBar: {fileID: 817244392594371434}
   damageIndicator: {fileID: 1388622767760518, guid: a41fb87bd3c079a42be01ff36458a442,
     type: 3}
-  abilityList: []
 --- !u!65 &1151430960058287343
 BoxCollider:
   m_ObjectHideFlags: 0

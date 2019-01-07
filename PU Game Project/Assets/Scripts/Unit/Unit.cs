@@ -75,6 +75,8 @@ public class Unit : MonoBehaviour {
     {
         UnPackCharData();
         PrepAbilities(out movementAbilitiesInsta, out passiveAbilitiesInsta, out activatableAbilitiesInsta);
+        creatureScript.LoadStatData(givenCharData);
+        creatureScript.healthBar.UpdateHealth(creatureScript.currentHealth, creatureScript.maxHealth.Value);
         StartNodeFind();
 
         EventFlags.StartPeek += UnitPeekAnim;

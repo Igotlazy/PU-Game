@@ -400,4 +400,31 @@ public static class CombatUtils {
     {
 
     }
+
+    public static float DamageCalculation(Attack receivedAttack, Unit attackedUnit)
+    {
+        float chosenDamage = receivedAttack.damageValue + UnityEngine.Random.Range(0, receivedAttack.damageRange);
+        float returnDamage;
+
+        if(receivedAttack.damageType == Attack.DamageType.Regular)
+        {
+            float percentDamage = Mathf.Pow(5f, (-1f / 100f) * attackedUnit.CreatureScript.currentDefense.Value);
+            Debug.Log("Percent Damage: " + percentDamage);
+
+            returnDamage =  chosenDamage * percentDamage;
+        }
+        else
+        {
+            returnDamage  = chosenDamage;
+        }
+
+        returnDamage = Mathf.FloorToInt(returnDamage);
+        if(returnDamage == 0)
+        {
+            returnDamage = 1;
+        }
+
+
+        return returnDamage;
+    }
 }

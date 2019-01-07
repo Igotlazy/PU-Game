@@ -35,8 +35,6 @@ public class EffectDealDamage : BattleEffect {
     {
         damageTarget.CreatureHit(damageAttack);
 
-        new BBDealDamageAnim(damageTarget, damageTarget.currentHealth, damageAttack);
-
         EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs(damageAttack.damageValue, ((Unit)effectData.GetValue("Caster", false)[0]).CreatureScript, damageTarget));
 
         if (KEYdamageAttack != null)

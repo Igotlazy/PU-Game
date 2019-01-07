@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class TimedBuff : Buff
 {
-    
-    protected Attack burnAttack = new Attack(1f, 0);
+
+    protected Attack burnAttack;
     private float nextTickTime;
     public float tickInterval = 1f;
     protected float bDuration;
@@ -18,6 +18,7 @@ public class TimedBuff : Buff
     public TimedBuff(LivingCreature buffTarget, GameObject buffSource, string buffName, float buffDuration) : base(buffTarget, buffSource, buffName)
     {
         this.bDuration = buffDuration;
+        burnAttack = new Attack(1f, buffTarget.attachedUnit, Attack.DamageType.Regular);
     }
 
     public override void Update()

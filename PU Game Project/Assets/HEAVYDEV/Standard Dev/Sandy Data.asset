@@ -14,9 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   heroName: Sandy
   realName: Cassandra Carcharias
-  spriteRig: {fileID: 1846565169093048, guid: 740b0cca4b6288d418ecb4f9983bb4f5, type: 3}
-  movementAbilities:
-  - {fileID: 11400000, guid: 5f3b63a30f2c5a044a1dc43a89bf39d0, type: 2}
-  passiveAbilities: []
-  activatableAbilities:
-  - {fileID: 11400000, guid: 252d0dc7f34e65849a0eea24ed9e9329, type: 2}
+  mainClass: 2
+  secondaryClass: 0
+  baseHealth: 440
+  baseEnergy: 3
+  baseStrength: 12
+  baseDefense: 20
+  baseLuck: 8
+  healthGrowth: 0
+  energyGrowth: 0
+  strengthGrowth: 0
+  defenseGrowth: 0
+  luckGrowth: 0

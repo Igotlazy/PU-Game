@@ -40,8 +40,8 @@ public class AbilityBasicAttack : CharAbility
     private void DamageOnImpact(EffectDataPacket effectDataPacket)
     {
         GameObject relevantObject = ((GameObject)effectDataPacket.GetValue("HitTargets", false).Last()); //Gets access to GameObject Target.
-
-        EffectDealDamage effect = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<LivingCreature>(), new Attack(100, Attack.DamageType.Physical));
+        Attack attack = new Attack(100, associatedUnit, Attack.DamageType.Regular);
+        EffectDealDamage effect = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<LivingCreature>(), attack);
 
         ResolutionManager.instance.LoadBattleEffect(effect);
     }

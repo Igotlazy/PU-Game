@@ -5,23 +5,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using MHA.UserInterface;
+using MHA.BattleBehaviours;
 using Kryz.CharacterStats;
 
-public class LivingCreature : GameEntity {
+public class LivingCreature : MonoBehaviour {
 
-    [Header("[LIVING CREATURE]")]
-
-    [Header("Base Stats:")]
-    public float baseStrength = 5;
-    public int baseEnergy = 5;
-    public float baseQuirkPower;
-    public float basePhysicalResistance;
-    public float baseQuirkResistance;
-    public float baseRange;
 
     [Header("Stats:")]
-    public int currentLevel = 1;
-    public CharacterStat strength;
+    public float currentHealth;
+    [SerializeField]
     private int currentEnergy;
     public int CurrentEnergy
     {
@@ -38,36 +30,14 @@ public class LivingCreature : GameEntity {
             }
         }
     }
+    public CharacterStat maxHealth;
     public CharacterStat maxEnergy;
-    public CharacterStat quirkPower;
-    public CharacterStat physicalResistance;
-    public CharacterStat quirkResistance;
-    public CharacterStat range;
+    public CharacterStat currentStrength;
+    public CharacterStat currentDefense;
+    public CharacterStat currentLuck;
 
-    [Header("Stat Growth:")]
-    public float healthGrowth;
-    public int energyGrowth;
-    public float strengthGrowth;
-    public float attackSpeedGrowth;
-    public float physicalResistanceGrowth;
-    public float quirkResistanceGrowth;
-
-    [SerializeField]
-    protected float currentExperience;
-    public float Experience {
-        get
-        {
-            return currentExperience;
-        }
-        set
-        {
-            currentExperience = value;
-            ExperienceChecker();
-        }
-    }
 
     [Header("State Bools:")]
-    public bool amRanged;
     public bool isInvincible;
     public bool amDead;
 
@@ -79,40 +49,35 @@ public class LivingCreature : GameEntity {
     public HealthBarControl healthBar;
     public GameObject damageIndicator;
 
-    protected override void Awake()
-    {
-        strength.BaseValue = baseStrength;
-        maxEnergy.BaseValue = baseEnergy;
-        CurrentEnergy = Mathf.RoundToInt(maxEnergy.Value);
-        quirkPower.BaseValue = baseQuirkPower;
-        physicalResistance.BaseValue = basePhysicalResistance;
-        quirkResistance.BaseValue = baseQuirkResistance;
-        range.BaseValue = baseRange;
+    public Unit attachedUnit;
 
-        base.Awake();
+    protected void Awake()
+    {
+        attachedUnit = GetComponent<Unit>();
     }
 
-    protected override void Start ()
+    protected void Start ()
     {
-        base.Start();
+
     }
 	
 
-	protected override void Update ()
+	protected void Update ()
     {
         HandleBuffs();
+    }
 
-        //Debug Functions
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            currentExperience += 25;
-        }
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            ClearBuffs();
-        }
+    public void LoadStatData(CharDataSO givenData)
+    {
+        currentHealth = givenData.baseHealth;
+        maxHealth.BaseValue = givenData.baseHealth;
 
-        base.Update();
+        currentEnergy = givenData.baseEnergy;
+        maxEnergy.BaseValue = givenData.baseEnergy;
+
+        currentStrength.BaseValue = givenData.baseStrength;
+        currentDefense.BaseValue = givenData.baseDefense;
+        currentLuck.BaseValue = givenData.baseLuck;
     }
 
 
@@ -120,9 +85,12 @@ public class LivingCreature : GameEntity {
     {
         if (!isInvincible)
         {
-            currentHealth -= receivedAttack.damageValue;
+            float damage = CombatUtils.DamageCalculation(receivedAttack, attachedUnit);
+            currentHealth -= damage;
 
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth.Value);
+
+            new BBDealDamageAnim(this, currentHealth, damage);
 
             if (currentHealth <= 0 && !amDead)
             {
@@ -133,36 +101,6 @@ public class LivingCreature : GameEntity {
         }
     }
 
-
-    protected virtual void LevelUp()
-    {
-        currentLevel += 1;
-
-        float oldMaxHealth = maxHealth.Value;
-        float oldMaxEnergy = maxEnergy.Value;
-
-        strength.AddModifier(new StatModifier(strengthGrowth, StatModType.Flat));
-        maxHealth.AddModifier(new StatModifier(healthGrowth, StatModType.Flat));
-        maxEnergy.AddModifier(new StatModifier(energyGrowth, StatModType.Flat));
-        physicalResistance.AddModifier(new StatModifier(physicalResistanceGrowth, StatModType.Flat));
-        quirkResistance.AddModifier(new StatModifier(quirkResistanceGrowth, StatModType.Flat));
-
-        //Makes it so changing max health/energy changes current. 
-        currentHealth += maxHealth.Value - oldMaxHealth;
-
-    }
-
-    private void ExperienceChecker()
-    {
-        if (currentExperience >= 100)
-        {
-            if (currentLevel < 18)
-            {
-                LevelUp();
-            }
-            currentExperience -= 100;
-        }
-    }
 
     public void RespondFinishToTurn()
     {

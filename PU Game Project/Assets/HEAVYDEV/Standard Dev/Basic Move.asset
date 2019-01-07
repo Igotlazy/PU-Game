@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 915562248bd60994aa6955735ba096d2, type: 3}
   m_Name: Basic Move
   m_EditorClassIdentifier: 
-  associatedUnit: {fileID: 0}
-  abilityName: 
-  abilityDescription: 
+  abilityName: Move
+  abilityDescription: 'Select a Tile within walk range and the unit will walk towards
+    it. '
   abilitySprite: {fileID: 0}
-  energyCost: 0
+  energyCost: 1
   turnCooldown: 0
+  associatedUnit: {fileID: 0}

@@ -14,9 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   heroName: Backlash
   realName: Jiko Rue
-  spriteRig: {fileID: 1703869279122898, guid: b121febef3522b0418d85b1dbab6c07f, type: 3}
-  movementAbilities:
-  - {fileID: 11400000, guid: 5f3b63a30f2c5a044a1dc43a89bf39d0, type: 2}
-  passiveAbilities: []
-  activatableAbilities:
-  - {fileID: 11400000, guid: 252d0dc7f34e65849a0eea24ed9e9329, type: 2}
+  mainClass: 5
+  secondaryClass: 0
+  baseHealth: 440
+  baseEnergy: 10
+  baseStrength: 5
+  baseDefense: 5
+  baseLuck: 5
+  healthGrowth: 0
+  energyGrowth: 0
+  strengthGrowth: 0
+  defenseGrowth: 0
+  luckGrowth: 0

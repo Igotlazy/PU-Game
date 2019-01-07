@@ -10,13 +10,13 @@ namespace MHA.BattleBehaviours
     {
         LivingCreature givenCreature;
         float healthRemaining;
-        Attack givenAttack;
+        float damage;
 
-        public BBDealDamageAnim(LivingCreature _givenCreature, float _healthRemaining, Attack _givenAttack)
+        public BBDealDamageAnim(LivingCreature _givenCreature, float _healthRemaining, float _damage)
         {
             givenCreature = _givenCreature;
             healthRemaining = _healthRemaining;
-           givenAttack = _givenAttack;
+            damage = _damage;
 
             LoadBattleAnimation();
         }
@@ -27,7 +27,7 @@ namespace MHA.BattleBehaviours
             givenCreature.healthBar.UpdateHealth(healthRemaining, givenCreature.maxHealth.Value);
 
             GameObject indicatorObj = GameObject.Instantiate(givenCreature.damageIndicator, new Vector3(givenCreature.transform.position.x, givenCreature.transform.position.y + 2f, givenCreature.transform.position.z), Quaternion.identity);
-            indicatorObj.GetComponent<DamageIndicator>().SetText(givenAttack.damageValue);
+            indicatorObj.GetComponent<DamageIndicator>().SetText(damage);
 
             AnimFinished = true;
         }
@@ -38,7 +38,7 @@ namespace MHA.BattleBehaviours
             givenCreature.healthBar.UpdateHealth(healthRemaining, givenCreature.maxHealth.Value);
 
             GameObject indicatorObj = GameObject.Instantiate(givenCreature.damageIndicator, new Vector3 (givenCreature.transform.position.x, givenCreature.transform.position.y + 2f, givenCreature.transform.position.z), Quaternion.identity);
-            indicatorObj.GetComponent<DamageIndicator>().SetText(givenAttack.damageValue);
+            indicatorObj.GetComponent<DamageIndicator>().SetText(damage);
 
             yield return new WaitForSeconds(0.2f);
 
