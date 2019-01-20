@@ -17,7 +17,7 @@ MonoBehaviour:
   mainClass: 2
   secondaryClass: 0
   baseHealth: 440
-  baseEnergy: 3
+  baseEnergy: 20
   baseStrength: 12
   baseDefense: 20
   baseLuck: 8

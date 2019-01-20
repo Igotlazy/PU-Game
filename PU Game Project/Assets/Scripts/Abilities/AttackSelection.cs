@@ -22,11 +22,9 @@ public abstract class AttackSelection : MonoBehaviour {
     public void Initialize()
     {
         selectType = attachedTargetPacket.selectionType;
-        Debug.Log(selectType);
         if(selectType == SelectorPacket.SelectionType.Target)
         {
             maxNumOfSelections = attachedTargetPacket.maxNumOfSelect;
-            Debug.Log(maxNumOfSelections);
         }
 
         InitializeImpl();

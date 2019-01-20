@@ -3,123 +3,74 @@ using System.Collections.Generic;
 using UnityEngine;
 using MHA.Events;
 
-public class TPorterInstant : BattleEffect
+public class TPorterInstant : TPorter
 {
-    SelectorPacket givenPacket;
-    List<TargetSpecs> givenTSpecs;
     GameObject fireObjectRef;
-
-    int indexTracker;
-    bool preIndexIncrease = false;
-    bool warnOnce;
 
     public string REPORTKEY;
 
 
-    public TPorterInstant(EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData)
+    public TPorterInstant(EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData, _givenPacket)
     {
-        this.givenPacket = _givenPacket;
         this.fireObjectRef = _fireObjectRef;
-        if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
-        {
-            this.warnOnce = true;
-        }
-
-        this.givenTSpecs = givenPacket.targetObjectSpecs;
     }
 
-    protected override void WarnEffect()
+    protected override void TPorterWarn()
     {
-        if (!preIndexIncrease)
-        {
-            if (!givenPacket.isPure && (givenTSpecs[indexTracker].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[indexTracker].selectionType == SelectorPacket.SelectionType.AreaTarget))
-            {
-                TargetSpecs currentSpec = givenTSpecs[indexTracker];
-                Vector3 targetShot = CombatUtils.GiveShotConnector(currentSpec.targetObj);
-                Vector3 targetPartial = CombatUtils.GivePartialCheck(currentSpec.targetObj);
-                CombatUtils.MainFireCalculation(currentSpec.fireOriginPoint, targetShot, targetPartial, out currentSpec.didPeek, out currentSpec.fireOriginPoint);
+        PeekCheck();
 
-                if (currentSpec.didPeek)
-                {
-                    Unit sourceObj = ((Unit)effectData.GetValue("Caster", false)[0]);
-                    EventFlags.ANIMStartPeek(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOriginPoint, sourceObj.gameObject.transform.position)); //EVENT
-                }
-            }
-        }
-        if (warnOnce)
-        {
-            TPorterWarnOverride = false;
-        }
+        Debug.Log("Instant START Anim Event");
+        Debug.LogWarning("Instant WARN Event");
     }
 
-    protected override void RunEffectImpl()
+    protected override void TPorterRun()
     {
-        TPorterFinishOverride = false;
-        TPorterRemoveOverride = false;
 
-        if (!preIndexIncrease)
+        if (runIndex == 0 && fireObjectRef != null) //If it's the first, instantiate the projectile.
         {
-            if (indexTracker == 0 && fireObjectRef != null) //If it's the first, instantiate the projectile.
-            {
-                Quaternion lookRotation = Quaternion.LookRotation(givenTSpecs[indexTracker].targetObj.GetComponent<Unit>().shotConnecter.transform.position - givenTSpecs[indexTracker].fireOriginPoint);
-                GameObject.Instantiate(fireObjectRef, ((Unit)effectData.GetValue("Caster", false)[0]).gameObject.transform.position, Quaternion.identity);
-            }
+            Quaternion lookRotation = Quaternion.LookRotation(givenTSpecs[runIndex].targetObj.GetComponent<Unit>().shotConnecter.transform.position - givenTSpecs[runIndex].fireOriginPoint);
+            GameObject.Instantiate(fireObjectRef, ((Unit)effectData.GetValue("Caster", false)[0]).gameObject.transform.position, Quaternion.identity);
+        }
 
-            Unit targetScript = givenTSpecs[indexTracker].targetObj.GetComponent<Unit>();
-            if (givenPacket.TargetNodes.Contains(targetScript.currentNode))
+        InstantLogic();
+    }
+
+    private void InstantLogic()
+    {
+
+        Unit targetScript = givenTSpecs[runIndex].targetObj.GetComponent<Unit>();
+        if (givenPacket.TargetNodes.Contains(targetScript.currentNode))
+        {
+            if (!givenPacket.isPure)
             {
-                if (!givenPacket.isPure)
+                float result = CombatUtils.MainFireCalculation(givenTSpecs[runIndex].fireOriginPoint, targetScript.shotConnecter.transform.position, targetScript.partialCoverCheck.transform.position);
+                if (CombatUtils.AttackHitPercentages(result))
                 {
-                    float result = CombatUtils.MainFireCalculation(givenTSpecs[indexTracker].fireOriginPoint, targetScript.shotConnecter.transform.position, targetScript.partialCoverCheck.transform.position);
-                    if (CombatUtils.AttackHitPercentages(result))
-                    {
-                        TPorterFinishOverride = true;
-                        effectData.AppendValue(REPORTKEY, givenTSpecs[indexTracker].targetObj);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("INSTANT BLOCKED");
-                    }
+                    TPorterFinishOverride = true;
+                    effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
+
+                    Debug.Log("Instant HIT Anim Event");
+                    Debug.LogWarning("Instant HIT Event");
                 }
                 else
                 {
-                    TPorterFinishOverride = true;
-                    effectData.AppendValue(REPORTKEY, givenTSpecs[indexTracker].targetObj);
+                    Debug.Log("Instant MISSED Anim Event");
+                    Debug.LogWarning("Instant MISSED Event");
                 }
             }
-
-            //foreach
-
-            preIndexIncrease = true;
-        }
-        else
-        {
-            if (givenTSpecs[indexTracker].didPeek && (givenTSpecs[indexTracker].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[indexTracker].selectionType == SelectorPacket.SelectionType.AreaTarget)) 
+            else
             {
-                if(warnOnce)
-                {
-                    if(indexTracker >= givenTSpecs.Count)
-                    {
-                        EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
-                    }
-                }
-                else 
-                {
-                    EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
-                }
+                TPorterFinishOverride = true;
+                effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
 
+                Debug.Log("Instant HIT Anim Event");
+                Debug.LogWarning("Instant HIT Event");
             }
-
-            indexTracker++;
-            preIndexIncrease = false;
         }
 
+        //if AoE foreach
 
-
-        if(indexTracker >= givenTSpecs.Count)
-        {
-            TPorterRemoveOverride = true;
-        }
+        doEnding = true;
     }
 
 
@@ -130,9 +81,10 @@ public class TPorterInstant : BattleEffect
 
     public void SoftEffectCancel()
     {
-        indexTracker++;
+        PeekRecovery();
+        runIndex++;
 
-        if (indexTracker >= givenTSpecs.Count)
+        if (runIndex >= givenTSpecs.Count)
         {
             RemoveSelfFromResolveList();
         }        

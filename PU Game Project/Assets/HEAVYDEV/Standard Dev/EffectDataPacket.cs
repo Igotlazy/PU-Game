@@ -7,11 +7,14 @@ public class EffectDataPacket {
     public Dictionary<string, List<object>> blackboard = new Dictionary<string, List<object>>();
 
 
-    public EffectDataPacket(Unit _caster, CharAbility _charAbility, int _castIndex)
+    public EffectDataPacket(Unit _caster, CharAbility _charAbility, CharAbility.AbilityType _abilityType, int _slotValue, int _castIndex)
     {
         AppendValue("Caster", _caster);
         AppendValue("CharacterAbility", _charAbility);
+        AppendValue("AbilityType", _abilityType);
+        AppendValue("SlotValue", _slotValue);
         AppendValue("CastIndex", _castIndex);
+        
     }
 
     public List<object> GetValue(string getKey, bool zero)

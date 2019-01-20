@@ -9,6 +9,8 @@ public class BasicMoveSelector : AttackSelection {
     int targetIndex;
     public bool hasSuccessfulPath;
     private RaycastHit hitInfo;
+    private List<Node> allNodes = new List<Node>();
+
     protected void Start()
     {
         CursorController.instance.CursorNewNodeEVENT += SetMovePath;
@@ -16,7 +18,12 @@ public class BasicMoveSelector : AttackSelection {
 
     protected override void InitializeImpl()
     {
-        
+
+        allNodes = Pathfinding.instance.DisplayAvailableMoves(givenAbility.associatedUnit.currentNode, givenAbility.associatedUnit.CreatureScript.CurrentEnergy);
+        foreach(Node currentNode in allNodes)
+        {
+            currentNode.IsSelectable = true;
+        }
     }
 
     protected override void Update()
@@ -49,9 +56,6 @@ public class BasicMoveSelector : AttackSelection {
         }
     }
 
-    AbilityBasicMove moveAbility;
-
-
     protected override void MadeSelectionImpl()
     {
         CursorController.instance.CursorNewNodeEVENT -= SetMovePath;
@@ -66,10 +70,18 @@ public class BasicMoveSelector : AttackSelection {
         {
             
         }
+
+        foreach (Node currentNode in allNodes)
+        {
+            currentNode.IsSelectable = false;
+        }
     }
     protected override void CancelSelectionImpl()
     {
-        
+        foreach (Node currentNode in allNodes)
+        {
+            currentNode.IsSelectable = false;
+        }
     }
     private void OnDestroy()
     {

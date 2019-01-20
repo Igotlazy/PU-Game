@@ -5,167 +5,147 @@ using UnityEngine;
 using MHA.BattleBehaviours;
 using MHA.Events;
 
-public class TPorterProjectile : BattleEffect
+public class TPorterProjectile : TPorter
 {
-    SelectorPacket givenPacket;
-    List<TargetSpecs> givenTSpecs;
     List<List<Vector3>> targetPaths = new List<List<Vector3>>();
     List<Vector3> originalTargetPositions = new List<Vector3>();
     GameObject fireObjectRef;
 
     GameObject currentMovingObj;
-    int indexTracker;
-    int listTracker;
+    int subRIndex;
 
     public float baseMoveSpeed = 5;
     public float moveSpeedAccel = 1f;
 
     public string REPORTKEY;
 
-    bool preListIncrease = false;
-
-    public TPorterProjectile(EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData)
+    public TPorterProjectile(EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData, _givenPacket)
     {
-        this.givenPacket = _givenPacket;
-        this.givenTSpecs = givenPacket.targetObjectSpecs;
         this.fireObjectRef = _fireObjectRef;
 
         if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
         {
             Debug.LogWarning("WARNING: AoE Selection Type for Projectile is AreaTarget without Peeking. It does not stop the warning.");
         }
-
-        /*
-        foreach(TargetSpecs currentSpec in givenTSpecs)
-        {
-            targetPaths.Add(CombatUtils.ProjectilePathSplicer(currentSpec.fireOriginPoint, CombatUtils.GiveShotConnector(currentSpec.targetObj)));
-            originalTargetPositions.Add(currentSpec.targetObj.transform.position);
-        }
-        */
     }
 
-    protected override void WarnEffect()
+    protected override void TPorterWarn()
     {
-        if(indexTracker == 0 && !preListIncrease)
+        if(subRIndex == 0)
         {
-            if (!givenPacket.isPure && (givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.AreaTarget))
-            {
-                TargetSpecs currentSpec = givenTSpecs[listTracker];
-                Vector3 targetShot = CombatUtils.GiveShotConnector(currentSpec.targetObj);
-                Vector3 targetPartial = CombatUtils.GivePartialCheck(currentSpec.targetObj);
-                CombatUtils.MainFireCalculation(currentSpec.fireOriginPoint, targetShot, targetPartial, out currentSpec.didPeek, out currentSpec.fireOriginPoint);
+            PeekCheck();
 
-                if (currentSpec.didPeek)
+            Debug.Log("Projectile START Anim Event");
+
+            if (warnOnce)
+            {
+                foreach(TargetSpecs currSpecs in givenTSpecs)
                 {
-                    Unit sourceObj = ((Unit)effectData.GetValue("Caster", false)[0]);
-                    EventFlags.ANIMStartPeek(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOriginPoint, sourceObj.gameObject.transform.position)); //EVENT
+                    targetPaths.Add(CombatUtils.ProjectilePathSplicer(currSpecs.fireOriginPoint, CombatUtils.GiveShotConnector(currSpecs.targetObj)));
+                    originalTargetPositions.Add(currSpecs.targetObj.transform.position);
                 }
-            }
-
-            //Anim Call to Prep Animation. 
-
-            targetPaths.Add(CombatUtils.ProjectilePathSplicer(givenTSpecs[listTracker].fireOriginPoint, CombatUtils.GiveShotConnector(givenTSpecs[listTracker].targetObj)));
-            originalTargetPositions.Add(givenTSpecs[listTracker].targetObj.transform.position);
-        }
-    }
-
-    protected override void RunEffectImpl()
-    {
-        TPorterFinishOverride = false;
-        TPorterRemoveOverride = false;
-
-        if (!preListIncrease)
-        {
-            if (indexTracker == 0 && fireObjectRef != null) //If it's the first, instantiate the projectile.
-            {
-                Quaternion lookRotation = Quaternion.LookRotation(targetPaths[listTracker][1] - targetPaths[listTracker][0]);
-                currentMovingObj = GameObject.Instantiate(fireObjectRef, targetPaths[listTracker][indexTracker], lookRotation);
-            }
-
-            Vector3 rayDir = targetPaths[listTracker][indexTracker + 1] - currentMovingObj.transform.position;
-            RaycastHit hitInfo;
-            if (!givenPacket.isPure && Physics.Raycast(currentMovingObj.transform.position, rayDir, out hitInfo, rayDir.magnitude, CombatUtils.shotMask))
-            {
-                new AnimMoveToPos(hitInfo.point, currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * indexTracker)), true);
-
-                //indexTracker = 0;
-                preListIncrease = true;
-
-                Debug.LogWarning("PROJECTILE BLOCKED");
-                return;
             }
             else
             {
-                if (indexTracker >= targetPaths[listTracker].Count - 2)
-                {
-                    new AnimMoveToPos(targetPaths[listTracker][indexTracker + 1], currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * indexTracker)), true);
-                }
-                else
-                {
-                    new AnimMoveToPos(targetPaths[listTracker][indexTracker + 1], currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * indexTracker)), false);
-                }
+                targetPaths.Add(CombatUtils.ProjectilePathSplicer(givenTSpecs[runIndex].fireOriginPoint, CombatUtils.GiveShotConnector(givenTSpecs[runIndex].targetObj)));
+                originalTargetPositions.Add(givenTSpecs[runIndex].targetObj.transform.position);
             }
+        }
 
-            indexTracker++;
+        Debug.LogWarning("Projectile WARN Event");
+    }
 
-            if (indexTracker >= targetPaths[listTracker].Count - 1)
-            {
-                if (givenTSpecs[listTracker].targetObj.transform.position == originalTargetPositions[listTracker]) //May check this condition (Checks if target is still in same position. 
-                {
+    protected override void TPorterRun()
+    {
+        if (subRIndex == 0 && fireObjectRef != null) //If it's the first, instantiate the projectile.
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(targetPaths[runIndex][1] - targetPaths[runIndex][0]);
+            currentMovingObj = GameObject.Instantiate(fireObjectRef, targetPaths[runIndex][subRIndex], lookRotation);
+        }
 
-                    Unit unitScript = givenTSpecs[listTracker].targetObj.GetComponent<Unit>();
-                    if (unitScript == null)
-                    {
-                        effectData.AppendValue(REPORTKEY, givenTSpecs[listTracker].targetObj);
-                        TPorterFinishOverride = true;
-                    }
-                    else
-                    {
-                        if (!givenPacket.isPure)
-                        {
-                            Vector3 fireDir = (targetPaths[listTracker][targetPaths[listTracker].Count - 1]) - (targetPaths[listTracker][targetPaths[listTracker].Count - 2]);
+        ProjectileLogic();
+    }
 
-                            if (CombatUtils.AttackHitPercentages(CombatUtils.coverCheckCalculation(fireDir, unitScript.partialCoverCheck.transform.position, unitScript.shotConnecter.transform.position)))
-                            {
-                                effectData.AppendValue(REPORTKEY, givenTSpecs[listTracker].targetObj);
-                                TPorterFinishOverride = true;
-                            }
-                            else
-                            {
-                                Debug.LogWarning("PROJECTILE MISSED");
-                            }
-                        }
-                        else
-                        {
-                            effectData.AppendValue(REPORTKEY, givenTSpecs[listTracker].targetObj);
-                            TPorterFinishOverride = true;
-                        }
-                    }
+    private void ProjectileLogic()
+    {
+        Vector3 rayDir = targetPaths[runIndex][subRIndex + 1] - currentMovingObj.transform.position;
+        RaycastHit hitInfo;
+        if (!givenPacket.isPure && Physics.Raycast(currentMovingObj.transform.position, rayDir, out hitInfo, rayDir.magnitude, CombatUtils.shotMask))
+        {
+            new AnimMoveToPos(hitInfo.point, currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), true);
 
-                }
-                else
-                {
-                    Debug.LogWarning("PROJECTILE MISSED");
-                }
+            Debug.Log("Projectile BLOCKED Anim Event");
+            Debug.LogWarning("Projectile BLOCKED Event");
 
-                //indexTracker = 0;
-                preListIncrease = true;
-            }
+            subRIndex = 0;
+            doEnding = true;
+
+            return;
         }
         else
         {
-            if (givenTSpecs[listTracker].didPeek && (givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[listTracker].selectionType == SelectorPacket.SelectionType.AreaTarget))
+            if (subRIndex >= targetPaths[runIndex].Count - 2)
             {
-                EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
+                new AnimMoveToPos(targetPaths[runIndex][subRIndex + 1], currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), true);
+                Debug.Log("Projectile MOVE[END] Anim Event");
             }
-            indexTracker = 0;
-            listTracker++;
-            preListIncrease = false;
+            else
+            {
+                new AnimMoveToPos(targetPaths[runIndex][subRIndex + 1], currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), false);
+                Debug.Log("Projectile MOVE Anim Event");
+            }
         }
 
-        if (listTracker > givenTSpecs.Count - 1)
+        subRIndex++;
+
+        if (subRIndex >= targetPaths[runIndex].Count - 1)
         {
-            TPorterRemoveOverride = true;
+            if (givenTSpecs[runIndex].targetObj.transform.position == originalTargetPositions[runIndex]) //May check this condition (Checks if target is still in same position. 
+            {
+
+                Unit unitScript = givenTSpecs[runIndex].targetObj.GetComponent<Unit>();
+                if (unitScript == null)
+                {
+                    effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
+                    TPorterFinishOverride = true;
+
+                    Debug.LogWarning("Projectile HIT Event");
+                }
+                else
+                {
+                    if (!givenPacket.isPure)
+                    {
+                        Vector3 fireDir = (targetPaths[runIndex][targetPaths[runIndex].Count - 1]) - (targetPaths[runIndex][targetPaths[runIndex].Count - 2]);
+
+                        if (CombatUtils.AttackHitPercentages(CombatUtils.coverCheckCalculation(fireDir, unitScript.partialCoverCheck.transform.position, unitScript.shotConnecter.transform.position)))
+                        {
+                            effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
+                            TPorterFinishOverride = true;
+
+                            Debug.LogWarning("Projectile HIT Event");
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Projectile MISSED Event");
+                        }
+                    }
+                    else
+                    {
+                        effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
+                        TPorterFinishOverride = true;
+
+                        Debug.LogWarning("Projectile HIT Event");
+                    }
+                }
+
+            }
+            else
+            {
+                Debug.LogWarning("PROJECTILE MISSED");
+            }
+
+            subRIndex = 0;
+            doEnding = true;
         }
     }
 
@@ -177,10 +157,11 @@ public class TPorterProjectile : BattleEffect
 
     public void SoftEffectCancel()
     {
-        indexTracker = 0;
-        listTracker++;
+        PeekRecovery();
+        subRIndex = 0;
+        runIndex++;
 
-        if (listTracker >= targetPaths.Count)
+        if (runIndex >= targetPaths.Count)
         {
             RemoveSelfFromResolveList();
         }

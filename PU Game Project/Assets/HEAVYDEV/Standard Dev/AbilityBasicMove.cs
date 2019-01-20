@@ -11,13 +11,12 @@ public class AbilityBasicMove : CharAbility {
     public override void Initialize(Unit givenUnit)
     {
         base.Initialize(givenUnit);
-        Debug.Log("Hello?");
 
         castableAbilities.Add(new Action<EffectDataPacket>(Run));
 
         targetPacketBaseData.Add(new List<SelectorPacket> { new SelectorPacket(SelectorPacket.SelectionType.Null, false) });
 
-        targetSelectors.Add(new List<GameObject> {AbilityPrefabRef.instance.GiveNodeSelectorPrefab(AbilityPrefabRef.instance.BasicMoveSelector)});
+        targetSelectors.Add(new List<GameObject> {AbilityPrefabRef.instance.GiveNodeSelectorPrefab(new AbilityPrefabRef.BasicMoveSelector())});
     }
 
 

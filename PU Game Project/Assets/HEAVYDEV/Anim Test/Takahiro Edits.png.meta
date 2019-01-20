@@ -1,0 +1,645 @@
+fileFormatVersion: 2
+guid: 085d76b947659b84b9553024e9054d0c
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: Takahiro Hair 1
+    21300002: Takahiro Hair 2
+    21300004: Takahiro Hair 3
+    21300006: Takahiro Hair 4
+    21300008: Takahiro Hair Wrap
+    21300010: Takahiro Hair 5
+    21300012: Takahiro Arm Band
+    21300014: Takahiro Head
+    21300016: Takahiro Ear
+    21300018: Takahiro Neck
+    21300020: Takahiro Scarf Top
+    21300022: Takahiro Shirt Arm
+    21300024: Takahiro Arm
+    21300026: Takahiro Arm 2
+    21300028: Takahiro Chest
+    21300030: Takahiro Scarf
+    21300032: Takahiro Glove Wrist
+    21300034: Takahiro Hand
+    21300036: Takahiro Thigh
+    21300038: Takahiro Leg
+    21300040: Takahiro Bottom Chest
+    21300042: Takahiro Top Leg
+    21300044: Takahiro Hips
+    21300046: Takahiro Leg 2
+    21300048: Takahiro Foot 1
+    21300050: Takahiro Foot 2
+  externalObjects: {}
+  serializedVersion: 7
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: -1
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: -1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  platformSettings:
+  - serializedVersion: 2
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - serializedVersion: 2
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Takahiro Hair 1
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 1332
+        width: 187
+        height: 277
+      alignment: 9
+      pivot: {x: 0.8505891, y: 0.91249806}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a67775f10679acf409bb0a67efbfe35b
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Hair 2
+      rect:
+        serializedVersion: 2
+        x: 249
+        y: 1353
+        width: 189
+        height: 289
+      alignment: 9
+      pivot: {x: 0.82705784, y: 0.90833324}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 156c22be54feb1646908427969ace962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Hair 3
+      rect:
+        serializedVersion: 2
+        x: 508
+        y: 1385
+        width: 125
+        height: 226
+      alignment: 9
+      pivot: {x: 0.21528271, y: 0.88954854}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b3cc0f924cba6cd4893f7ea478dec71f
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Hair 4
+      rect:
+        serializedVersion: 2
+        x: 736
+        y: 1289
+        width: 173
+        height: 324
+      alignment: 9
+      pivot: {x: 0.15352248, y: 0.9162549}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 644915631d6c546478462ac8a3a4dcc8
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Hair Wrap
+      rect:
+        serializedVersion: 2
+        x: 916
+        y: 1462
+        width: 30
+        height: 47
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9af4b75d248aac64e98b5baef3e2ac3e
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Hair 5
+      rect:
+        serializedVersion: 2
+        x: 992
+        y: 1388
+        width: 305
+        height: 241
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0170084edc031404cb0c36854e2e9ecc
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Arm Band
+      rect:
+        serializedVersion: 2
+        x: 1349
+        y: 1163
+        width: 144
+        height: 356
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d27f53d79b8733748a770664a729ed4c
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Head
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 1051
+        width: 218
+        height: 267
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: adb17e12169800d4ea87c2ec7204254e
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Ear
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 1168
+        width: 51
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 24e1cd4ca1e998a41940ded6c0b6b83a
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Neck
+      rect:
+        serializedVersion: 2
+        x: 438
+        y: 1179
+        width: 45
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cbeb5b93371ae644c91d29bd4584fbc6
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Scarf Top
+      rect:
+        serializedVersion: 2
+        x: 983
+        y: 1183
+        width: 239
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 50d05ee2e246dde48bec00e256d04816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Shirt Arm
+      rect:
+        serializedVersion: 2
+        x: 360
+        y: 905
+        width: 81
+        height: 166
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b917b281bba82d439ed08a365c3f441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Arm
+      rect:
+        serializedVersion: 2
+        x: 508
+        y: 857
+        width: 63
+        height: 284
+      alignment: 9
+      pivot: {x: 0.5, y: 0.9}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 64ca2a072aa6f3d44b64593aa8e1bb62
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Arm 2
+      rect:
+        serializedVersion: 2
+        x: 641
+        y: 836
+        width: 66
+        height: 283
+      alignment: 9
+      pivot: {x: 0.5, y: 0.9}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 30944d52319107a409b1f87de4f43c44
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Chest
+      rect:
+        serializedVersion: 2
+        x: 896
+        y: 777
+        width: 226
+        height: 304
+      alignment: 9
+      pivot: {x: 0.5, y: 0.1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c3065f6376faacd409a050c85145ad2d
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Scarf
+      rect:
+        serializedVersion: 2
+        x: 1204
+        y: 117
+        width: 335
+        height: 950
+      alignment: 9
+      pivot: {x: 0.6789277, y: 0.94955516}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f6a9fe3abf401744baa832aa627d22e
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Glove Wrist
+      rect:
+        serializedVersion: 2
+        x: 425
+        y: 726
+        width: 71
+        height: 83
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aa9c46307897c26439099a923e505163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Hand
+      rect:
+        serializedVersion: 2
+        x: 425
+        y: 607
+        width: 80
+        height: 80
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7676e8688348b8d4a884ed0ad4553a0a
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Thigh
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 291
+        width: 94
+        height: 382
+      alignment: 9
+      pivot: {x: 0.5, y: 0.9}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c017ef7aba4f8bd448fff2315df6c20d
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Leg
+      rect:
+        serializedVersion: 2
+        x: 726
+        y: 296
+        width: 74
+        height: 347
+      alignment: 9
+      pivot: {x: 0.5, y: 0.9}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 41961b5e292e10047967b7ec6778300b
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Bottom Chest
+      rect:
+        serializedVersion: 2
+        x: 898
+        y: 516
+        width: 242
+        height: 182
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dcd75dd8335940a4c9c3f38415aa6f13
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Top Leg
+      rect:
+        serializedVersion: 2
+        x: 317
+        y: 386
+        width: 137
+        height: 106
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 291dc2e7fea56d14191170b040cf49ba
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Hips
+      rect:
+        serializedVersion: 2
+        x: 916
+        y: 183
+        width: 224
+        height: 264
+      alignment: 9
+      pivot: {x: 0.5, y: 0.9}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 19754c5fbc9bd4145b077418d10bdd9e
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Leg 2
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 0
+        width: 86
+        height: 347
+      alignment: 9
+      pivot: {x: 0.5, y: 0.9}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a06885f754bb77f48a76f728e117e777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Foot 1
+      rect:
+        serializedVersion: 2
+        x: 674
+        y: 137
+        width: 125
+        height: 48
+      alignment: 9
+      pivot: {x: 0.1, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c64abaae96f9d32468bb0c8a0f94dfa4
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Takahiro Foot 2
+      rect:
+        serializedVersion: 2
+        x: 477
+        y: 0
+        width: 125
+        height: 49
+      alignment: 9
+      pivot: {x: 0.9, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9aad7c5e3c7638a4c87f7aad8a097c1b
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: cd99c5fc6a1d4c345814279f85bcca80
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -23,7 +23,7 @@ public class EffectGridMove : BattleEffect {
 
     protected override void WarnEffect()
     {
-        Debug.Log("Grid Move: Warning Event Not Implemented");
+        //Debug.Log("Grid Move: Warning Event Not Implemented");
     }
 
     private void GridMove()

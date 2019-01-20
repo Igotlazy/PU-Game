@@ -12,7 +12,6 @@ public class ClickSelection : MonoBehaviour
 
     [Header("Selection References")]
     public GameObject selectedUnitObj;
-    public LivingCreature selectedCreatureScript;
     public Unit selectedUnitScript;
     public Node lastHitNode;
     [Space]
@@ -21,9 +20,8 @@ public class ClickSelection : MonoBehaviour
     public bool hasSelection;
     [Space]
 
-    public bool prepMoving;
     public bool prepAttack;
-    public bool prepInv;
+    public bool canSelect;
 
     private bool particlesPlaying;
 
@@ -42,35 +40,41 @@ public class ClickSelection : MonoBehaviour
 
     void Start()
     {
-        
+        TurnManager.instance.BattlePhaseResponseEVENT += BattlePhaseReceiver;
+    }
+    private void OnDestroy()
+    {
+        TurnManager.instance.BattlePhaseResponseEVENT -= BattlePhaseReceiver;
+    }
+
+    void BattlePhaseReceiver(TurnManager.BattlePhase givenPhase)
+    {
+        if(givenPhase == TurnManager.BattlePhase.PlayerInput)
+        {
+            canSelect = true;
+        }
+        else if (givenPhase == TurnManager.BattlePhase.ActionPhase)
+        {
+            canSelect = false;
+        }
+        else
+        {
+            canSelect = false;
+            ClearSelection();
+        }
     }
 
     void Update()
     {
-        if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
+        if (Input.GetMouseButtonDown(0) && !prepAttack && canSelect)
         {
-            if (Input.GetMouseButtonDown(0) && !prepAttack)
-            {
-                SelectionClick();
-            }
-        }
-
-        //For Selection Particles
-        if (selectedUnitObj != null && !particlesPlaying)
-        {
-            selectionParticles.gameObject.SetActive(true);
-            particlesPlaying = true;
-        }
-        else if (selectedUnitObj == null && particlesPlaying)
-        {
-            selectionParticles.gameObject.SetActive(false);
-            particlesPlaying = false;
+            SelectionClick();
         }
     }
 
     private void LateUpdate()
     {
-        if (selectedUnitObj != null) //For Selection Indicator
+        if (particlesPlaying) //For Selection Indicator
         {
             selectionParticles.gameObject.transform.position = new Vector3(
                 selectedUnitObj.transform.position.x,
@@ -108,12 +112,14 @@ public class ClickSelection : MonoBehaviour
         {
             selectedUnitObj = potentialNewSelection.gameObject;
             selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
-            selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
 
             if (NewSelectionEvent != null)
             {
                 NewSelectionEvent(selectedUnitObj); //EVENT TO RESPOND TO NEW SELECTION;
             }
+
+            selectionParticles.gameObject.SetActive(true);
+            particlesPlaying = true;
 
             ResetToDefault();
             CameraManager.instance.SetCameraTargetBasic(selectedUnitObj.transform); //Makes camera follow selected Unit.
@@ -125,9 +131,11 @@ public class ClickSelection : MonoBehaviour
         hasSelection = false;
         selectedUnitObj = null;
         selectedUnitScript = null;
-        selectedCreatureScript = null;
 
-        if(ClearSelectionEvent != null)
+        selectionParticles.gameObject.SetActive(false);
+        particlesPlaying = false;
+
+        if (ClearSelectionEvent != null)
         {
             ClearSelectionEvent(); //EVENT TO RESPOND TO CLEARED SELECTION.
         }
@@ -139,14 +147,6 @@ public class ClickSelection : MonoBehaviour
         DrawIndicators.instance.ClearTileMatStates(true, true, true);
 
         prepAttack = false;
-        prepMoving = false;
-    }
-
-    public void DrawMoveZone() //Draws where the places can move.
-    {
-        //DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears tiles if you selected a new target and already had one selected.
-
-        List<Node> availableNodes = Pathfinding.instance.DisplayAvailableMoves(selectedUnitScript.currentNode, selectedCreatureScript.CurrentEnergy); //BFS Call to get nodes.
-        DrawIndicators.instance.BFSSelectableSet(availableNodes); //Sets nodes as selectable.
+        //prepMoving = false;
     }
 }

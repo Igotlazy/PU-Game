@@ -18,14 +18,22 @@ public class CharAbility : ScriptableObject
 
     [HideInInspector]
     public Unit associatedUnit;
-    IEnumerator collectorCoroutine;
+    //[HideInInspector]
+    public enum AbilityType
+    {
+        Passive,
+        Movement,
+        Activatable,
+        Item
+    }
+    public int slotValue; //Which ability 1, 2 etc.. it is. 
+    public AbilityType abilityType;
     
 
     public static int totalCastIndex;
 
     protected List<List<GameObject>> targetSelectors = new List<List<GameObject>>();
     protected List<List<SelectorPacket>> targetPacketBaseData = new List<List<SelectorPacket>>();
-
     public List<Action<EffectDataPacket>> castableAbilities = new List<Action<EffectDataPacket>>();
 
     public virtual void Initialize(Unit givenUnit)
@@ -65,6 +73,7 @@ public class CharAbility : ScriptableObject
 
         CastAbility(abilityIndex, targetPacketList);
     }
+    IEnumerator collectorCoroutine;
 
     public void CancelTargets()
     {
@@ -78,7 +87,7 @@ public class CharAbility : ScriptableObject
     {
         totalCastIndex += 1;
 
-        EffectDataPacket effectPacket = new EffectDataPacket(associatedUnit, this, totalCastIndex);
+        EffectDataPacket effectPacket = new EffectDataPacket(associatedUnit, this, abilityType, slotValue, totalCastIndex);
         foreach(SelectorPacket currentPacket in givenTargets)
         {
             effectPacket.AppendValue("Targets", currentPacket);

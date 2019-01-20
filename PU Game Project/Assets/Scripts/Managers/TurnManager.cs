@@ -1,5 +1,6 @@
 ﻿//Manages turn progression.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,13 +38,15 @@ public class TurnManager : MonoBehaviour {
         {
             currentBattlePhase = value;
             BattlePhaseInitiation(currentBattlePhase);
-            //Debug.Log("BattleStateSet: " + value);
-            if (value != BattlePhase.ActionPhase) //Action Phase CANNOT be set directly. Must use the set up function as it requires the Resolve Group.
+
+            if(BattlePhaseResponseEVENT != null)
             {
-                //put the stuff on the top back in here later. 
+                BattlePhaseResponseEVENT(currentBattlePhase);
             }
         }
     }
+    public delegate void BattlePhaseResponse(BattlePhase currentPhase);
+    public event BattlePhaseResponse BattlePhaseResponseEVENT;
 
     public List<GameObject> activePlayers = new List<GameObject>();
     public List<GameObject> finishedPlayers = new List<GameObject>();

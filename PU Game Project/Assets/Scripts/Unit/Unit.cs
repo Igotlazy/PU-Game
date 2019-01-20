@@ -15,20 +15,19 @@ public class Unit : MonoBehaviour {
 
     [Header("Abilities")]
     [SerializeField]
-    private List<CharAbility> movementAbilities = new List<CharAbility>();
-    [SerializeField]
     private List<CharAbility> passiveAbilities = new List<CharAbility>();
+    [SerializeField]
+    private List<CharAbility> movementAbilities = new List<CharAbility>();
     [SerializeField]
     private List<CharAbility> activatableAbilities = new List<CharAbility>();
     [Space]
 
-    [HideInInspector]
-    public List<CharAbility> movementAbilitiesInsta = new List<CharAbility>();
-    [HideInInspector]
+    //[HideInInspector]
     public List<CharAbility> passiveAbilitiesInsta = new List<CharAbility>();
-    [HideInInspector]
+    //[HideInInspector]
+    public List<CharAbility> movementAbilitiesInsta = new List<CharAbility>();
+    //[HideInInspector]
     public List<CharAbility> activatableAbilitiesInsta = new List<CharAbility>();
-    [HideInInspector]
 
     [Header("Other")]    
     public Node currentNode;
@@ -99,55 +98,32 @@ public class Unit : MonoBehaviour {
         movementAb = new List<CharAbility>();
         passiveAb = new List<CharAbility>();
         activatableAb = new List<CharAbility>();
-        foreach (CharAbility currentChar in movementAbilities)
-        {
-            CharAbility newOne = Instantiate(currentChar);
-            movementAb.Add(newOne);
-            newOne.Initialize(this);
-        }
-        foreach (CharAbility currentChar in passiveAbilities)
-        {
-            CharAbility newOne = Instantiate(currentChar);
-            passiveAb.Add(newOne);
-            newOne.Initialize(this);
-        }
-        foreach (CharAbility currentChar in activatableAbilities)
-        {
-            CharAbility newOne = Instantiate(currentChar);
-            activatableAb.Add(newOne);
-            newOne.Initialize(this);
-        }
+
+        PrepAbilAux(passiveAbilities, passiveAb, CharAbility.AbilityType.Passive);
+        PrepAbilAux(movementAbilities, movementAb, CharAbility.AbilityType.Movement);
+        PrepAbilAux(activatableAbilities, activatableAb, CharAbility.AbilityType.Activatable);
     }
 
-
-    /*
-    private void OnValidate()
+    private void PrepAbilAux(List<CharAbility> baseAbilities, List<CharAbility> copyList, CharAbility.AbilityType givenType)
     {
-        if(givenCharData != null)
+        int givenSlotValue = 0;
+        foreach (CharAbility currentChar in baseAbilities)
         {
-            UnPackCharData();
-        }
-        else
-        {
-            Debug.Log("Hello?");
-            this.name = "Unit - Model";
-            if (spriteRigProper != null)
-            {
-                UnityEditor.EditorApplication.delayCall += () =>
-                {
-                    DestroyImmediate(spriteRigProper);
-                };
-            }
+            CharAbility abilityCopy = Instantiate(currentChar);
+            copyList.Add(abilityCopy);
+            abilityCopy.Initialize(this);
+            abilityCopy.slotValue = givenSlotValue;
+            givenSlotValue++;
+            abilityCopy.abilityType = givenType;
         }
     }
-    */
 
     private void StartNodeFind() //Gives the unit reference to the Node below it.
     {
         Node foundNode = GridGen.instance.NodeFromWorldPoint(transform.position);
         if(foundNode == null)
         {
-            Debug.Log("WARNING: Unit was not able to initialize itself to the Grid");
+            Debug.LogWarning("WARNING: Unit was not able to initialize itself to the Grid");
         }
         currentNode = foundNode;
         if (foundNode.IsWalkable)
@@ -177,5 +153,10 @@ public class Unit : MonoBehaviour {
             new AnimMoveToPos(peekArgs.GiveOriginalPos(), spriteRig, 3f, false);
             peekArgs.RemoveFromPeek();
         }
+    }
+
+    public void AbilityAnimCallReceiver(CharAbility.AbilityType givenType, int givenSlot)
+    {
+
     }
 }

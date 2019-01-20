@@ -26,31 +26,36 @@ namespace MHA.UserInterface
 
         void Start()
         {
+            abilityGroup.transform.position = abilityBarLocations[0].position;
 
+            TurnManager.instance.BattlePhaseResponseEVENT += BattlePhaseReceiver;
+            ClickSelection.instance.NewSelectionEvent += NewSelectionReceiver;
+            ClickSelection.instance.ClearSelectionEvent += ClearSelectionReceiver;
+        }
+        private void OnDestroy()
+        {
+            TurnManager.instance.BattlePhaseResponseEVENT -= BattlePhaseReceiver;
+            ClickSelection.instance.NewSelectionEvent -= NewSelectionReceiver;
+            ClickSelection.instance.ClearSelectionEvent -= ClearSelectionReceiver;
+        }
+
+
+        void BattlePhaseReceiver(TurnManager.BattlePhase givenPhase)
+        {
+            UpdateAbilityBar();
+        }
+        void NewSelectionReceiver(GameObject newObj)
+        {
+            UpdateAbilityBar();
+        }
+        void ClearSelectionReceiver()
+        {
+            UpdateAbilityBar();
         }
 
         // Update is called once per frame
         void Update()
         {
-            MoveAbilityBar();
-            AbilityBarActivation();
-        }
-
-        private void MoveAbilityBar()
-        {
-            if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput && ClickSelection.instance.selectedUnitObj != null)
-            {
-                currentPos = abilityBarLocations[1].position;
-            }
-            else if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput || (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.ActionPhase && TurnManager.instance.teamTracker))
-            {
-                currentPos = abilityBarLocations[2].position;
-            }
-            else
-            {
-                currentPos = abilityBarLocations[0].position;
-            }
-
             if (abilityGroup.transform.position != currentPos)
             {
                 moveDirection = currentPos - abilityGroup.transform.position;
@@ -59,33 +64,51 @@ namespace MHA.UserInterface
             }
         }
 
-        private void AbilityBarActivation()
+        private void UpdateAbilityBar()
         {
-            if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput && ClickSelection.instance.hasSelection && !isActive)
+            if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput && ClickSelection.instance.hasSelection)
             {
-                moveButton.GetComponent<Button>().interactable = true;
-                itemButton.GetComponent<Button>().interactable = true;
-                foreach (GameObject currentButton in attackButtons)
-                {
-                    currentButton.GetComponent<Button>().interactable = true;
-                }
-
-                isActive = true;
+                currentPos = abilityBarLocations[1].position;
+                AbilityBarActivation();
             }
-
-            if((TurnManager.instance.CurrentBattlePhase != TurnManager.BattlePhase.PlayerInput || !ClickSelection.instance.hasSelection) && isActive)
+            else if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput || (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.ActionPhase && TurnManager.instance.teamTracker))
             {
-                moveButton.GetComponent<Button>().interactable = false;
-                itemButton.GetComponent<Button>().interactable = false;
-                foreach (GameObject currentButton in attackButtons)
-                {
-                    currentButton.GetComponent<Button>().interactable = false;
-                }
-
-                isActive = false;
+                currentPos = abilityBarLocations[2].position;
+                AbilityBarDeactivation();
+            }
+            else
+            {
+                currentPos = abilityBarLocations[0].position;
+                AbilityBarDeactivation();
             }
         }
-        bool isActive;
+
+        private void AbilityBarActivation()
+        {
+            moveButton.GetComponent<Button>().interactable = true;
+            itemButton.GetComponent<Button>().interactable = true;
+            List<CharAbility> acAb = ClickSelection.instance.selectedUnitScript.activatableAbilitiesInsta;
+            int abilities = 0;
+            foreach (GameObject currentButton in attackButtons)
+            {
+                currentButton.GetComponent<Image>().sprite = acAb[abilities].abilitySprite;
+                currentButton.GetComponent<Button>().interactable = true;
+                if (acAb.Count - 1 > abilities)
+                {
+                    abilities++;
+                }
+            }
+        }
+        private void AbilityBarDeactivation()
+        {
+            moveButton.GetComponent<Button>().interactable = false;
+            itemButton.GetComponent<Button>().interactable = false;
+            foreach (GameObject currentButton in attackButtons)
+            {
+                currentButton.GetComponent<Image>().sprite = null;
+                currentButton.GetComponent<Button>().interactable = false;
+            }
+        }
 
 
 
@@ -93,9 +116,7 @@ namespace MHA.UserInterface
         {
             GeneralSetUp();
 
-            ClickSelection.instance.prepMoving = true;
             ClickSelection.instance.selectedUnitObj.GetComponent<Unit>().movementAbilitiesInsta[0].InitiateAbility(0);
-            ClickSelection.instance.DrawMoveZone();
         }
 
         public void ItemButtonPress()
@@ -107,7 +128,6 @@ namespace MHA.UserInterface
         {
             GeneralSetUp();
 
-            ClickSelection.instance.prepMoving = true;
             ClickSelection.instance.selectedUnitObj.GetComponent<Unit>().activatableAbilitiesInsta[0].InitiateAbility(0);
         }
 
@@ -116,7 +136,6 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack1Prep();
         }
 
         public void A2ButtonPress()
@@ -124,7 +143,6 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack2Prep();
         }
 
         public void A3ButtonPress()
@@ -132,15 +150,14 @@ namespace MHA.UserInterface
             GeneralSetUp();
 
             ClickSelection.instance.prepAttack = true;
-            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAttack3Prep();
         }
 
 
 
         private void GeneralSetUp()
         {
-            ClickSelection.instance.ResetToDefault(); //Resets prepAttack and prepMove and cleans all tiles. 
-            //ClickSelection.instance.selectedUnitObj.GetComponent<HeroCharacter>().UnitAbilityCleanup();
+            ClickSelection.instance.ResetToDefault(); 
+
         }
     }
 }

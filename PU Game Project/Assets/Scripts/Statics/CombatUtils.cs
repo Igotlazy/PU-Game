@@ -87,11 +87,14 @@ public static class CombatUtils {
         Vector3 testVectorX = new Vector3(initialfireDirection.x, 0f, 0f).normalized;
         Vector3 testVectorZ = new Vector3(0f, 0f, initialfireDirection.z).normalized;
 
-        Debug.DrawRay(sourceConnector, testVectorX * GridGen.instance.NodeDiameter, Color.cyan, 5f);
-        Debug.DrawRay(sourceConnector, testVectorZ * GridGen.instance.NodeDiameter, Color.cyan, 5f);
+        float nodeDiameter = GridGen.instance.NodeDiameter;
 
-        bool xHit = Physics.Raycast(sourceConnector, testVectorX, GridGen.instance.NodeDiameter, shotMask);
-        bool zHit = Physics.Raycast(sourceConnector, testVectorZ, GridGen.instance.NodeDiameter, shotMask);
+        //Debug.DrawRay(sourceConnector, testVectorX * nodeDiameter, Color.cyan, 5f);
+        //Debug.DrawRay(sourceConnector, testVectorZ * nodeDiameter, Color.cyan, 5f);
+
+
+        bool xHit = Physics.Raycast(sourceConnector, testVectorX, nodeDiameter, shotMask);
+        bool zHit = Physics.Raycast(sourceConnector, testVectorZ, nodeDiameter, shotMask);
 
         if (xHit && zHit) //If both hit, there are obstacles in both directions and you can't peek. 
         {
@@ -113,86 +116,155 @@ public static class CombatUtils {
             fireSource = sourceConnector;
             return 0;
         }
-        Debug.DrawRay(sourceConnector, testVector * GridGen.instance.NodeDiameter, Color.cyan, 5f);
+        Debug.DrawRay(sourceConnector, testVector * nodeDiameter, Color.cyan, 5f);
 
 
         Vector3 sideVector = Vector3.Cross(Vector3.up, testVector).normalized; 
         Vector3 otherSideVector = -sideVector;
-
-        float peekDistance = 0.75f;
-        Debug.DrawRay(sourceConnector, sideVector * GridGen.instance.NodeDiameter * peekDistance, Color.blue, 5f);
-        bool sideHit = Physics.Raycast(sourceConnector, sideVector, GridGen.instance.NodeDiameter * peekDistance, shotMask); //Firing rays to the left and right of source.
-        Debug.DrawRay(sourceConnector, otherSideVector * GridGen.instance.NodeDiameter * peekDistance, Color.blue, 5f);
-        bool otherSideHit = Physics.Raycast(sourceConnector, otherSideVector, GridGen.instance.NodeDiameter * peekDistance, shotMask);
-
-        Vector3 sideSource = sourceConnector + (sideVector * GridGen.instance.NodeDiameter * peekDistance); //+ (testVector * GridGen.instance.NodeDiameter);
-        Vector3 otherSideSource = sourceConnector + (otherSideVector * GridGen.instance.NodeDiameter * peekDistance);// + (testVector * GridGen.instance.NodeDiameter);
-
-        if (!sideHit)
+        float sideAngle = Vector3.Angle(sideVector, initialfireDirection);
+        float otherSideAngle = Vector3.Angle(otherSideVector, initialfireDirection);
+        
+        Vector3 peekVector;
+        float peekMultiplier = 0.75f;
+        if (sideAngle < otherSideAngle)
         {
-            sideHit = Physics.Raycast(sideSource, testVector, GridGen.instance.NodeDiameter * peekDistance, shotMask);
-            Debug.DrawRay(sideSource, testVector * GridGen.instance.NodeDiameter * peekDistance, Color.blue, 5f);
-        }
-        if (!otherSideHit)
-        {
-            otherSideHit = Physics.Raycast(otherSideSource, testVector, GridGen.instance.NodeDiameter * peekDistance, shotMask);
-            Debug.DrawRay(otherSideSource, testVector * GridGen.instance.NodeDiameter * peekDistance, Color.blue, 5f);
-        }
+            peekVector = sideVector;
 
-        if(!sideHit && !otherSideHit)
-        {
-            float sideFloat = MainFireCalculation(sideSource, targetConnector, targetPartial);
-            float otherSideFloat = MainFireCalculation(otherSideSource, targetConnector, targetPartial);
-
-            if(sideFloat > otherSideFloat)
+            Debug.DrawRay(sourceConnector, peekVector * nodeDiameter * peekMultiplier, Color.blue, 5f);
+            bool hit = Physics.Raycast(sourceConnector, peekVector, nodeDiameter * peekMultiplier, shotMask);
+            if (!hit)
             {
-                didPeek = true;
-                fireSource = sideSource;
-                return sideFloat;
+                Vector3 newSource = sourceConnector + peekVector;
+                Debug.DrawRay(newSource, peekVector * nodeDiameter * peekMultiplier, Color.blue, 5f);
+                hit = Physics.Raycast(newSource, testVector, nodeDiameter * peekMultiplier, shotMask);
+                if (!hit)
+                {
+                    didPeek = true;
+                    fireSource = newSource;
+                    return MainFireCalculation(newSource, targetConnector, targetPartial);
+                }
+                else
+                {
+                    didPeek = false;
+                    fireSource = sourceConnector;
+                    return MainFireCalculation(sourceConnector, targetConnector, targetPartial);
+                }
             }
-            else if (otherSideFloat > sideFloat)
+            else
             {
-                didPeek = true;
-                fireSource = otherSideSource;
-                return otherSideFloat;
+                didPeek = false;
+                fireSource = sourceConnector;
+                return MainFireCalculation(sourceConnector, targetConnector, targetPartial);
             }
-            else //They are equal in terms of %Hit Chance
-            {
-                float sideDistance = Vector3.Distance(sideSource, targetConnector); //So evaluate by distance to target. 
-                float otherSideDistance = Vector3.Distance(otherSideSource, targetConnector);
+        }
+        else if (otherSideAngle < sideAngle)
+        {
+            peekVector = otherSideVector;
 
-                if(sideDistance >= otherSideDistance)
+            Debug.DrawRay(sourceConnector, peekVector * nodeDiameter * peekMultiplier, Color.blue, 5f);
+            bool hit = Physics.Raycast(sourceConnector, peekVector, nodeDiameter * peekMultiplier, shotMask);
+            if (!hit)
+            {
+                Vector3 newSource = sourceConnector + peekVector;
+                Debug.DrawRay(newSource, peekVector * nodeDiameter * peekMultiplier, Color.blue, 5f);
+                hit = Physics.Raycast(newSource, testVector, nodeDiameter * peekMultiplier, shotMask);
+                if (!hit)
+                {
+                    didPeek = true;
+                    fireSource = newSource;
+                    return MainFireCalculation(newSource, targetConnector, targetPartial);
+                }
+                else
+                {
+                    didPeek = false;
+                    fireSource = sourceConnector;
+                    return MainFireCalculation(sourceConnector, targetConnector, targetPartial);
+                }
+            }
+            else
+            {
+                didPeek = false;
+                fireSource = sourceConnector;
+                return MainFireCalculation(sourceConnector, targetConnector, targetPartial);
+            }
+        }
+        else
+        {
+            Debug.DrawRay(sourceConnector, sideVector * nodeDiameter * peekMultiplier, Color.blue, 5f);
+            bool sideHit = Physics.Raycast(sourceConnector, sideVector, nodeDiameter * peekMultiplier, shotMask); //Firing rays to the left and right of source.
+
+            Debug.DrawRay(sourceConnector, otherSideVector * nodeDiameter * peekMultiplier, Color.blue, 5f);
+            bool otherSideHit = Physics.Raycast(sourceConnector, otherSideVector, nodeDiameter * peekMultiplier, shotMask);
+
+            Vector3 sideSource = sourceConnector + (sideVector * nodeDiameter * peekMultiplier); //+ (testVector * GridGen.instance.NodeDiameter);
+            Vector3 otherSideSource = sourceConnector + (otherSideVector * nodeDiameter * peekMultiplier);// + (testVector * GridGen.instance.NodeDiameter);
+
+            if (!sideHit)
+            {
+                sideHit = Physics.Raycast(sideSource, testVector, nodeDiameter * peekMultiplier, shotMask);
+                Debug.DrawRay(sideSource, testVector * nodeDiameter * peekMultiplier, Color.blue, 5f);
+            }
+            if (!otherSideHit)
+            {
+                otherSideHit = Physics.Raycast(otherSideSource, testVector, nodeDiameter * peekMultiplier, shotMask);
+                Debug.DrawRay(otherSideSource, testVector * nodeDiameter * peekMultiplier, Color.blue, 5f);
+            }
+
+            if (!sideHit && !otherSideHit)
+            {
+                float sideFloat = MainFireCalculation(sideSource, targetConnector, targetPartial);
+                float otherSideFloat = MainFireCalculation(otherSideSource, targetConnector, targetPartial);
+
+                if (sideFloat > otherSideFloat)
                 {
                     didPeek = true;
                     fireSource = sideSource;
                     return sideFloat;
                 }
-                else
+                else if (otherSideFloat > sideFloat)
                 {
                     didPeek = true;
                     fireSource = otherSideSource;
                     return otherSideFloat;
                 }
+                else //They are equal in terms of %Hit Chance
+                {
+                    float sideDistance = Vector3.Distance(sideSource, targetConnector); //So evaluate by distance to target. 
+                    float otherSideDistance = Vector3.Distance(otherSideSource, targetConnector);
+
+                    if (sideDistance >= otherSideDistance)
+                    {
+                        didPeek = true;
+                        fireSource = sideSource;
+                        return sideFloat;
+                    }
+                    else
+                    {
+                        didPeek = true;
+                        fireSource = otherSideSource;
+                        return otherSideFloat;
+                    }
+                }
+            }
+            else if (!sideHit)
+            {
+                didPeek = true;
+                fireSource = sideSource;
+                return MainFireCalculation(sideSource, targetConnector, targetPartial);
+            }
+            else if (!otherSideHit)
+            {
+                didPeek = true;
+                fireSource = otherSideSource;
+                return MainFireCalculation(otherSideSource, targetConnector, targetPartial);
+            }
+            else
+            {
+                didPeek = false;
+                fireSource = sourceConnector;
+                return MainFireCalculation(sourceConnector, targetConnector, targetPartial);
             }
         }
-        else if (!sideHit)
-        {
-            didPeek = true;
-            fireSource = sideSource;
-            return MainFireCalculation(sideSource, targetConnector, targetPartial);
-        }
-        else if(!otherSideHit)
-        {           
-            didPeek = true;
-            fireSource = otherSideSource;
-            return MainFireCalculation(otherSideSource, targetConnector, targetPartial);
-        }
-        else
-        {
-            didPeek = false;
-            fireSource = sourceConnector;
-            return MainFireCalculation(sourceConnector, targetConnector, targetPartial);
-        }       
     }
 
     public static float coverCheckCalculation(Vector3 fireDirection, Vector3 targetPartialCheck, Vector3 targetShotConnector)
@@ -291,6 +363,7 @@ public static class CombatUtils {
         return false;
     }
 
+    //DEPRICATED
     public static List<Node> BasicAttackSelect(GameObject selectedUnitObj, float range)
     {
         List<Node> attackNodes = GetCircleAttackableTiles(selectedUnitObj, range);
@@ -300,7 +373,7 @@ public static class CombatUtils {
 
         return attackNodes;
     }
-
+    //DESPRICATED
     private static List<Node> GetCircleAttackableTiles(GameObject selectedUnitObj, float range)
     {
         List<Node> nodesToReturn = new List<Node>();
