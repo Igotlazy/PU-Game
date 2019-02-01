@@ -35,7 +35,7 @@ namespace MHA.UserInterface
                     ButtonSet();
                     buttonComp.interactable = true;
                 }
-                if(TurnManager.instance.activePlayers.Count <= 0 && !hasSetToFinish)
+                if(TurnManager.instance.activeUnits.Count <= 0 && !hasSetToFinish)
                 {
                     hasSetToFinish = true;
                     ButtonFinish();

@@ -7,6 +7,9 @@ using System.Linq;
 [CreateAssetMenu(fileName = "New Basic Move", menuName = "Abilities/General/BasicMove")]
 public class AbilityBasicMove : CharAbility {
 
+    [Header("Selectors:")]
+    [SerializeField]
+    AbilityPrefabRef.BasicMoveSelectorData moveSelector = new AbilityPrefabRef.BasicMoveSelectorData();
 
     public override void Initialize(Unit givenUnit)
     {
@@ -14,9 +17,12 @@ public class AbilityBasicMove : CharAbility {
 
         castableAbilities.Add(new Action<EffectDataPacket>(Run));
 
-        targetPacketBaseData.Add(new List<SelectorPacket> { new SelectorPacket(SelectorPacket.SelectionType.Null, false) });
+        SelectorPacket firstSP = new SelectorPacket(SelectorPacket.SelectionType.Null, false)
+        {
+            selectorData = moveSelector
+        };
 
-        targetSelectors.Add(new List<GameObject> {AbilityPrefabRef.instance.GiveNodeSelectorPrefab(new AbilityPrefabRef.BasicMoveSelector())});
+        selectorPacketBaseData.Add(new List<SelectorPacket> { firstSP });
     }
 
 
@@ -30,7 +36,7 @@ public class AbilityBasicMove : CharAbility {
             path.Add(currentNode.worldPosition);
         }
 
-        associatedUnit.CreatureScript.CurrentEnergy -= path.Count;
+        //associatedUnit.CreatureScript.CurrentEnergy -= path.Count;
 
 
 
@@ -48,9 +54,10 @@ public class AbilityBasicMove : CharAbility {
             EffectGridMove moveEffect = new EffectGridMove(effectPacket)
             {
                 pathIndex = (Vector3)effectPacket.GetValue("MovePath", false)[i],
-                moveSpeed = 3.5f,
+                moveSpeed = 5f,
             };
             moveEffect.moveTarget = (Unit)effectPacket.GetValue("MovingTarget", false)[0];
+            moveEffect.finishedEffectAuxCall += base.PayEnergyCost;
             //moveEffect.conditionCheck += FreeMoveCONDITION;
 
             effectsToPass.Add(moveEffect);
@@ -71,4 +78,9 @@ public class AbilityBasicMove : CharAbility {
         return false;
     }
     */
+
+    protected override void PayEnergyCost(EffectDataPacket givenPacket)
+    {
+
+    }
 }

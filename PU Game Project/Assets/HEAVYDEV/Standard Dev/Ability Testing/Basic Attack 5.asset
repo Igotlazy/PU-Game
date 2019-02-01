@@ -20,3 +20,5 @@ MonoBehaviour:
   associatedUnit: {fileID: 0}
   slotValue: 0
   abilityType: 2
+  firstSelector:
+    radius: 10

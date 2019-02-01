@@ -11,12 +11,16 @@ public abstract class BattleEffect {
     public Action<EffectDataPacket> finishedEffectAuxCall; //Methods that can be called when this is effect finishes. 
     public Func<EffectDataPacket, BattleEffect, bool> conditionCheck; //Method that checks wether the condition for activating still applies.
     public bool isCancelled;
-    bool hasWarned;
+    protected bool hasWarned;
 
     //For TPorters
     protected bool TPorterRemoveOverride = true; //Turn to false for T porters to separate movements. 
     protected bool TPorterFinishOverride = true;
     protected bool TPorterWarnOverride = true;
+
+    protected bool canBeCancelled = true;
+
+    public EffectType setEffectType;
 
 
     public BattleEffect(EffectDataPacket _effectData)
@@ -70,18 +74,21 @@ public abstract class BattleEffect {
 
     public void CancelEffect()
     {
-        Debug.Log("Effect Cancelled");
-
-        isCancelled = true;
-
-        RemoveSelfFromResolveList();
-
-        if (cancelEffectAuxCalls!= null)
+        if (canBeCancelled)
         {
-            cancelEffectAuxCalls.Invoke();
-        }
+            Debug.Log("Effect Cancelled");
 
-        CancelEffectImpl();
+            isCancelled = true;
+
+            RemoveSelfFromResolveList();
+
+            if (cancelEffectAuxCalls != null)
+            {
+                cancelEffectAuxCalls.Invoke();
+            }
+
+            CancelEffectImpl();
+        }
     }
     protected abstract void CancelEffectImpl();
 
@@ -100,5 +107,12 @@ public abstract class BattleEffect {
         {
             ResolutionManager.instance.resolvingEffects.Remove(this);
         }
+    }
+
+    public enum EffectType
+    {
+        Basic,
+        Movement,
+        Custom,
     }
 }

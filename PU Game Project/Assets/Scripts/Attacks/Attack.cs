@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Attack
 {
     public enum DamageType
@@ -13,12 +14,13 @@ public class Attack
         Pure
     }
 
+    public DamageType damageType = DamageType.Regular;
     public float damageValue;
-    public DamageType damageType;
+    [HideInInspector]
     public Unit damageSource;
     public float damageRange = 0;
 
-
+    /*
     public Attack(float _damageValue, Unit _damageSource, DamageType _damageType) //Constructor for Attacks.
     {
         this.damageValue = _damageValue;
@@ -33,4 +35,5 @@ public class Attack
         this.damageSource = _damageSource;
         this.damageType = _damageType;
     }
+    */
 }

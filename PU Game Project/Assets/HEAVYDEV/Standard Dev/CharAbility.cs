@@ -14,11 +14,9 @@ public class CharAbility : ScriptableObject
 
     public int energyCost;
     public int turnCooldown;
+    public int currentCooldown;
 
-
-    [HideInInspector]
-    public Unit associatedUnit;
-    //[HideInInspector]
+    /*
     public enum AbilityType
     {
         Passive,
@@ -26,15 +24,18 @@ public class CharAbility : ScriptableObject
         Activatable,
         Item
     }
-    public int slotValue; //Which ability 1, 2 etc.. it is. 
     public AbilityType abilityType;
-    
+    */
 
+
+    //References:
+    [HideInInspector]
+    public Unit associatedUnit;
     public static int totalCastIndex;
 
-    protected List<List<GameObject>> targetSelectors = new List<List<GameObject>>();
-    protected List<List<SelectorPacket>> targetPacketBaseData = new List<List<SelectorPacket>>();
+    public List<List<SelectorPacket>> selectorPacketBaseData = new List<List<SelectorPacket>>();
     public List<Action<EffectDataPacket>> castableAbilities = new List<Action<EffectDataPacket>>();
+    public AttackSelection currentActiveSelector;
 
     public virtual void Initialize(Unit givenUnit)
     {
@@ -42,7 +43,7 @@ public class CharAbility : ScriptableObject
     }
 
     public void InitiateAbility(int abilityIndex)
-    {
+    {      
         CancelTargets();
         collectorCoroutine = CollectTargets(abilityIndex);
         associatedUnit.StartCoroutine(collectorCoroutine);
@@ -53,24 +54,26 @@ public class CharAbility : ScriptableObject
         List<SelectorPacket> targetPacketList = new List<SelectorPacket>();
         int selectorIndex = 0;
 
-        while(selectorIndex < targetSelectors.Count)
+        while(selectorIndex < selectorPacketBaseData.Count)
         {
-            SelectorPacket targets = SelectorPacket.Clone(targetPacketBaseData[abilityIndex][selectorIndex]);
+            SelectorPacket targets = SelectorPacket.Clone(selectorPacketBaseData[abilityIndex][selectorIndex]);
+            GameObject selectorRef = AbilityPrefabRef.instance.GiveNodeSelectorPrefab(targets.selectorData);
 
-            GameObject spawnedSelector = GameObject.Instantiate(targetSelectors[abilityIndex][selectorIndex], associatedUnit.transform.position, Quaternion.identity);
-            AttackSelection selectorScript = spawnedSelector.GetComponentInChildren<AttackSelection>();
+            GameObject spawnedSelector = GameObject.Instantiate(selectorRef, associatedUnit.transform.position, Quaternion.identity);
+            currentActiveSelector = spawnedSelector.GetComponentInChildren<AttackSelection>();
 
 
-            selectorScript.givenAbility = this;
-            selectorScript.attachedTargetPacket = targets;
-            selectorScript.Initialize();
+            currentActiveSelector.givenAbility = this;
+            currentActiveSelector.attachedTargetPacket = targets;
+            currentActiveSelector.Initialize();
 
-            yield return new WaitUntil(() => selectorScript.hasLoadedTargets);
+            yield return new WaitUntil(() => currentActiveSelector.hasLoadedTargets);
             targetPacketList.Add(targets);
 
             selectorIndex++;
         }
 
+        currentActiveSelector = null;
         CastAbility(abilityIndex, targetPacketList);
     }
     IEnumerator collectorCoroutine;
@@ -80,6 +83,7 @@ public class CharAbility : ScriptableObject
         if(collectorCoroutine != null)
         {
             associatedUnit.StopCoroutine(collectorCoroutine);
+            currentActiveSelector = null;
         }
     }
 
@@ -87,18 +91,37 @@ public class CharAbility : ScriptableObject
     {
         totalCastIndex += 1;
 
-        EffectDataPacket effectPacket = new EffectDataPacket(associatedUnit, this, abilityType, slotValue, totalCastIndex);
+        EffectDataPacket effectPacket = new EffectDataPacket(associatedUnit, this);
         foreach(SelectorPacket currentPacket in givenTargets)
         {
             effectPacket.AppendValue("Targets", currentPacket);
         }
 
+        PayEnergyCost(effectPacket);
+        SetCooldown(effectPacket);
+
         castableAbilities[abilityIndex].Invoke(effectPacket);
     }
 
-    protected virtual void PayEnergyCost()
+    protected virtual void PayEnergyCost(EffectDataPacket givenPacket)
     {
-        
+        if(associatedUnit != null && associatedUnit.CreatureScript != null)
+        {
+            associatedUnit.CreatureScript.CurrentEnergy -= energyCost;
+        }
+    }
+
+    protected virtual void SetCooldown(EffectDataPacket givenPacket)
+    {
+        currentCooldown = turnCooldown;
+    }
+
+    public virtual void CooldownDecrease()
+    {
+        if(currentCooldown > 0)
+        {
+            currentCooldown -= 1;
+        }
     }
 
 

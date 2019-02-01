@@ -18,6 +18,11 @@ public class BasicMoveSelector : AttackSelection {
 
     protected override void InitializeImpl()
     {
+        if(givenAbility.associatedUnit.CreatureScript.CurrentEnergy <= 0)
+        {
+            CancelSelection();
+            return;
+        }
 
         allNodes = Pathfinding.instance.DisplayAvailableMoves(givenAbility.associatedUnit.currentNode, givenAbility.associatedUnit.CreatureScript.CurrentEnergy);
         foreach(Node currentNode in allNodes)
@@ -31,7 +36,7 @@ public class BasicMoveSelector : AttackSelection {
         base.Update();
     }
 
-    private void SetMovePath(Node givenNode) //Drawing of path happens in the pathfinding script. 
+    public void SetMovePath(Node givenNode) //Drawing of path happens in the pathfinding script. 
     {
         if (givenNode.IsSelectable)
         {
@@ -68,7 +73,7 @@ public class BasicMoveSelector : AttackSelection {
         }
         else
         {
-            
+            Debug.LogWarning("Path of Length 0 Given");
         }
 
         foreach (Node currentNode in allNodes)

@@ -22,10 +22,13 @@ public class TPorterProjectile : TPorter
     public TPorterProjectile(EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData, _givenPacket)
     {
         this.fireObjectRef = _fireObjectRef;
+    }
 
-        if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
+    protected override void PeekCheck()
+    {
+        if(subRIndex == 0)
         {
-            Debug.LogWarning("WARNING: AoE Selection Type for Projectile is AreaTarget without Peeking. It does not stop the warning.");
+            base.PeekCheck();
         }
     }
 
@@ -33,9 +36,7 @@ public class TPorterProjectile : TPorter
     {
         if(subRIndex == 0)
         {
-            PeekCheck();
-
-            Debug.Log("Projectile START Anim Event");
+            EventFlags.ANIMStartCastCALL(this, new EventFlags.ECastAnim());
 
             if (warnOnce)
             {
@@ -47,8 +48,11 @@ public class TPorterProjectile : TPorter
             }
             else
             {
-                targetPaths.Add(CombatUtils.ProjectilePathSplicer(givenTSpecs[runIndex].fireOriginPoint, CombatUtils.GiveShotConnector(givenTSpecs[runIndex].targetObj)));
-                originalTargetPositions.Add(givenTSpecs[runIndex].targetObj.transform.position);
+                if(givenTSpecs.Count > 0)
+                {
+                    targetPaths.Add(CombatUtils.ProjectilePathSplicer(givenTSpecs[runIndex].fireOriginPoint, CombatUtils.GiveShotConnector(givenTSpecs[runIndex].targetObj)));
+                    originalTargetPositions.Add(givenTSpecs[runIndex].targetObj.transform.position);
+                }
             }
         }
 
@@ -68,13 +72,18 @@ public class TPorterProjectile : TPorter
 
     private void ProjectileLogic()
     {
+        if(subRIndex == 0)
+        {
+            EventFlags.ANIMFinishCastCALL(this, new EventFlags.ECastAnim());
+        }
+
         Vector3 rayDir = targetPaths[runIndex][subRIndex + 1] - currentMovingObj.transform.position;
         RaycastHit hitInfo;
         if (!givenPacket.isPure && Physics.Raycast(currentMovingObj.transform.position, rayDir, out hitInfo, rayDir.magnitude, CombatUtils.shotMask))
         {
             new AnimMoveToPos(hitInfo.point, currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), true);
 
-            Debug.Log("Projectile BLOCKED Anim Event");
+            EventFlags.ANIMFinishProjCALL(this, new EventFlags.ECastAnim());
             Debug.LogWarning("Projectile BLOCKED Event");
 
             subRIndex = 0;
@@ -109,7 +118,7 @@ public class TPorterProjectile : TPorter
                     effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
                     TPorterFinishOverride = true;
 
-                    Debug.LogWarning("Projectile HIT Event");
+                    EventFlags.ANIMFinishProjCALL(this, new EventFlags.ECastAnim());
                 }
                 else
                 {
@@ -122,7 +131,7 @@ public class TPorterProjectile : TPorter
                             effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
                             TPorterFinishOverride = true;
 
-                            Debug.LogWarning("Projectile HIT Event");
+                            EventFlags.ANIMFinishProjCALL(this, new EventFlags.ECastAnim());
                         }
                         else
                         {
@@ -134,7 +143,7 @@ public class TPorterProjectile : TPorter
                         effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
                         TPorterFinishOverride = true;
 
-                        Debug.LogWarning("Projectile HIT Event");
+                        EventFlags.ANIMFinishProjCALL(this, new EventFlags.ECastAnim());
                     }
                 }
 

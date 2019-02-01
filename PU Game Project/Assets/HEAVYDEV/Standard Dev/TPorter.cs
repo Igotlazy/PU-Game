@@ -26,6 +26,10 @@ public abstract class TPorter : BattleEffect
     {
         if (!doEnding)
         {
+            if(givenTSpecs.Count > 0)
+            {
+                PeekCheck();
+            }
             TPorterWarn();
 
             if (warnOnce)
@@ -43,7 +47,15 @@ public abstract class TPorter : BattleEffect
 
         if (!doEnding)
         {
-            TPorterRun();
+            if(givenTSpecs.Count > 0)
+            {
+                TPorterRun();
+            }
+            if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
+            {
+                //Update Area with foreach. 
+            }
+
         }
         else
         {
@@ -70,7 +82,7 @@ public abstract class TPorter : BattleEffect
     }
 
     //Called in the TPorterWarn.
-    protected void PeekCheck()
+    protected virtual void PeekCheck()
     {
         if (!givenPacket.isPure && (givenTSpecs[runIndex].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[runIndex].selectionType == SelectorPacket.SelectionType.AreaTarget))
         {
@@ -79,11 +91,10 @@ public abstract class TPorter : BattleEffect
             Vector3 targetPartial = CombatUtils.GivePartialCheck(currentSpec.targetObj);
             CombatUtils.MainFireCalculation(currentSpec.fireOriginPoint, targetShot, targetPartial, out currentSpec.didPeek, out currentSpec.fireOriginPoint);
 
-            Debug.Log(currentSpec.didPeek);
             if (currentSpec.didPeek)
             {
                 Unit sourceObj = ((Unit)effectData.GetValue("Caster", false)[0]);
-                EventFlags.ANIMStartPeek(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOriginPoint, sourceObj.gameObject.transform.position)); //EVENT
+                EventFlags.ANIMStartPeekCALL(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOriginPoint, sourceObj.gameObject.transform.position)); //EVENT
             }
         }
     }
@@ -92,7 +103,7 @@ public abstract class TPorter : BattleEffect
     {
         if (givenTSpecs[runIndex].didPeek && (givenTSpecs[runIndex].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[runIndex].selectionType == SelectorPacket.SelectionType.AreaTarget))
         {
-            EventFlags.ANIMEndPeek(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
+            EventFlags.ANIMEndPeekCALL(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
         }
     }
 

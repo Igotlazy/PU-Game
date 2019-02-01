@@ -23,10 +23,14 @@ public class LivingCreature : MonoBehaviour {
         }
         set
         {
+            if(value < 0)
+            {
+                value = 0;
+            }
             currentEnergy = value;
             if(currentEnergy <= 0)
             {
-                RespondFinishToTurn();
+                attachedUnit.RespondFinishToTurn();
             }
         }
     }
@@ -64,7 +68,7 @@ public class LivingCreature : MonoBehaviour {
 
 	protected void Update ()
     {
-        HandleBuffs();
+        //HandleBuffs();
     }
 
     public void LoadStatData(CharDataSO givenData)
@@ -95,18 +99,13 @@ public class LivingCreature : MonoBehaviour {
             if (currentHealth <= 0 && !amDead)
             {
                 Debug.Log("Creature Dead");
-                amDead = true;
-                Destroy(this.gameObject);
+                CharAbility.totalCastIndex++;
+                EffectDataPacket packet = new EffectDataPacket(attachedUnit, null);               
+                EffectDeath effectDeath = new EffectDeath(packet);
+                ResolutionManager.instance.LoadBattleEffect(effectDeath);
             }
         }
     }
-
-
-    public void RespondFinishToTurn()
-    {
-        TurnManager.instance.SetPlayerAsFinished(this.gameObject);
-    }
-
 
     public void AddBuff(Buff buffToApply)
     {
@@ -116,7 +115,6 @@ public class LivingCreature : MonoBehaviour {
 
     public void RemoveBuff(Buff buffToRemove)
     {
-        Debug.Log("Removed Buff");
         RemoveBuffList.Add(buffToRemove);
     }
 
@@ -128,6 +126,7 @@ public class LivingCreature : MonoBehaviour {
         }
     }
 
+    /*
     public void HandleBuffs()
     {
         if (AddBuffList.Count > 0)
@@ -151,4 +150,5 @@ public class LivingCreature : MonoBehaviour {
            currentBuff.Update();
         }
     }
+    */
 }

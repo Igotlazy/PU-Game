@@ -12,7 +12,7 @@ public class EffectFreeMove : BattleEffect
 
     public EffectFreeMove(EffectDataPacket _effectData) : base(_effectData)
     {
-
+        setEffectType = EffectType.Movement;
     }
 
 

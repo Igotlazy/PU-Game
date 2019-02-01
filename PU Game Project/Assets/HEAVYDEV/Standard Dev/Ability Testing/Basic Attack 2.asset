@@ -12,11 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a809fa1ec352d6445899055ca26699c0, type: 3}
   m_Name: Basic Attack 2
   m_EditorClassIdentifier: 
-  abilityName: 
-  abilityDescription: 
+  abilityName: Gotta Go Fast
+  abilityDescription: He fast, he quick.
   abilitySprite: {fileID: 21300004, guid: 700e165185f01354289fd022d3cd73e5, type: 3}
   energyCost: 0
   turnCooldown: 0
-  associatedUnit: {fileID: 0}
+  currentCooldown: 0
   slotValue: 0
   abilityType: 2
+  associatedUnit: {fileID: 0}
+  currentActiveSelector: {fileID: 0}
+  firstSelector:
+    range: 0
+    radius: 10
+  damage:
+    damageType: 0
+    damageValue: 0
+    damageSource: {fileID: 0}
+    damageRange: 0

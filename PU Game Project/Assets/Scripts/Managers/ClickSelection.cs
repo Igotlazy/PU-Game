@@ -92,7 +92,7 @@ public class ClickSelection : MonoBehaviour
 
         if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {
-            if (hit && (hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.activeInHierarchy))
+            if (hit && (hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.GetComponent<Unit>().team == 0))
             {
                 ClickedSelection(hitInfo.collider.gameObject.transform);
             }

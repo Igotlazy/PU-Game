@@ -57,29 +57,40 @@ public class AbilityPrefabRef : MonoBehaviour {
     public abstract class SelectorData
     {
         public string SelectorName { protected set; get; }
+        [HideInInspector]
+        public float range;
     }
-    public class BasicMoveSelector : SelectorData
+    public class BasicMoveSelectorData : SelectorData
     {
-        public BasicMoveSelector()
+        /*
+        public enum SelectorType
         {
-            SelectorName = "Basic Move Selector";
+            Locked,
+
+        }
+        */
+        
+        public BasicMoveSelectorData()
+        {
+            SelectorName = BasicMoveSelector;
         }
     }
     [System.Serializable]
-    public class CircleSelector : SelectorData
+    public class CircleSelectorData : SelectorData
     {
         public float radius;
 
-        public CircleSelector()
+        public CircleSelectorData()
         {
-            SelectorName = "Circle Selector";
+            SelectorName = CircleSelector;
+            range = radius;
         }
     }
-    public readonly string BasicMoveSelectori = "Basic Move Selector";
-    public readonly string CircleSelectori = "Circle Selector";
-    public readonly string LineAttackSelector = "Line Attack Selector";
+    public static readonly string BasicMoveSelector = "Basic Move Selector";
+    public static readonly string CircleSelector = "Circle Selector";
+    public static readonly string LineAttackSelector = "Line Attack Selector";
 
-    public readonly string TakahiroBasic = "Takahiro/Projectile";
-    public readonly string TakahiroA1 = "Takahiro/A1";
-    public readonly string TakahiroA3 = "Takahiro/A3";
+    public static readonly string TakahiroBasic = "Takahiro/Projectile";
+    public static readonly string TakahiroA1 = "Takahiro/A1";
+    public static readonly string TakahiroA3 = "Takahiro/A3";
 }

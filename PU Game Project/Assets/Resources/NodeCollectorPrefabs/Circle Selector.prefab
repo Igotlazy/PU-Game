@@ -9,11 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4746850774311644259}
-  - component: {fileID: 1459453665301009231}
+  - component: {fileID: 6992069602599567947}
   - component: {fileID: 1663939045853587149}
   - component: {fileID: 5249514825294234993}
   m_Layer: 0
-  m_Name: Basic Attack Selector
+  m_Name: Circle Selector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33,7 +33,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1459453665301009231
+--- !u!114 &6992069602599567947
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,17 +42,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2874969842849791960}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1e30349ad9697046ab17a46d4643081, type: 3}
+  m_Script: {fileID: 11500000, guid: 54308dac1cabc5c4488a3e09e842d97a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hasLoadedTargets: 0
-  givenAbility:
-    associatedCreature: {fileID: 0}
-    abilityName: 
-    abilityDescription: 
-    abilitySprite: {fileID: 0}
-    energyCost: 0
-    turnCooldown: 0
+  givenAbility: {fileID: 0}
   selectionIndicator: {fileID: 1464686660177392, guid: c714b8ada55d617468abc95a6f0ea078,
     type: 3}
 --- !u!135 &1663939045853587149

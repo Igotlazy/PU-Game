@@ -482,7 +482,6 @@ public static class CombatUtils {
         if(receivedAttack.damageType == Attack.DamageType.Regular)
         {
             float percentDamage = Mathf.Pow(5f, (-1f / 100f) * attackedUnit.CreatureScript.currentDefense.Value);
-            Debug.Log("Percent Damage: " + percentDamage);
 
             returnDamage =  chosenDamage * percentDamage;
         }

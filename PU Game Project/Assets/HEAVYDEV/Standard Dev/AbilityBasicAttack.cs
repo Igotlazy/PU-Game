@@ -9,7 +9,12 @@ public class AbilityBasicAttack : CharAbility
 {
     [Header("Selectors:")]
     [SerializeField]
-    AbilityPrefabRef.CircleSelector firstSelector = new AbilityPrefabRef.CircleSelector();
+    AbilityPrefabRef.CircleSelectorData firstSelector = new AbilityPrefabRef.CircleSelectorData();
+    [Space]
+
+    [Header("Properties")]
+    [SerializeField]
+    Attack damage = new Attack();
 
     public override void Initialize(Unit givenUnit)
     {
@@ -17,7 +22,6 @@ public class AbilityBasicAttack : CharAbility
 
         PrepCast();
         PrepSelectorPacket();
-        PrepSelector();
     }
 
     private void PrepCast()
@@ -28,19 +32,16 @@ public class AbilityBasicAttack : CharAbility
     {
         SelectorPacket firstTP = new SelectorPacket(SelectorPacket.SelectionType.Target, false)
         {
-            maxNumOfSelect = 3
+            maxNumOfSelect = 3,
+            selectorData = firstSelector           
         };
-        targetPacketBaseData.Add(new List<SelectorPacket> { firstTP });
-    }
-    private void PrepSelector()
-    {
-        targetSelectors.Add(new List<GameObject> { AbilityPrefabRef.instance.GiveNodeSelectorPrefab(firstSelector) }); //Loads selector.
+        selectorPacketBaseData.Add(new List<SelectorPacket> { firstTP });
     }
 
     private void Run(EffectDataPacket effectDataPacket)
     {
         SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetValue("Targets", false)[0]); //Gives packet.
-        GameObject projectile = AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.instance.TakahiroBasic);
+        GameObject projectile = AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.TakahiroBasic);
 
         TPorterProjectile projectileEffect = new TPorterProjectile(effectDataPacket, currentPacket, projectile);
         projectileEffect.REPORTKEY = "HitTargets";
@@ -53,9 +54,14 @@ public class AbilityBasicAttack : CharAbility
     private void DamageOnImpact(EffectDataPacket effectDataPacket)
     {
         GameObject relevantObject = ((GameObject)effectDataPacket.GetValue("HitTargets", false).Last()); //Gets access to GameObject Target.
-        Attack attack = new Attack(100f, 20f, associatedUnit, Attack.DamageType.Pure);
+        Attack attack = damage;
         EffectDealDamage effect = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<LivingCreature>(), attack);
 
-        ResolutionManager.instance.LoadBattleEffect(effect);
+        TimedBuff buff = new TimedBuff(relevantObject.GetComponent<LivingCreature>(), this.associatedUnit.gameObject, "fire", 3);
+        EffectApplyBuff effect2 = new EffectApplyBuff(effectDataPacket, relevantObject.GetComponent<Unit>(), buff); 
+
+
+        List<BattleEffect> sendEffects = new List<BattleEffect>() { effect, effect2 };
+        ResolutionManager.instance.LoadBattleEffect(sendEffects);
     }
 }

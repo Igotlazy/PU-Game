@@ -8,41 +8,37 @@ using UnityEngine;
 public class TimedBuff : Buff
 {
 
-    protected Attack burnAttack;
-    private float nextTickTime;
-    public float tickInterval = 1f;
-    protected float bDuration;
-    public float durationCounter;
+    protected Attack burnAttack = new Attack();
 
 
-    public TimedBuff(LivingCreature buffTarget, GameObject buffSource, string buffName, float buffDuration) : base(buffTarget, buffSource, buffName)
+
+    public TimedBuff(LivingCreature buffTarget, GameObject buffSource, string buffName) : base(buffTarget, buffSource, buffName)
     {
-        this.bDuration = buffDuration;
-        burnAttack = new Attack(1f, buffTarget.attachedUnit, Attack.DamageType.Regular);
+        //burnAttack = new Attack(1f, buffTarget.attachedUnit, Attack.DamageType.Regular);
     }
 
-    public override void Update()
+    public TimedBuff(LivingCreature buffTarget, GameObject buffSource, string buffName, int turnCooldown) : base(buffTarget, buffSource, buffName, turnCooldown)
     {
-        if (Time.time >= nextTickTime)
-        {
-            bTarget.CreatureHit(burnAttack);
-
-            nextTickTime = Time.time + 1f;
-        }
-
-        durationCounter += Time.deltaTime;
-
-        if(durationCounter >= bDuration)
-        {
-            RemoveSelf();
-        }
-
-        base.Update();
+        //burnAttack = new Attack(1f, buffTarget.attachedUnit, Attack.DamageType.Regular);
     }
 
-    public void DurationReset()
+
+    protected override void InitialAppImpl()
     {
-        durationCounter = 0;
+        
     }
 
+    protected override void EndTurnAppImpl()
+    {
+        LoadDamage();
+    }
+
+    private void LoadDamage()
+    {
+        burnAttack.damageValue = 50f;
+        EffectDataPacket packet = new EffectDataPacket(bSource.GetComponent<Unit>(), null);
+        EffectDealDamage damageEffect = new EffectDealDamage(packet, bTarget, burnAttack);
+
+        ResolutionManager.instance.LoadBattleEffect(damageEffect);
+    }
 }

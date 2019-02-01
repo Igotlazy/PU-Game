@@ -3,69 +3,99 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using MHA.BattleBehaviours;
+using MHA.UserInterface;
 
 public abstract class AttackSelection : MonoBehaviour {
 
     protected int maxNumOfSelections;
     public bool hasLoadedTargets;
     public CharAbility givenAbility;
+
     protected HashSet<Node> collectedNodes = new HashSet<Node>();
     protected List<TargetSpecs> selectedSpecs = new List<TargetSpecs>();
-    protected List<TargetSpecs> allSpecs = new List<TargetSpecs>();
+    public List<TargetSpecs> allSpecs = new List<TargetSpecs>();
+
     public SelectorPacket attachedTargetPacket;
 
     public GameObject selectionIndicator;
 
     protected SelectorPacket.SelectionType selectType = SelectorPacket.SelectionType.Null;
 
+    public bool isAIControlled;
+
 
     public void Initialize()
     {
+        AbilityBar.AbilityButtonClickEVENT += CancelSelection;
+        ClickSelection.instance.canSelect = false;
+
         selectType = attachedTargetPacket.selectionType;
         if(selectType == SelectorPacket.SelectionType.Target)
         {
             maxNumOfSelections = attachedTargetPacket.maxNumOfSelect;
         }
 
+        isAIControlled = givenAbility.associatedUnit.isAIControlled;
+        if (isAIControlled)
+        {
+            AISelect();
+        }
+
         InitializeImpl();
     }
     protected abstract void InitializeImpl();
+    protected virtual void AISelect()
+    {
+
+    }
 
     protected virtual void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
+        if (!isAIControlled)
         {
-            MadeSelection();
-        }
-        if (Input.GetMouseButtonDown(0))
-        {
-            CancelSelection();
-        }
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                MadeSelection();
+            }
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                CancelSelection();
+            }
 
-
-        if (Input.GetKeyDown(KeyCode.B) && (selectType == SelectorPacket.SelectionType.Target))
-        {
-            GatherClick();
+            if (Input.GetMouseButtonDown(0) && (selectType == SelectorPacket.SelectionType.Target))
+            {
+                GatherClick();
+            }
         }
     }
 
-    protected void MadeSelection()
+    public void MadeSelection()
     {
-        DisplayCleanup();
+        if((selectedSpecs.Count > 0 && (attachedTargetPacket.selectionType == SelectorPacket.SelectionType.Target || attachedTargetPacket.selectionType == SelectorPacket.SelectionType.AreaTarget)) 
+            || attachedTargetPacket.selectionType == SelectorPacket.SelectionType.AoE || attachedTargetPacket.selectionType == SelectorPacket.SelectionType.Null)
+        {
+            AbilityBar.AbilityButtonClickEVENT -= CancelSelection;
+            ClickSelection.instance.canSelect = true;
 
-        attachedTargetPacket.targetObjectSpecs = selectedSpecs;
-        attachedTargetPacket.TargetNodes = collectedNodes;
+            DisplayCleanup();
 
-        MadeSelectionImpl();
+            attachedTargetPacket.targetObjectSpecs = selectedSpecs;
+            attachedTargetPacket.TargetNodes = collectedNodes;
 
-        hasLoadedTargets = true;
+            MadeSelectionImpl();
 
-        Destroy(this.gameObject);
+            hasLoadedTargets = true;
+
+            Destroy(this.gameObject);
+        }
     }
     protected abstract void MadeSelectionImpl();
 
-    protected void CancelSelection()
+    public void CancelSelection()
     {
+        AbilityBar.AbilityButtonClickEVENT -= CancelSelection;
+        ClickSelection.instance.canSelect = true;
+
         DisplayCleanup();
 
         CancelSelectionImpl();
@@ -105,34 +135,39 @@ public abstract class AttackSelection : MonoBehaviour {
         if (hit && !EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {
             GameObject hitObject = hitInfo.collider.gameObject;
-            if (hitObject.CompareTag("Champion") && hitObject.GetComponent<Unit>().currentNode.IsAttackable)
-            {
-                foreach (TargetSpecs currentSpec in allSpecs)
-                {
-                    if (currentSpec.targetObj.Equals(hitObject))
-                    {
-                        if (currentSpec.indicator == null)
-                        {
-                            Unit unitScript = hitObject.GetComponent<Unit>();
-                            currentSpec.indicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
-                            currentSpec.targetLivRef.healthBar.DisplayHitChance();
-                            selectedSpecs.Add(currentSpec);
+            Gather(hitObject);
+        }
+    }
 
-                            if (selectedSpecs.Count > maxNumOfSelections)
-                            {
-                                Destroy(selectedSpecs[0].indicator);
-                                selectedSpecs[0].targetLivRef.healthBar.FadeHitChance();
-                                selectedSpecs.RemoveAt(0);
-                            }
-                        }
-                        else
+    public void Gather(GameObject hitObject)
+    {
+        if (hitObject.CompareTag("Champion") && hitObject.GetComponent<Unit>().currentNode.IsAttackable)
+        {
+            foreach (TargetSpecs currentSpec in allSpecs)
+            {
+                if (currentSpec.targetObj.Equals(hitObject))
+                {
+                    if (currentSpec.indicator == null)
+                    {
+                        Unit unitScript = hitObject.GetComponent<Unit>();
+                        currentSpec.indicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
+                        currentSpec.targetLivRef.healthBar.DisplayHitChance();
+                        selectedSpecs.Add(currentSpec);
+
+                        if (selectedSpecs.Count > maxNumOfSelections)
                         {
-                            Destroy(currentSpec.indicator);
-                            currentSpec.targetLivRef.healthBar.FadeHitChance();
-                            selectedSpecs.Remove(currentSpec);
+                            Destroy(selectedSpecs[0].indicator);
+                            selectedSpecs[0].targetLivRef.healthBar.FadeHitChance();
+                            selectedSpecs.RemoveAt(0);
                         }
-                        break;
                     }
+                    else
+                    {
+                        Destroy(currentSpec.indicator);
+                        currentSpec.targetLivRef.healthBar.FadeHitChance();
+                        selectedSpecs.Remove(currentSpec);
+                    }
+                    break;
                 }
             }
         }

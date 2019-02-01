@@ -387,10 +387,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ead3fe26e21ca4040848491e1583f738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eventResolutionRunning: 0
-  animQueueRunning: 0
+  effectResolutionRunning: 0
+  animationResolutionRunning: 0
+  resolutionRunning: 0
   currentResolutionCalls: 0
-  maxResolutionPerFrame: 40
+  maxResolutionPerFrame: 50
 --- !u!114 &114946478123526644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,7 +405,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentBattlePhase: 0
-  activePlayers: []
+  activeUnits: []
   finishedPlayers: []
   teamTracker: 0
   turnCounter: 1

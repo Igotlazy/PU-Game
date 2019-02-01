@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using Cinemachine;
 using MHA.BattleBehaviours;
 using MHA.Events;
+using System.Collections;
 
 public class Unit : MonoBehaviour {
 
     [Header("CHARACTER DATA:")]
-    [SerializeField]
-    private CharDataSO givenCharData;
-    [Space]
+    public CharDataSO givenCharData;
 
+    [Space]
     [Header("Abilities")]
     [SerializeField]
     private List<CharAbility> passiveAbilities = new List<CharAbility>();
@@ -29,9 +29,20 @@ public class Unit : MonoBehaviour {
     //[HideInInspector]
     public List<CharAbility> activatableAbilitiesInsta = new List<CharAbility>();
 
-    [Header("Other")]    
-    public Node currentNode;
-    public int teamValue;
+    [Space]
+    [Header("Turn Management:")]
+    public Teams team;
+    public enum Teams
+    {
+        Hero,
+        Villain,
+        Vigilante
+    }
+
+    public Color heroColor;
+    public Color villainColor;
+    public Color vigilanteColor;
+    public bool isAIControlled;
 
 
     [Space]
@@ -59,6 +70,7 @@ public class Unit : MonoBehaviour {
             return creatureScript;
         }
     }
+    public Node currentNode;
 
     private void Awake()
     {
@@ -76,16 +88,30 @@ public class Unit : MonoBehaviour {
         PrepAbilities(out movementAbilitiesInsta, out passiveAbilitiesInsta, out activatableAbilitiesInsta);
         creatureScript.LoadStatData(givenCharData);
         creatureScript.healthBar.UpdateHealth(creatureScript.currentHealth, creatureScript.maxHealth.Value);
+
+        if(team == Teams.Hero)
+        {
+            creatureScript.healthBar.currentHealthImage.color = heroColor;
+        }
+        else if (team == Teams.Villain)
+        {
+            creatureScript.healthBar.currentHealthImage.color = villainColor;
+        }
+        else if (team == Teams.Vigilante)
+        {
+            creatureScript.healthBar.currentHealthImage.color = vigilanteColor;
+        }
+
         StartNodeFind();
 
-        EventFlags.StartPeek += UnitPeekAnim;
-        EventFlags.EndPeek += UnitUnPeekAnim;
+        EventFlags.ANIMStartPeek += UnitPeekAnim;
+        EventFlags.ANIMEndPeek += UnitUnPeekAnim;
     }
 
     private void OnDestroy()
     {
-        EventFlags.StartPeek -= UnitPeekAnim;
-        EventFlags.EndPeek -= UnitUnPeekAnim;
+        EventFlags.ANIMStartPeek -= UnitPeekAnim;
+        EventFlags.ANIMEndPeek -= UnitUnPeekAnim;
     }
 
     private void UnPackCharData()
@@ -99,12 +125,12 @@ public class Unit : MonoBehaviour {
         passiveAb = new List<CharAbility>();
         activatableAb = new List<CharAbility>();
 
-        PrepAbilAux(passiveAbilities, passiveAb, CharAbility.AbilityType.Passive);
-        PrepAbilAux(movementAbilities, movementAb, CharAbility.AbilityType.Movement);
-        PrepAbilAux(activatableAbilities, activatableAb, CharAbility.AbilityType.Activatable);
+        PrepAbilAux(passiveAbilities, passiveAb);
+        PrepAbilAux(movementAbilities, movementAb);
+        PrepAbilAux(activatableAbilities, activatableAb);
     }
 
-    private void PrepAbilAux(List<CharAbility> baseAbilities, List<CharAbility> copyList, CharAbility.AbilityType givenType)
+    private void PrepAbilAux(List<CharAbility> baseAbilities, List<CharAbility> copyList)
     {
         int givenSlotValue = 0;
         foreach (CharAbility currentChar in baseAbilities)
@@ -112,9 +138,142 @@ public class Unit : MonoBehaviour {
             CharAbility abilityCopy = Instantiate(currentChar);
             copyList.Add(abilityCopy);
             abilityCopy.Initialize(this);
-            abilityCopy.slotValue = givenSlotValue;
             givenSlotValue++;
-            abilityCopy.abilityType = givenType;
+        }
+    }
+
+    public void RespondFinishToTurn()
+    {
+        TurnManager.instance.SetPlayerAsFinished(this.gameObject);
+    }
+
+    public IEnumerator AIResponder()
+    {
+        if (isAIControlled)
+        {
+            Debug.Log(name + ": AI Pinged");
+            yield return StartCoroutine(AILogicMove());
+            yield return StartCoroutine(AILogicAttack());
+        }
+    }
+
+    /*
+    public AIProceed()
+    {
+
+    }
+    */
+
+    public IEnumerator AILogicMove()
+    {
+        AbilityPrefabRef.SelectorData selectorData = movementAbilitiesInsta[0].selectorPacketBaseData[0][0].selectorData;
+        if (selectorData.SelectorName.Equals(AbilityPrefabRef.BasicMoveSelector))
+        {
+            AbilityPrefabRef.BasicMoveSelectorData trueData = (AbilityPrefabRef.BasicMoveSelectorData)selectorData;
+            int energy = CreatureScript.CurrentEnergy;
+            List<Node> foundNodes = Pathfinding.instance.DisplayAvailableMoves(currentNode, energy);
+            yield return null;
+            List<Node> coverNodes = new List<Node>();
+            foreach(Node currNode in foundNodes)
+            {
+                foreach(Node neighbor in currNode.nodeNeighbors)
+                {
+                    if (!neighbor.IsWalkable && !coverNodes.Contains(currNode) && currNode != currentNode)
+                    {
+                        coverNodes.Add(currNode);
+                        continue;
+                    }
+                }
+            }
+
+            Node chosenNode = coverNodes[Mathf.RoundToInt(Random.Range(0, coverNodes.Count - 1))];
+
+            movementAbilitiesInsta[0].InitiateAbility(0);
+            BasicMoveSelector selectScript = (BasicMoveSelector)movementAbilitiesInsta[0].currentActiveSelector;
+            selectScript.isAIControlled = true;
+
+            yield return new WaitForSeconds(0.5f);
+
+            selectScript.SetMovePath(chosenNode);
+
+            yield return new WaitForSeconds(1f);
+            selectScript.MadeSelection();
+            yield return null;
+            yield return new WaitUntil(() => ResolutionManager.instance.resolutionRunning == false);
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+    public IEnumerator AILogicAttack()
+    {
+        AbilityPrefabRef.SelectorData selectorData = activatableAbilitiesInsta[0].selectorPacketBaseData[0][0].selectorData;
+
+        if (selectorData.SelectorName.Equals(AbilityPrefabRef.CircleSelector))
+        {
+            AbilityPrefabRef.CircleSelectorData trueData = (AbilityPrefabRef.CircleSelectorData)selectorData;
+            float range = trueData.radius;
+            //Debug.Log(trueData.radius);
+
+            GameObject hitObject = null;
+            Collider[] hits = Physics.OverlapSphere(transform.position, range);
+            //Debug.Log(hits.Length);
+            foreach (Collider hit in hits)
+            {
+                if (hit.gameObject.CompareTag("Tile"))
+                {
+                    //Debug.Log(hit.gameObject.transform.parent.name);
+                    Node node = GridGen.instance.NodeFromWorldPoint(hit.gameObject.transform.position);
+                    if (node.occupant != null && node.occupant != gameObject)
+                    {
+                        hitObject = node.occupant;
+                        break;
+                    }
+                }
+            }
+
+            if (hitObject != null)
+            {
+                activatableAbilitiesInsta[0].InitiateAbility(0);
+                AttackSelection selectScript = activatableAbilitiesInsta[0].currentActiveSelector;
+                selectScript.isAIControlled = true;
+
+                yield return new WaitForSeconds(1f);
+
+                bool matchFound = false;
+                foreach (TargetSpecs currSpecs in selectScript.allSpecs)
+                {
+                    //Debug.Log("Specs Length: " + currSpecs.targetObj.name);
+                    if (currSpecs.targetObj == hitObject)
+                    {
+                        selectScript.Gather(hitObject);
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                //Debug.Log("Match Found: " + matchFound);
+
+                if (matchFound)
+                {
+                    yield return new WaitForSeconds(0.5f);
+                    selectScript.MadeSelection();
+                    yield return null;
+                    yield return new WaitUntil(() => ResolutionManager.instance.resolutionRunning == false);
+                    yield return new WaitForSeconds(0.2f);
+
+
+                    Debug.Log("FINISHED AI TURN");
+                }
+                else
+                {
+                    selectScript.CancelSelection();
+                    Debug.Log("AI Cancelled");
+
+                }
+            }
+            else
+            {
+                Debug.Log("AI Found: Null");
+            }
         }
     }
 
@@ -130,6 +289,7 @@ public class Unit : MonoBehaviour {
         {
             foundNode.IsOccupied = true;
             foundNode.occupant = this.gameObject;
+            transform.position = new Vector3(currentNode.worldPosition.x, transform.position.y, currentNode.worldPosition.z);
         }
     }
 
@@ -153,10 +313,5 @@ public class Unit : MonoBehaviour {
             new AnimMoveToPos(peekArgs.GiveOriginalPos(), spriteRig, 3f, false);
             peekArgs.RemoveFromPeek();
         }
-    }
-
-    public void AbilityAnimCallReceiver(CharAbility.AbilityType givenType, int givenSlot)
-    {
-
     }
 }

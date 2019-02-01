@@ -20,8 +20,6 @@ namespace MHA.BattleBehaviours
             moveTarget = _moveTarget;
             speed = _speed;
             destroyAtEnd = _destroyAtEnd;
-
-            LoadBattleAnimation();
         }
 
         protected override void PlayBattleAnimationImpl()

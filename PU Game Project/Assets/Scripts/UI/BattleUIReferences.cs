@@ -9,7 +9,7 @@ namespace MHA.UserInterface
     {
         public GameObject endTurnButton;
         public GameObject heroTurnIntro;
-        public GameObject abilitySelection;
+        public GameObject mainButtonSelection;
 
         public static BattleUIReferences instance;
 

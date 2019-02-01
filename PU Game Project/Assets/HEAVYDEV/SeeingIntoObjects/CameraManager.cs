@@ -66,7 +66,7 @@ public class CameraManager : MonoBehaviour
 
     void Start()
     {
-        foreach (GameObject currentPlayer in ReferenceObjects.UnitList)
+        foreach (GameObject currentPlayer in ReferenceObjects.HeroList)
         {
             unitTransformList.Add(currentPlayer.transform);
         }

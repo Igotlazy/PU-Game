@@ -90,7 +90,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - Color_534FCC54: {r: 0, g: 0.6603774, b: 0.5829894, a: 0.14509805}
-    - Color_AEEEED05: {r: 0, g: 0.08137255, b: 0.1254902, a: 0.89411765}
+    - Color_AEEEED05: {r: 0, g: 0.08137255, b: 0.1254902, a: 0}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}

@@ -17,19 +17,19 @@ namespace MHA.BattleBehaviours
             givenCreature = _givenCreature;
             healthRemaining = _healthRemaining;
             damage = _damage;
-
-            LoadBattleAnimation();
         }
 
         protected override void PlayBattleAnimationImpl()
         {
             //mono.StartCoroutine(DisplayDamage());
+            
             givenCreature.healthBar.UpdateHealth(healthRemaining, givenCreature.maxHealth.Value);
 
             GameObject indicatorObj = GameObject.Instantiate(givenCreature.damageIndicator, new Vector3(givenCreature.transform.position.x, givenCreature.transform.position.y + 2f, givenCreature.transform.position.z), Quaternion.identity);
             indicatorObj.GetComponent<DamageIndicator>().SetText(damage);
 
             AnimFinished = true;
+            
         }
 
         private IEnumerator DisplayDamage()
@@ -40,7 +40,7 @@ namespace MHA.BattleBehaviours
             GameObject indicatorObj = GameObject.Instantiate(givenCreature.damageIndicator, new Vector3 (givenCreature.transform.position.x, givenCreature.transform.position.y + 2f, givenCreature.transform.position.z), Quaternion.identity);
             indicatorObj.GetComponent<DamageIndicator>().SetText(damage);
 
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(2f);
 
             AnimFinished = true;
         }

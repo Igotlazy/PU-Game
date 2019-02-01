@@ -141,7 +141,7 @@ GameObject:
   - component: {fileID: 223970468063744933}
   - component: {fileID: 8275092372442187726}
   m_Layer: 0
-  m_Name: HitBox and Visuals
+  m_Name: Tile Hitbox
   m_TagString: Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

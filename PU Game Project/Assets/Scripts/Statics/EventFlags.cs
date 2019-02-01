@@ -29,21 +29,20 @@ namespace MHA.Events
         //----------------Animation Events---------------//
 
 
-        public static event EventHandler<EPeekStart> StartPeek;
-        public static void ANIMStartPeek(object sender, EPeekStart e)
+        public static event EventHandler<EPeekStart> ANIMStartPeek;
+        public static void ANIMStartPeekCALL(object sender, EPeekStart e)
         {
-            if (StartPeek != null)
+            if (ANIMStartPeek != null)
             {
-                StartPeek(sender, e);
+                ANIMStartPeek(sender, e);
             }
         }
-
-        public static event EventHandler<EPeekEnd> EndPeek;
-        public static void ANIMEndPeek(object sender, EPeekEnd e)
+        public static event EventHandler<EPeekEnd> ANIMEndPeek;
+        public static void ANIMEndPeekCALL(object sender, EPeekEnd e)
         {
-            if (EndPeek != null)
+            if (ANIMEndPeek != null)
             {
-                EndPeek(sender, e);
+                ANIMEndPeek(sender, e);
             }
         }
 
@@ -105,6 +104,38 @@ namespace MHA.Events
             }
         }
 
+        public static event EventHandler<ECastAnim> ANIMStartCast;
+        public static void ANIMStartCastCALL(object sender, ECastAnim e)
+        {
+            Debug.Log("START Anim Event");
+            if (ANIMStartCast != null)
+            {
+                ANIMStartCast(sender, e);
+            }
+        }
+        public static event EventHandler<ECastAnim> ANIMFinishCast;
+        public static void ANIMFinishCastCALL(object sender, ECastAnim e)
+        {
+            Debug.Log("Finish Anim Event");
+            if (ANIMFinishCast != null)
+            {
+                ANIMFinishCast(sender, e);
+            }
+        }
 
+        public static event EventHandler<ECastAnim> ANIMFinishProj;
+        public static void ANIMFinishProjCALL(object sender, ECastAnim e)
+        {
+            Debug.Log("HIT Anim Event");
+            if (ANIMFinishProj != null)
+            {
+                ANIMFinishProj(sender, e);
+            }
+        }
+
+        public class ECastAnim : EventArgs
+        {
+
+        }
     }
 }

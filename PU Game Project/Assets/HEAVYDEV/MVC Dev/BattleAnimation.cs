@@ -6,6 +6,10 @@ namespace MHA.BattleBehaviours
 {
     public abstract class BattleAnimation
     {
+        public BattleAnimation()
+        {
+            LoadBattleAnimation();
+        }
 
         protected MonoBehaviour mono = ResolutionManager.instance;
         private bool animFinished;
@@ -18,9 +22,10 @@ namespace MHA.BattleBehaviours
             set
             {
                 animFinished = value;
-                if (value == true)
+                if (animFinished == true)
                 {
-                    ResolutionManager.instance.NextQueueAnimation();
+                    Debug.LogWarning("Anim Ping Sent");
+                    ResolutionManager.instance.NextQueuedAnimation();
                 }
             }
         }

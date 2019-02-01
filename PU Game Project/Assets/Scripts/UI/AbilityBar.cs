@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace MHA.UserInterface
 {
@@ -17,11 +18,16 @@ namespace MHA.UserInterface
 
         [Space]
         [Header("Abiltiy Buttons")]
+        public GameObject energyIndicator;
+        public GameObject statsIndicator;
         public GameObject moveButton;
         public GameObject itemButton;
+        public GameObject attackButton;
+        public GameObject abilityButtonPrefab;
+        List<GameObject> abButtonList = new List<GameObject>();
 
-        [Tooltip("0 = Basic, 1 = 1st, 2 = 2nd, 3 = 3rd")]
-        public List<GameObject> attackButtons = new List<GameObject>();
+        public delegate void AbilityButtonClick();
+        public static event AbilityButtonClick AbilityButtonClickEVENT;
 
 
         void Start()
@@ -66,12 +72,12 @@ namespace MHA.UserInterface
 
         private void UpdateAbilityBar()
         {
-            if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput && ClickSelection.instance.hasSelection)
+            if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput && ClickSelection.instance.hasSelection && TurnManager.instance.teamTracker == Unit.Teams.Hero)
             {
                 currentPos = abilityBarLocations[1].position;
                 AbilityBarActivation();
             }
-            else if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput || (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.ActionPhase && TurnManager.instance.teamTracker))
+            else if ((TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput || (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.ActionPhase) && TurnManager.instance.teamTracker == Unit.Teams.Hero))
             {
                 currentPos = abilityBarLocations[2].position;
                 AbilityBarDeactivation();
@@ -85,29 +91,27 @@ namespace MHA.UserInterface
 
         private void AbilityBarActivation()
         {
+            GeneralSetUp();
+
+            attackButton.GetComponent<Button>().interactable = true;
             moveButton.GetComponent<Button>().interactable = true;
             itemButton.GetComponent<Button>().interactable = true;
-            List<CharAbility> acAb = ClickSelection.instance.selectedUnitScript.activatableAbilitiesInsta;
-            int abilities = 0;
-            foreach (GameObject currentButton in attackButtons)
-            {
-                currentButton.GetComponent<Image>().sprite = acAb[abilities].abilitySprite;
-                currentButton.GetComponent<Button>().interactable = true;
-                if (acAb.Count - 1 > abilities)
-                {
-                    abilities++;
-                }
-            }
+            energyIndicator.GetComponent<TextMeshProUGUI>().text = ClickSelection.instance.selectedUnitScript.CreatureScript.CurrentEnergy.ToString();
+            energyIndicator.transform.parent.gameObject.SetActive(true);
+
+            statsIndicator.GetComponent<StatsIndicator>().AssociatedUnit = ClickSelection.instance.selectedUnitScript;
+            statsIndicator.SetActive(true);
         }
         private void AbilityBarDeactivation()
         {
+            GeneralSetUp();
+            attackButton.GetComponent<Button>().interactable = false;
             moveButton.GetComponent<Button>().interactable = false;
             itemButton.GetComponent<Button>().interactable = false;
-            foreach (GameObject currentButton in attackButtons)
-            {
-                currentButton.GetComponent<Image>().sprite = null;
-                currentButton.GetComponent<Button>().interactable = false;
-            }
+            energyIndicator.GetComponent<TextMeshProUGUI>().text = string.Empty;
+            energyIndicator.transform.parent.gameObject.SetActive(false);
+
+            statsIndicator.SetActive(false);
         }
 
 
@@ -124,39 +128,58 @@ namespace MHA.UserInterface
             GeneralSetUp();
         }
 
-        public void BasicAButtonPress()
+        public void AttackButtonPress()
         {
             GeneralSetUp();
+            List<CharAbility> acAb = ClickSelection.instance.selectedUnitScript.activatableAbilitiesInsta;
 
-            ClickSelection.instance.selectedUnitObj.GetComponent<Unit>().activatableAbilitiesInsta[0].InitiateAbility(0);
+            float[] xPositions = new float[acAb.Count];
+            float distance = 56f;
+            if(acAb.Count % 2 != 0) //Odd
+            {
+                for (int i = 0; i < xPositions.Length; i++)
+                {
+                    float num = (i - ((xPositions.Length - 1f) / 2f));
+                    xPositions[i] = distance * num;
+                }
+            }
+            else //Even
+            {
+                for (int i = 0; i < xPositions.Length; i++)
+                {
+                    float num = (i - (xPositions.Length / 2f)) + 0.5f;
+                    xPositions[i] = distance * num;
+                }
+            }
+
+            for (int i = 0; i < acAb.Count; i++)
+            {
+                GameObject spawnedABButton = Instantiate(abilityButtonPrefab, abilityGroup.transform);
+                RectTransform rectTransABButton = spawnedABButton.GetComponent<RectTransform>();
+                RectTransform rectAttack = attackButton.GetComponent<RectTransform>();
+                rectTransABButton.anchoredPosition = new Vector2(rectAttack.anchoredPosition.x + xPositions[i], rectAttack.anchoredPosition.y + 60f);
+
+                AbilityButton buttonScript = spawnedABButton.GetComponent<AbilityButton>();
+                buttonScript.AssociatedAbility = acAb[i];
+                buttonScript.abilityBar = this;
+
+                abButtonList.Add(spawnedABButton);
+            }
         }
 
-        public void A1ButtonPress()
+        public void GeneralSetUp()
         {
-            GeneralSetUp();
+            foreach (GameObject button in abButtonList)
+            {
+                Destroy(button);
+            }
+            abButtonList.Clear();
 
-            ClickSelection.instance.prepAttack = true;
-        }
-
-        public void A2ButtonPress()
-        {
-            GeneralSetUp();
-
-            ClickSelection.instance.prepAttack = true;
-        }
-
-        public void A3ButtonPress()
-        {
-            GeneralSetUp();
-
-            ClickSelection.instance.prepAttack = true;
-        }
-
-
-
-        private void GeneralSetUp()
-        {
             ClickSelection.instance.ResetToDefault(); 
+            if(AbilityButtonClickEVENT != null)
+            {
+                AbilityButtonClickEVENT.Invoke();
+            }
 
         }
     }

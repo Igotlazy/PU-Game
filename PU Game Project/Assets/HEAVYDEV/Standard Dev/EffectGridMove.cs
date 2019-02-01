@@ -12,7 +12,7 @@ public class EffectGridMove : BattleEffect {
 
     public EffectGridMove(EffectDataPacket _effectData) : base(_effectData)
     {
-
+        setEffectType = EffectType.Movement;
     }
 
 

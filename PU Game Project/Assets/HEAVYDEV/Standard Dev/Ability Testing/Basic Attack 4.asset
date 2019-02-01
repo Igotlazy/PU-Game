@@ -20,3 +20,12 @@ MonoBehaviour:
   associatedUnit: {fileID: 0}
   slotValue: 0
   abilityType: 2
+  currentActiveSelector: {fileID: 0}
+  firstSelector:
+    range: 0
+    radius: 4
+  damage:
+    damageType: 0
+    damageValue: 300
+    damageSource: {fileID: 0}
+    damageRange: 0

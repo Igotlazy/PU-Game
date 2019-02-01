@@ -31,7 +31,7 @@ public class SelectorPacket {
     }
 
     public List<TargetSpecs> targetObjectSpecs = new List<TargetSpecs>();
-    public List<float> selectorSpecs = new List<float>();
+    public AbilityPrefabRef.SelectorData selectorData;
 
 
 
@@ -73,6 +73,7 @@ public class SelectorPacket {
         return returnList;
     }
 
+    /*
     public List<GameObject> ReturnObjectsOnNodes(int teamInt)
     {
         List<GameObject> returnList = new List<GameObject>();
@@ -92,12 +93,13 @@ public class SelectorPacket {
 
         return returnList;
     }
+    */
 
     public static SelectorPacket Clone(SelectorPacket givenPacket)
     {
         SelectorPacket returnPacket = new SelectorPacket(givenPacket.selectionType, givenPacket.isPure)
         {
-            selectorSpecs = new List<float>(givenPacket.selectorSpecs)           
+            selectorData = givenPacket.selectorData       
         };
 
         if(givenPacket.selectionType == SelectionType.Target)

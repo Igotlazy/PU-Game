@@ -28,7 +28,7 @@ public class EffectDealDamage : BattleEffect {
 
     protected override void WarnEffect()
     {
-        Debug.Log("Deal Damage: Warning Event Not Implemented");
+
     }
 
     private void DealDamage()

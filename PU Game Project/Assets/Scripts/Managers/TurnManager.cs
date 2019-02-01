@@ -14,15 +14,10 @@ public class TurnManager : MonoBehaviour {
     public enum BattlePhase
     {
         MatchStart,
-
         TurnStart,
-
         PlayerInput,
-
-        EnemyInput,
-
+        AIInput,
         ActionPhase,
-
         TurnEnd,
     }
 
@@ -48,11 +43,10 @@ public class TurnManager : MonoBehaviour {
     public delegate void BattlePhaseResponse(BattlePhase currentPhase);
     public event BattlePhaseResponse BattlePhaseResponseEVENT;
 
-    public List<GameObject> activePlayers = new List<GameObject>();
+    public List<GameObject> activeUnits = new List<GameObject>();
     public List<GameObject> finishedPlayers = new List<GameObject>();
 
-    [Tooltip("True = Ally Team, False = Enemy Team")]
-    public bool teamTracker;
+    public Unit.Teams teamTracker;
     public int turnCounter = 1;
 
     public static TurnManager instance;
@@ -94,11 +88,12 @@ public class TurnManager : MonoBehaviour {
             case (BattlePhase.PlayerInput):
                 break;
 
-            case (BattlePhase.EnemyInput):
+            case (BattlePhase.AIInput):
+                Debug.Log("Requesting AI Input");
+                StartCoroutine(TurnAIControl());
                 break;
 
             case (BattlePhase.ActionPhase):
-
                 break;
 
             case (BattlePhase.TurnEnd):
@@ -116,33 +111,19 @@ public class TurnManager : MonoBehaviour {
                 break;
 
             case (BattlePhase.TurnStart):
-                if (teamTracker)
-                {
-                    CurrentBattlePhase = BattlePhase.PlayerInput;
-                }
-                else
-                {
-                    CurrentBattlePhase = BattlePhase.EnemyInput;
-                }
+                CurrentBattlePhase = BattlePhase.PlayerInput;
                 break;
 
             case (BattlePhase.PlayerInput):
-                CurrentBattlePhase = BattlePhase.TurnEnd;
+                CurrentBattlePhase = BattlePhase.AIInput;
                 break;
 
-            case (BattlePhase.EnemyInput):
+            case (BattlePhase.AIInput):
                 CurrentBattlePhase = BattlePhase.TurnEnd;
                 break;
 
             case (BattlePhase.ActionPhase):
-                if (teamTracker)
-                {
-                    CurrentBattlePhase = BattlePhase.PlayerInput;
-                }
-                else
-                {
-                    CurrentBattlePhase = BattlePhase.EnemyInput;
-                }
+                CurrentBattlePhase = BattlePhase.PlayerInput;
                 break;
 
             case (BattlePhase.TurnEnd):
@@ -162,50 +143,75 @@ public class TurnManager : MonoBehaviour {
     {
         TeamSwitch();
         EnergyReset();
+        CooldownDrop();
 
         BattleUIReferences.instance.heroTurnIntro.GetComponent<Animator>().SetTrigger("Animate");
 
         yield return new WaitForSeconds(2f);
 
-        NextMainBattlePhase();
-    }
-    public void TeamSwitch()
-    {
-        teamTracker = !teamTracker;
-
-        if (teamTracker)
+        if(teamTracker == Unit.Teams.Hero)
         {
-            foreach (GameObject currentAlly in ReferenceObjects.UnitAllyList)
-            {
-                activePlayers.Add(currentAlly);
-            }
+            NextMainBattlePhase();
         }
         else
         {
-            foreach (GameObject currentEnemy in ReferenceObjects.UnitEnemyList)
+            CurrentBattlePhase = BattlePhase.AIInput;
+        }
+    }
+    public void TeamSwitch()
+    {
+        activeUnits.Clear();
+
+        if(teamTracker == Unit.Teams.Hero)
+        {
+            foreach (GameObject currentAlly in ReferenceObjects.HeroList)
             {
-                activePlayers.Add(currentEnemy);
+                activeUnits.Add(currentAlly);
             }
         }
+        else if (teamTracker == Unit.Teams.Villain)
+        {
+            foreach (GameObject currentAlly in ReferenceObjects.VillainList)
+            {
+                activeUnits.Add(currentAlly);
+            }
+
+        }
+        else if(teamTracker == Unit.Teams.Vigilante)
+        {
+            foreach (GameObject currentAlly in ReferenceObjects.VigilanteList)
+            {
+                activeUnits.Add(currentAlly);
+            }
+        }
+
 
         finishedPlayers.Clear();
     }
     public void EnergyReset()
     {
-        if (teamTracker)
+        foreach (GameObject currentUnit in activeUnits)
         {
-            foreach(GameObject currentAlly in ReferenceObjects.UnitAllyList)
-            {
-                LivingCreature creatureScript = currentAlly.GetComponent<LivingCreature>();
-                creatureScript.CurrentEnergy = Mathf.RoundToInt(creatureScript.maxEnergy.Value); 
-            }
+            LivingCreature creatureScript = currentUnit.GetComponent<Unit>().CreatureScript;
+            creatureScript.CurrentEnergy = Mathf.RoundToInt(creatureScript.maxEnergy.Value);
         }
-        else
+    }
+    public void CooldownDrop()
+    {
+        foreach(GameObject currentUnit in activeUnits)
         {
-            foreach (GameObject currentEnemy in ReferenceObjects.UnitEnemyList)
+            Unit unitScript = currentUnit.GetComponent<Unit>();
+            foreach(CharAbility currAbility in unitScript.activatableAbilitiesInsta)
             {
-                LivingCreature creatureScript = currentEnemy.GetComponent<LivingCreature>();
-                creatureScript.CurrentEnergy = (int)Mathf.RoundToInt(creatureScript.maxEnergy.Value + 0.5f); //Need to do + 0.5 in order to guarentee normal Rounding behavior. 
+                currAbility.CooldownDecrease();
+            }
+            foreach (CharAbility currAbility in unitScript.movementAbilitiesInsta)
+            {
+                currAbility.CooldownDecrease();
+            }
+            foreach (CharAbility currAbility in unitScript.passiveAbilitiesInsta)
+            {
+                currAbility.CooldownDecrease();
             }
         }
     }
@@ -213,30 +219,144 @@ public class TurnManager : MonoBehaviour {
 
     public void SetPlayerAsFinished(GameObject finishedPlayer) //Keeps track of when a player runs out of moves.
     {
-        if (activePlayers.Contains(finishedPlayer))
+        if (activeUnits.Contains(finishedPlayer))
         {
-            activePlayers.Remove(finishedPlayer);
+            activeUnits.Remove(finishedPlayer);
         }
         if (!finishedPlayers.Contains(finishedPlayer))
         {
             finishedPlayers.Add(finishedPlayer);
         }
-        if(activePlayers.Count == 0)
+        if(activeUnits.Count == 0)
         {
             Debug.Log("TURN END - ALL PLAYERS FINISHED");
         }
     }
 
+    public IEnumerator TurnAIControl()
+    {
+        Debug.Log("Turn AI START");
+
+        yield return null; //Phase change cleared selector without this.
+
+        List<Unit> aiUnits = new List<Unit>();
+        foreach (GameObject obj in activeUnits)
+        {
+            Unit unitScript = obj.GetComponent<Unit>();
+            if(unitScript != null && unitScript.isAIControlled)
+            {
+                aiUnits.Add(unitScript);
+            }
+        }
+
+        foreach(Unit currUnit in aiUnits)
+        {
+            yield return StartCoroutine(currUnit.AIResponder());
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        Debug.Log("Turn AI END");
+        NextMainBattlePhase();
+    }
+
     public IEnumerator TurnEndManager()
     {
         //Add Buff Resolution.
+        yield return new WaitForSeconds(1f);
 
-        if (!teamTracker)
+        EndTurnBuffHandling();
+        yield return null;
+        yield return new WaitUntil(() => !ResolutionManager.instance.resolutionRunning);
+
+        switch (teamTracker)
         {
-            turnCounter += 1;
+            case (Unit.Teams.Hero):
+                teamTracker = Unit.Teams.Villain;
+                break;
+
+            case (Unit.Teams.Villain):
+                if (ReferenceObjects.VigilanteList.Count > 0)
+                {
+                    teamTracker = Unit.Teams.Vigilante;
+                }
+                else
+                {
+                    teamTracker = Unit.Teams.Hero;
+                    turnCounter++;
+                }
+                break;
+
+            case (Unit.Teams.Vigilante):
+                teamTracker = Unit.Teams.Hero;
+                turnCounter++;
+                break;
         }
 
-        yield return new WaitForSeconds(1f);
         NextMainBattlePhase();
+    }
+
+    private void EndTurnBuffHandling()
+    {
+        AddBuffsToMainList();
+
+        EffectDataPacket packet = new EffectDataPacket(null, null);
+
+        EffectCustomAction callEndBuffs = new EffectCustomAction(packet, new Action(CallEndBuffs));
+        EffectCustomAction callCooldownBuffs = new EffectCustomAction(packet, new Action(CallBuffCooldown));
+        EffectCustomAction callRemoveBuffs = new EffectCustomAction(packet, new Action(RemoveBuffs));
+
+        List<BattleEffect> effects = new List<BattleEffect>() { callEndBuffs, callCooldownBuffs, callRemoveBuffs };
+        ResolutionManager.instance.LoadBattleEffect(effects);
+    }
+
+    public void AddBuffsToMainList()
+    {
+        Debug.Log("Hello?");
+        foreach(GameObject currentUnit in activeUnits)
+        {
+            Unit unitScript = currentUnit.GetComponent<Unit>();
+            foreach(Buff currentBuff in unitScript.CreatureScript.AddBuffList)
+            {
+                unitScript.CreatureScript.BuffList.Add(currentBuff);
+            }
+            unitScript.CreatureScript.AddBuffList.Clear();
+        }
+    }
+    public void CallEndBuffs()
+    {
+        foreach (GameObject currentUnit in activeUnits)
+        {
+            Unit unitScript = currentUnit.GetComponent<Unit>();
+            foreach (Buff currentBuff in unitScript.CreatureScript.BuffList)
+            {
+                currentBuff.BuffEndTurnApplication();
+            }
+        }
+    }
+    public void CallBuffCooldown()
+    {
+        foreach (GameObject currentUnit in activeUnits)
+        {
+            Unit unitScript = currentUnit.GetComponent<Unit>();
+            foreach (Buff currentBuff in unitScript.CreatureScript.BuffList)
+            {
+                currentBuff.CooldownReduce();
+            }
+        }
+    }
+    public void RemoveBuffs()
+    {
+        foreach (GameObject currentUnit in activeUnits)
+        {
+            LivingCreature unitScript = currentUnit.GetComponent<Unit>().CreatureScript;
+            foreach (Buff buffToRemove in unitScript.RemoveBuffList)
+            {
+                if (unitScript.BuffList.Contains(buffToRemove))
+                {
+                    unitScript.BuffList.Remove(buffToRemove);
+                }
+            }
+            unitScript.RemoveBuffList.Clear();
+        }
     }
 }

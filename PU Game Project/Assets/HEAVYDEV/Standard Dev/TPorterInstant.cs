@@ -17,9 +17,7 @@ public class TPorterInstant : TPorter
 
     protected override void TPorterWarn()
     {
-        PeekCheck();
-
-        Debug.Log("Instant START Anim Event");
+        EventFlags.ANIMStartCastCALL(this, new EventFlags.ECastAnim());
         Debug.LogWarning("Instant WARN Event");
     }
 
@@ -49,7 +47,7 @@ public class TPorterInstant : TPorter
                     TPorterFinishOverride = true;
                     effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
 
-                    Debug.Log("Instant HIT Anim Event");
+                    EventFlags.ANIMFinishCastCALL(this, new EventFlags.ECastAnim());
                     Debug.LogWarning("Instant HIT Event");
                 }
                 else
@@ -63,7 +61,7 @@ public class TPorterInstant : TPorter
                 TPorterFinishOverride = true;
                 effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
 
-                Debug.Log("Instant HIT Anim Event");
+                EventFlags.ANIMFinishCastCALL(this, new EventFlags.ECastAnim());
                 Debug.LogWarning("Instant HIT Event");
             }
         }

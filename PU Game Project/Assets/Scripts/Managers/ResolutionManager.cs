@@ -10,10 +10,11 @@ public class ResolutionManager : MonoBehaviour {
 
     public List<BattleEffect> resolvingEffects = new List<BattleEffect>();
     public BattleEffect currentEffect;
-    public bool eventResolutionRunning;
+    public bool effectResolutionRunning;
 
     private Queue<BattleAnimation> animationQueue = new Queue<BattleAnimation>();
-    public bool animQueueRunning;
+    public bool animationResolutionRunning;
+    public bool resolutionRunning;
 
 
     public int currentResolutionCalls = 0;
@@ -36,7 +37,7 @@ public class ResolutionManager : MonoBehaviour {
     {
         if (givenEffects.Count > 0)
         {
-            if (eventResolutionRunning)
+            if (effectResolutionRunning)
             {
                 for (int i = givenEffects.Count - 1; i >= 0; i--)
                 {
@@ -45,6 +46,7 @@ public class ResolutionManager : MonoBehaviour {
             }
             else
             {
+                Debug.LogError("RESOLUTION START");
                 resolvingEffects.Clear(); //Technically all of these should be clear, but just in case.
 
                 for (int i = givenEffects.Count - 1; i >= 0; i--)
@@ -52,8 +54,12 @@ public class ResolutionManager : MonoBehaviour {
                     resolvingEffects.Add(givenEffects[i]);
                 }
 
+                if (animationResolutionRunning)
+                {
+                    Debug.LogError("WARNING: ADDITION OF EFFECTS DURING ANIMATIONS. DID YOU NOT PROPERLY LOAD BATTLE EFFECTS?");
+                }
+
                 currentResolutionCalls = 0;
-                eventResolutionRunning = true;
                 StartCoroutine(EffectResolution());
             }
         }
@@ -61,14 +67,20 @@ public class ResolutionManager : MonoBehaviour {
 
     public void LoadBattleEffect(BattleEffect givenEffect)
     {
-        if (eventResolutionRunning)
+        if (effectResolutionRunning)
         {
             resolvingEffects.Add(givenEffect);
         }
         else
         {
+            Debug.LogError("RESOLUTION START");
             resolvingEffects.Clear(); //Technically this should be clear, but just in case.
             resolvingEffects.Add(givenEffect);
+
+            if (animationResolutionRunning)
+            {
+                Debug.LogError("WARNING: ADDITION OF EFFECTS DURING ANIMATIONS. DID YOU NOT PROPERLY LOAD BATTLE EFFECTS?");
+            }
 
             currentResolutionCalls = 0;
             StartCoroutine(EffectResolution());
@@ -79,9 +91,13 @@ public class ResolutionManager : MonoBehaviour {
     public IEnumerator EffectResolution()
     {
         originalBattlePhase = TurnManager.instance.CurrentBattlePhase;
-        eventResolutionRunning = true;
+        resolutionRunning = true;
+        effectResolutionRunning = true;
 
-        TurnManager.instance.CurrentBattlePhase = TurnManager.BattlePhase.ActionPhase;
+        if(originalBattlePhase == TurnManager.BattlePhase.PlayerInput)
+        {
+            TurnManager.instance.CurrentBattlePhase = TurnManager.BattlePhase.ActionPhase;
+        }
 
         while (resolvingEffects.Count > 0 )
         {
@@ -98,9 +114,9 @@ public class ResolutionManager : MonoBehaviour {
         }
 
         CharAbility.totalCastIndex = 0; //Resets individual cast tracker when Resolution empties. 
-        eventResolutionRunning = false;
+        effectResolutionRunning = false;
 
-        NextQueueAnimation();
+        NextQueuedAnimation();
     }
 
     TurnManager.BattlePhase originalBattlePhase;
@@ -118,26 +134,31 @@ public class ResolutionManager : MonoBehaviour {
         */
     }
 
-    public void NextQueueAnimation()
+    public void NextQueuedAnimation()
     {
         if(animationQueue.Count > 0)
         {
-            animQueueRunning = true;
+            animationResolutionRunning = true;
+            Debug.LogWarning("PLAYED ANIM");
             animationQueue.Dequeue().PlayBattleAnimation();
         }
         else
         {
-            animQueueRunning = false;
+            animationResolutionRunning = false;
             ReturnToOriginalBattlePhase();
+            Debug.LogError("ANIM RESOLUTION DONE");
         }
     }
 
     private void ReturnToOriginalBattlePhase()
     {
-        if(!animQueueRunning && !eventResolutionRunning)
+        if(!animationResolutionRunning && !effectResolutionRunning)
         {
-            TurnManager.instance.CurrentBattlePhase = originalBattlePhase;
-            Debug.Log(originalBattlePhase.ToString());
+            if(originalBattlePhase == TurnManager.BattlePhase.PlayerInput)
+            {
+                TurnManager.instance.CurrentBattlePhase = originalBattlePhase;
+            }
+            resolutionRunning = false;
         }
     }
 
