@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class GeneralSelector : AttackSelection
 {
-    List<Collider> colliders = new List<Collider>();
+    //List<Collider> colliders = new List<Collider>();
 
 
 

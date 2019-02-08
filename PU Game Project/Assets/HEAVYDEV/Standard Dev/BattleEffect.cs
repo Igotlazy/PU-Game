@@ -20,12 +20,13 @@ public abstract class BattleEffect {
 
     protected bool canBeCancelled = true;
 
-    public EffectType setEffectType;
+    public int differentiator;
+
 
 
     public BattleEffect(EffectDataPacket _effectData)
     {
-        this.effectData = _effectData;
+        effectData = _effectData;
     }
 
 

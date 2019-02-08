@@ -3,35 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using MHA.BattleBehaviours;
 
-public class EffectGridMove : BattleEffect {
+public class EffectGridMove : EffectMove {
 
-    public Vector3 pathIndex;
     public float moveSpeed = 3.5f;
-    public Unit moveTarget;
     public bool destroyAtEnd;
 
-    public EffectGridMove(EffectDataPacket _effectData) : base(_effectData)
+    public EffectGridMove(EffectDataPacket _effectData, GameObject _moveTarget, List<Vector3> _locations) : base(_effectData, _moveTarget, _locations)
     {
-        setEffectType = EffectType.Movement;
+
     }
 
 
-    protected override void RunEffectImpl()
-    {
-        GridMove();
-    }
-
-    protected override void WarnEffect()
+    protected override void MovementWarn()
     {
         //Debug.Log("Grid Move: Warning Event Not Implemented");
     }
 
-    private void GridMove()
+    protected override void MovementRun()
     {
         if (moveTarget != null)
         {
             Unit moveTargetScript = moveTarget.gameObject.GetComponent<Unit>();
-            Node newNode = GridGen.instance.NodeFromWorldPoint(pathIndex);
+            Node newNode = GridGen.instance.NodeFromWorldPoint(locations[moveIndex]);
 
             if (moveTargetScript != null)
             {
@@ -41,17 +34,9 @@ public class EffectGridMove : BattleEffect {
             newNode.IsOccupied = true;
             newNode.occupant = moveTarget.gameObject; //Sets last Node to now be Occupied.
 
-            new AnimMoveToPos(pathIndex, moveTarget.gameObject, moveSpeed, destroyAtEnd);
-        }
-    }
+            new AnimMoveToPos(locations[moveIndex], moveTarget.gameObject, moveSpeed, destroyAtEnd);
 
-    protected override bool EffectSpecificCondition()
-    {
-        if(moveTarget != null)
-        {
-            return true;
         }
-        return false;
     }
 
     protected override void CancelEffectImpl()
@@ -59,5 +44,12 @@ public class EffectGridMove : BattleEffect {
 
     }
 
-
+    protected override bool EffectSpecificCondition()
+    {
+        if (moveTarget != null)
+        {
+            return true;
+        }
+        return false;
+    }
 }

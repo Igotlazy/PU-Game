@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using MHA.Events;
 
 [Serializable]
 public class CharAbility : ScriptableObject
@@ -40,6 +41,7 @@ public class CharAbility : ScriptableObject
     public virtual void Initialize(Unit givenUnit)
     {
         this.associatedUnit = givenUnit;
+        EventFlags.ANIMStartCast += AnimResponse;
     }
 
     public void InitiateAbility(int abilityIndex)
@@ -53,8 +55,7 @@ public class CharAbility : ScriptableObject
     {
         List<SelectorPacket> targetPacketList = new List<SelectorPacket>();
         int selectorIndex = 0;
-
-        while(selectorIndex < selectorPacketBaseData.Count)
+        while(selectorIndex < selectorPacketBaseData[abilityIndex].Count)
         {
             SelectorPacket targets = SelectorPacket.Clone(selectorPacketBaseData[abilityIndex][selectorIndex]);
             GameObject selectorRef = AbilityPrefabRef.instance.GiveNodeSelectorPrefab(targets.selectorData);
@@ -71,6 +72,10 @@ public class CharAbility : ScriptableObject
             targetPacketList.Add(targets);
 
             selectorIndex++;
+            if(selectorIndex < selectorPacketBaseData[abilityIndex].Count)
+            {
+                yield return new WaitForSeconds(0.3f);
+            }
         }
 
         currentActiveSelector = null;
@@ -122,6 +127,11 @@ public class CharAbility : ScriptableObject
         {
             currentCooldown -= 1;
         }
+    }
+
+    public virtual void AnimResponse(object givenObject, EventFlags.ECastAnim givenCastAnim)
+    {
+
     }
 
 

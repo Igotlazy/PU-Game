@@ -9,7 +9,7 @@ namespace Invertex.Unity.Sprites
     /// </summary>
     public class SpriteAngledOverlapGroup : MonoBehaviour
     {
-        [Range(0, 2), SerializeField] private float overlapPower = 1f;
+        [Range(0, 3), SerializeField] private float overlapPower = 1f;
 
         private Material[] materials;
         private float spriteHeightReference = 1f;

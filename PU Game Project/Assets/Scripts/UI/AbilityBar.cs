@@ -10,6 +10,7 @@ namespace MHA.UserInterface
     {
 
         public GameObject abilityGroup;
+        public GameObject abilityButtonGroup;
         [Tooltip("0 = Disables, 1 = Input, 2 = Selected")]
         public List<Transform> abilityBarLocations = new List<Transform>();
         public Vector3 currentPos;
@@ -26,8 +27,17 @@ namespace MHA.UserInterface
         public GameObject abilityButtonPrefab;
         List<GameObject> abButtonList = new List<GameObject>();
 
+        [Space]
+        [Header("Audio")]
+        public AudioSource audSource;
+
         public delegate void AbilityButtonClick();
         public static event AbilityButtonClick AbilityButtonClickEVENT;
+
+        private void Awake()
+        {
+            audSource = GetComponent<AudioSource>();
+        }
 
 
         void Start()
@@ -154,7 +164,7 @@ namespace MHA.UserInterface
 
             for (int i = 0; i < acAb.Count; i++)
             {
-                GameObject spawnedABButton = Instantiate(abilityButtonPrefab, abilityGroup.transform);
+                GameObject spawnedABButton = Instantiate(abilityButtonPrefab, abilityButtonGroup.transform);
                 RectTransform rectTransABButton = spawnedABButton.GetComponent<RectTransform>();
                 RectTransform rectAttack = attackButton.GetComponent<RectTransform>();
                 rectTransABButton.anchoredPosition = new Vector2(rectAttack.anchoredPosition.x + xPositions[i], rectAttack.anchoredPosition.y + 60f);

@@ -12,7 +12,7 @@ public class ResolutionManager : MonoBehaviour {
     public BattleEffect currentEffect;
     public bool effectResolutionRunning;
 
-    private Queue<BattleAnimation> animationQueue = new Queue<BattleAnimation>();
+    public Queue<BattleAnimation> animationQueue = new Queue<BattleAnimation>();
     public bool animationResolutionRunning;
     public bool resolutionRunning;
 
@@ -22,7 +22,7 @@ public class ResolutionManager : MonoBehaviour {
 
     private void Awake()
     {
-        if(instance == null){instance = this; } else { Destroy(this); }
+        if(instance == null){instance = this; } else { Destroy(gameObject); }
     }
 
 

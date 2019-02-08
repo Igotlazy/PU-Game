@@ -31,6 +31,13 @@ public class TPorterProjectile : TPorter
             base.PeekCheck();
         }
     }
+    protected override void CameraMove()
+    {
+        if(subRIndex == 0)
+        {
+            base.CameraMove();
+        }
+    }
 
     protected override void TPorterWarn()
     {

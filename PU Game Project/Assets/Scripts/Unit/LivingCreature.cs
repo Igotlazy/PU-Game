@@ -87,7 +87,7 @@ public class LivingCreature : MonoBehaviour {
 
     public void CreatureHit(Attack receivedAttack)
     {
-        if (!isInvincible)
+        if (!isInvincible && !amDead)
         {
             float damage = CombatUtils.DamageCalculation(receivedAttack, attachedUnit);
             currentHealth -= damage;
@@ -95,6 +95,7 @@ public class LivingCreature : MonoBehaviour {
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth.Value);
 
             new BBDealDamageAnim(this, currentHealth, damage);
+            Debug.Log("DEAL DAMAGE");
 
             if (currentHealth <= 0 && !amDead)
             {

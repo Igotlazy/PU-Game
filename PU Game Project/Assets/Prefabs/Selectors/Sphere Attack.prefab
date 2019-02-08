@@ -49,7 +49,7 @@ MeshRenderer:
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1fe06c93bcc40aa4d95df79474cf53c4, type: 2}
+  - {fileID: 2100000, guid: 75d5218fe68907b47b29ea1edd35d933, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -124,13 +124,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hasLoadedTargets: 0
-  givenAbility:
-    associatedCreature: {fileID: 0}
-    abilityName: 
-    abilityDescription: 
-    abilitySprite: {fileID: 0}
-    energyCost: 0
-    turnCooldown: 0
+  givenAbility: {fileID: 0}
+  selectionIndicator: {fileID: 0}
+  isAIControlled: 0
   attackInd: {fileID: 0}
 --- !u!54 &54661711978320596
 Rigidbody:

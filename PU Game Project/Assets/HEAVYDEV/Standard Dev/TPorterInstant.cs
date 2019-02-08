@@ -10,25 +10,24 @@ public class TPorterInstant : TPorter
     public string REPORTKEY;
 
 
-    public TPorterInstant(EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData, _givenPacket)
+    public TPorterInstant(EffectDataPacket _effectData, SelectorPacket _givenPacket) : base(_effectData, _givenPacket)
     {
-        this.fireObjectRef = _fireObjectRef;
+
     }
 
     protected override void TPorterWarn()
     {
-        EventFlags.ANIMStartCastCALL(this, new EventFlags.ECastAnim());
         Debug.LogWarning("Instant WARN Event");
     }
 
     protected override void TPorterRun()
     {
 
-        if (runIndex == 0 && fireObjectRef != null) //If it's the first, instantiate the projectile.
+        if (runIndex == 0) //If it's the first, instantiate the projectile.
         {
-            Quaternion lookRotation = Quaternion.LookRotation(givenTSpecs[runIndex].targetObj.GetComponent<Unit>().shotConnecter.transform.position - givenTSpecs[runIndex].fireOriginPoint);
-            GameObject.Instantiate(fireObjectRef, ((Unit)effectData.GetValue("Caster", false)[0]).gameObject.transform.position, Quaternion.identity);
+            //EventFlags.ANIMStartCastCALL(this, new EventFlags.ECastAnim());
         }
+        EventFlags.ANIMStartCastCALL(this, new EventFlags.ECastAnim());
 
         InstantLogic();
     }

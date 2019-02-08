@@ -24,7 +24,6 @@ namespace MHA.BattleBehaviours
                 animFinished = value;
                 if (animFinished == true)
                 {
-                    Debug.LogWarning("Anim Ping Sent");
                     ResolutionManager.instance.NextQueuedAnimation();
                 }
             }

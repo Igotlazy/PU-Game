@@ -18,6 +18,6 @@ MonoBehaviour:
   abilitySprite: {fileID: 0}
   energyCost: 1
   turnCooldown: 0
+  currentCooldown: 0
   associatedUnit: {fileID: 0}
-  slotValue: 0
-  abilityType: 1
+  currentActiveSelector: {fileID: 0}

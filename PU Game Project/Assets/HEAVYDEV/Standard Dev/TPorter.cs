@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MHA.Events;
+using MHA.BattleBehaviours;
 
 public abstract class TPorter : BattleEffect
 {
-    protected int runIndex;
+    public int runIndex;
     protected SelectorPacket givenPacket;
-    protected List<TargetSpecs> givenTSpecs;
+    public List<TargetSpecs> givenTSpecs;
     protected bool warnOnce;
     protected bool doEnding;
 
@@ -24,10 +25,12 @@ public abstract class TPorter : BattleEffect
 
     protected override void WarnEffect()
     {
+        //Anim Event for Very Start of Cast
         if (!doEnding)
         {
             if(givenTSpecs.Count > 0)
             {
+                CameraMove();
                 PeekCheck();
             }
             TPorterWarn();
@@ -39,6 +42,11 @@ public abstract class TPorter : BattleEffect
         }
     }
     protected abstract void TPorterWarn();
+    protected virtual void CameraMove()
+    {
+        Unit unit = (Unit)(effectData.GetValue("Caster", false)[0]);
+        new BBAnimCameraMove(unit.gameObject.transform);
+    }
 
     protected override void RunEffectImpl()
     {
@@ -66,6 +74,7 @@ public abstract class TPorter : BattleEffect
 
         if (runIndex > givenTSpecs.Count - 1)
         {
+            //Anim Event for very End of Cast
             TPorterRemoveOverride = true;
         }
     }

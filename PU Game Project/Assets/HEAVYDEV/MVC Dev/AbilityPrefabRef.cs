@@ -93,4 +93,7 @@ public class AbilityPrefabRef : MonoBehaviour {
     public static readonly string TakahiroBasic = "Takahiro/Projectile";
     public static readonly string TakahiroA1 = "Takahiro/A1";
     public static readonly string TakahiroA3 = "Takahiro/A3";
+
+    public static readonly string SandyBasic1 = "Sandy/Basic1";
+    public static readonly string SandyBasic2 = "Sandy/Basic2";
 }

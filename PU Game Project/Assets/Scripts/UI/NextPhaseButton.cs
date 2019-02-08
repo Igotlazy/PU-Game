@@ -74,8 +74,9 @@ namespace MHA.UserInterface
             buttonComp.colors = colors;
         }
 
-        public void EndTurnCleanUp()
+        public void EndTurnCall()
         {
+            TurnManager.instance.NextMainBattlePhase();
             ClickSelection.instance.ClearSelection();
             ClickSelection.instance.ResetToDefault();
         }

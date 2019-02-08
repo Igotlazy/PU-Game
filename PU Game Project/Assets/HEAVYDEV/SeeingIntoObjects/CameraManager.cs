@@ -82,16 +82,19 @@ public class CameraManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        RotateCameraControl();
-        RotateCameraLoader();
-
-        ZoomControl();
-
-        if(panLock < Time.time)
+        if(TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
         {
-            UnitPanControl();
-            FreeMoveControl();
-            MoveLevel();
+            RotateCameraControl();
+            RotateCameraLoader();
+
+            ZoomControl();
+
+            if (panLock < Time.time)
+            {
+                UnitPanControl();
+                FreeMoveControl();
+                MoveLevel();
+            }
         }
     }
     private void LateUpdate()
@@ -343,6 +346,37 @@ public class CameraManager : MonoBehaviour
         }
     }
     Vector3 cameraPoint = new Vector3(0.5f, 0.5f, 0f);
+
+    public void CameraShake()
+    {
+        /*
+        if(currentShake != null)
+        {
+            StopCoroutine(currentShake);
+        }
+        currentShake = CameraShakeControl();
+        */
+        StartCoroutine(CameraShakeControl());
+        Debug.Log("SHAKE CMAERA");
+    }
+
+
+    IEnumerator currentShake;
+
+    IEnumerator CameraShakeControl()
+    {
+        float time = 0;
+        CinemachineBasicMultiChannelPerlin perlin = currentUnitCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        perlin.m_AmplitudeGain = 3.5f;
+        perlin.m_FrequencyGain = 2;
+        while(time <= 0.3f)
+        {
+            time += Time.deltaTime;
+            yield return null;
+        }
+        perlin.m_AmplitudeGain = 0;
+        perlin.m_FrequencyGain = 0;
+    }
 
 
 }

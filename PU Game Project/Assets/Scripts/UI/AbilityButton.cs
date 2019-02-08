@@ -48,8 +48,17 @@ namespace MHA.UserInterface
         private TextMeshProUGUI abilityCostInd;
         public Color badColor;
 
+        [Space]
+        [Header("Audio")]
+        [SerializeField]
+        private AudioClip hover;
+        [SerializeField]
+        private AudioClip click;
+        private AudioSource audioSource;
+
         private void Awake()
         {
+            audioSource = GetComponent<AudioSource>();
             abilityIcon = GetComponent<Image>();
             descriptionGroup.SetActive(false);
         }
@@ -109,6 +118,9 @@ namespace MHA.UserInterface
         {
             if(associatedAbility.currentCooldown <= 0 && associatedAbility.associatedUnit.CreatureScript.CurrentEnergy >= associatedAbility.energyCost)
             {
+                abilityBar.audSource.clip = click;
+                abilityBar.audSource.Play();
+
                 abilityBar.GeneralSetUp();
                 associatedAbility.InitiateAbility(0);
             }
@@ -117,6 +129,8 @@ namespace MHA.UserInterface
         public void OnPointerEnter(PointerEventData eventData)
         {
             descriptionGroup.SetActive(true);
+            abilityBar.audSource.clip = hover;
+            abilityBar.audSource.Play();
         }
 
         public void OnPointerExit(PointerEventData eventData)

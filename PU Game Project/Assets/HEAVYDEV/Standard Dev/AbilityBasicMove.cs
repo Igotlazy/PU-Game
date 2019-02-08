@@ -47,24 +47,15 @@ public class AbilityBasicMove : CharAbility {
         effectPacket.AppendValue("MovingTarget", associatedUnit);
 
 
+        Unit movingTarget = (Unit)effectPacket.GetValue("MovingTarget", false)[0];
+        EffectGridMove moveEffect = new EffectGridMove(effectPacket, movingTarget.gameObject, path);
+        moveEffect.moveSpeed = 5f;
 
-        List<BattleEffect> effectsToPass = new List<BattleEffect>(); //Effects to send to the Resolver/
-        for (int i = 0; i < path.Count; i++) //Creation of Effects
-        {
-            EffectGridMove moveEffect = new EffectGridMove(effectPacket)
-            {
-                pathIndex = (Vector3)effectPacket.GetValue("MovePath", false)[i],
-                moveSpeed = 5f,
-            };
-            moveEffect.moveTarget = (Unit)effectPacket.GetValue("MovingTarget", false)[0];
-            moveEffect.finishedEffectAuxCall += base.PayEnergyCost;
-            //moveEffect.conditionCheck += FreeMoveCONDITION;
+        moveEffect.finishedEffectAuxCall += base.PayEnergyCost;
+        //moveEffect.conditionCheck += FreeMoveCONDITION;
 
-            effectsToPass.Add(moveEffect);
-        }
 
-        CombatUtils.MakeEffectsDependent(effectsToPass);
-        ResolutionManager.instance.LoadBattleEffect(effectsToPass);
+        ResolutionManager.instance.LoadBattleEffect(moveEffect);
     }
 
     /*

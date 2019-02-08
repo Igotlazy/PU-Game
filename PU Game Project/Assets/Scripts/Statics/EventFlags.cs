@@ -107,7 +107,6 @@ namespace MHA.Events
         public static event EventHandler<ECastAnim> ANIMStartCast;
         public static void ANIMStartCastCALL(object sender, ECastAnim e)
         {
-            Debug.Log("START Anim Event");
             if (ANIMStartCast != null)
             {
                 ANIMStartCast(sender, e);
@@ -116,7 +115,6 @@ namespace MHA.Events
         public static event EventHandler<ECastAnim> ANIMFinishCast;
         public static void ANIMFinishCastCALL(object sender, ECastAnim e)
         {
-            Debug.Log("Finish Anim Event");
             if (ANIMFinishCast != null)
             {
                 ANIMFinishCast(sender, e);
@@ -135,7 +133,10 @@ namespace MHA.Events
 
         public class ECastAnim : EventArgs
         {
+            public ECastAnim()
+            {
 
+            }
         }
     }
 }

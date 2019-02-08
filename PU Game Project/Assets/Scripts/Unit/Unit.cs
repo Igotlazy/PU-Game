@@ -169,7 +169,7 @@ public class Unit : MonoBehaviour {
         AbilityPrefabRef.SelectorData selectorData = movementAbilitiesInsta[0].selectorPacketBaseData[0][0].selectorData;
         if (selectorData.SelectorName.Equals(AbilityPrefabRef.BasicMoveSelector))
         {
-            AbilityPrefabRef.BasicMoveSelectorData trueData = (AbilityPrefabRef.BasicMoveSelectorData)selectorData;
+            //AbilityPrefabRef.BasicMoveSelectorData trueData = (AbilityPrefabRef.BasicMoveSelectorData)selectorData;
             int energy = CreatureScript.CurrentEnergy;
             List<Node> foundNodes = Pathfinding.instance.DisplayAvailableMoves(currentNode, energy);
             yield return null;

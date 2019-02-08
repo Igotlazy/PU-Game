@@ -10,16 +10,12 @@ public class EffectCustomAction : BattleEffect
 
     public EffectCustomAction(EffectDataPacket _givenPacket, Action _givenAction) : base (_givenPacket)
     {
-        setEffectType = EffectType.Custom;
-
         actionToRun = _givenAction;
         hasWarned = true;
         canBeCancelled = false;
     }
     public EffectCustomAction(EffectDataPacket _givenPacket, Action _givenWarnAction, Action _givenRunAction) : base(_givenPacket)
     {
-        setEffectType = EffectType.Custom;
-
         actionToRun = _givenRunAction;
         actionToWarn = _givenWarnAction;
         canBeCancelled = false;

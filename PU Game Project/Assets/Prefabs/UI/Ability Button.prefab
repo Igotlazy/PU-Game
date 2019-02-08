@@ -653,7 +653,6 @@ GameObject:
   - component: {fileID: 6254061860679180463}
   - component: {fileID: 5032092409534287652}
   - component: {fileID: 2472780242955769082}
-  - component: {fileID: 5392204140542542389}
   m_Layer: 5
   m_Name: Ability Button
   m_TagString: Untagged
@@ -703,7 +702,9 @@ MonoBehaviour:
   abilityDescriptionInd: {fileID: 4333071883865127681}
   abilityCDInd: {fileID: 7317814367016710867}
   abilityCostInd: {fileID: 7510392260370143876}
-  badColor: {r: 1, g: 0.21226418, b: 0.21226418, a: 1}
+  badColor: {r: 0.9056604, g: 0.2947668, b: 0.2947668, a: 1}
+  hover: {fileID: 8300000, guid: a3071719577c1a9429362938d60185b2, type: 3}
+  click: {fileID: 8300000, guid: 03ef956e8490f5548a5064ae132a6fd3, type: 3}
 --- !u!114 &6254061860679180463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -794,28 +795,6 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &5392204140542542389
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5392204140542542388}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21d7e2f2987454847804485b874152e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  associatedAbility: {fileID: 0}
-  abilityBar: {fileID: 0}
-  cooldownIndicator: {fileID: 0}
-  cooldownValue: {fileID: 0}
-  descriptionGroup: {fileID: 7176429665297976212}
-  abilityNameInd: {fileID: 0}
-  abilityDescriptionInd: {fileID: 0}
-  abilityCDInd: {fileID: 0}
-  abilityCostInd: {fileID: 0}
-  badColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &7176429665297976212
 GameObject:
   m_ObjectHideFlags: 0
