@@ -22,7 +22,7 @@ public class EffectFreeMove : EffectMove
     protected override void MovementRun()
     {
         //Debug.Log("I'm going here: " + destination);
-        new AnimMoveToPos(destination, moveTarget, moveSpeed, destroyAtEnd);
+        new AnimMoveToPos(this, destination, moveTarget, moveSpeed, destroyAtEnd);
     }
 
     protected override void CancelEffectImpl()

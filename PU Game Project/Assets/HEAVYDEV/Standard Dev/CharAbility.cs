@@ -110,9 +110,9 @@ public class CharAbility : ScriptableObject
 
     protected virtual void PayEnergyCost(EffectDataPacket givenPacket)
     {
-        if(associatedUnit != null && associatedUnit.CreatureScript != null)
+        if(associatedUnit != null)
         {
-            associatedUnit.CreatureScript.CurrentEnergy -= energyCost;
+            associatedUnit.CurrentEnergy -= energyCost;
         }
     }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 namespace MHA.BattleBehaviours
 {
@@ -16,7 +17,7 @@ namespace MHA.BattleBehaviours
 
         public bool dontHoldUpQueue;
 
-        public AnimMoveToPos(Vector3 _position, GameObject _moveTarget, float _speed, bool _destroyAtEnd)
+        public AnimMoveToPos(object _source, Vector3 _position, GameObject _moveTarget, float _speed, bool _destroyAtEnd) : base (_source)
         {
             finalPos = _position;
             moveTarget = _moveTarget;
@@ -66,7 +67,7 @@ namespace MHA.BattleBehaviours
             {
                 if(ResolutionManager.instance.animationQueue.Count > 0)
                 {
-                    AnimMoveToPos posAnim = (AnimMoveToPos)ResolutionManager.instance.animationQueue.Peek();
+                    AnimMoveToPos posAnim = (AnimMoveToPos)ResolutionManager.instance.animationQueue.Last();
                     Debug.Log(posAnim.finalPos.normalized);
                     Debug.Log(nextPos.normalized);
                     if (moveTarget == posAnim.moveTarget && posAnim.finalPos.normalized == nextPos.normalized)

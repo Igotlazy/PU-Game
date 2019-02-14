@@ -12,12 +12,12 @@ public class TimedBuff : Buff
 
 
 
-    public TimedBuff(LivingCreature buffTarget, GameObject buffSource, string buffName) : base(buffTarget, buffSource, buffName)
+    public TimedBuff(Unit buffTarget, GameObject buffSource, string buffName) : base(buffTarget, buffSource, buffName)
     {
         //burnAttack = new Attack(1f, buffTarget.attachedUnit, Attack.DamageType.Regular);
     }
 
-    public TimedBuff(LivingCreature buffTarget, GameObject buffSource, string buffName, int turnCooldown) : base(buffTarget, buffSource, buffName, turnCooldown)
+    public TimedBuff(Unit buffTarget, GameObject buffSource, string buffName, int turnCooldown) : base(buffTarget, buffSource, buffName, turnCooldown)
     {
         //burnAttack = new Attack(1f, buffTarget.attachedUnit, Attack.DamageType.Regular);
     }

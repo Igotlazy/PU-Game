@@ -7,13 +7,13 @@ namespace MHA.BattleBehaviours
 {
     public class AnimAbility : BattleAnimation
     {
-        GameObject animObject;
+        public GameObject animObject;
         GameObject spawnedAnimObject;
         Vector3 spawnLocation;
         AnimAbilityControl animController;
+        public bool forceGo;
 
-
-        public AnimAbility(GameObject _animObject, Vector3 _spawnLocation)
+        public AnimAbility(object _source, GameObject _animObject, Vector3 _spawnLocation) : base (_source)
         {
             this.animObject = _animObject;
             this.spawnLocation = _spawnLocation;
@@ -24,7 +24,7 @@ namespace MHA.BattleBehaviours
             spawnedAnimObject = GameObject.Instantiate(animObject, spawnLocation, Quaternion.identity);
             animController = spawnedAnimObject.GetComponent<AnimAbilityControl>();
 
-            if (animController.shouldWait)
+            if (animController.shouldWait && !forceGo)
             {
                 animController.animFinished = false;
                 mono.StartCoroutine(PlayBattleAnim());
@@ -42,6 +42,11 @@ namespace MHA.BattleBehaviours
             animController.BeginAbilityAnimation();
             yield return new WaitUntil(() => animController.animFinished);
             AnimFinished = true;
+        }
+
+        public override string ToString()
+        {
+            return "AnimAbility: " + animObject.name;
         }
     }
 }

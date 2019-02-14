@@ -13,7 +13,7 @@ public abstract class EffectMove : BattleEffect
     {
         moveTarget = _moveTarget;
         locations = _locations;
-        TPorterRemoveOverride = false;
+        TPorterRemoveActive = false;
     }
 
     protected override void WarnEffect()
@@ -29,7 +29,7 @@ public abstract class EffectMove : BattleEffect
         moveIndex++;
         if(moveIndex >= locations.Count)
         {
-            TPorterRemoveOverride = true;
+            TPorterRemoveActive = true;
         }
         
     }

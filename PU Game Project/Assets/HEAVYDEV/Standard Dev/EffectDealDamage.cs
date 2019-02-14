@@ -10,11 +10,11 @@ public class EffectDealDamage : BattleEffect {
     public Attack damageAttack;
 
     public string KEYdamageTarget;
-    public LivingCreature damageTarget;
+    public Unit damageTarget;
 
     
 
-    public EffectDealDamage(EffectDataPacket _effectData, LivingCreature _damageTarget, Attack _damageAttack) : base(_effectData)
+    public EffectDealDamage(EffectDataPacket _effectData, Unit _damageTarget, Attack _damageAttack) : base(_effectData)
     {
         this.damageTarget = _damageTarget;
         this.damageAttack = _damageAttack;
@@ -35,7 +35,7 @@ public class EffectDealDamage : BattleEffect {
     {
         damageTarget.CreatureHit(damageAttack);
 
-        EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs(damageAttack.damageValue, ((Unit)effectData.GetValue("Caster", false)[0]).CreatureScript, damageTarget));
+        EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs(damageAttack.damageValue, ((Unit)effectData.GetValue("Caster", false)[0]), damageTarget));
 
         if (KEYdamageAttack != null)
         {

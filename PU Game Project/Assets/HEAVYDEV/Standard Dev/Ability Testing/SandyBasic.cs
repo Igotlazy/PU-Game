@@ -41,7 +41,7 @@ public class SandyBasic : CharAbility
             maxNumOfSelect = 1,
             selectorData = firstSelector
         };
-        SelectorPacket secondSP = new SelectorPacket(SelectorPacket.SelectionType.AreaTarget, false)
+        SelectorPacket secondSP = new SelectorPacket(SelectorPacket.SelectionType.AoE, false)
         {
             selectorData = secondSelector
         };
@@ -50,6 +50,7 @@ public class SandyBasic : CharAbility
 
     private void Run(EffectDataPacket effectDataPacket)
     {
+        effectDataPacket.AppendValue("Repeat", 0f);
         SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetValue("Targets", false)[0]); //Gives packet.
         GameObject projectile = AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.TakahiroBasic);
 
@@ -65,7 +66,7 @@ public class SandyBasic : CharAbility
     {
         GameObject relevantObject = ((GameObject)effectDataPacket.GetValue("HitTarget", false).Last()); //Gets access to GameObject Target.
         Attack attack = damage;
-        EffectDealDamage chomp = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<LivingCreature>(), attack);
+        EffectDealDamage chomp = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<Unit>(), attack);
 
         ResolutionManager.instance.LoadBattleEffect(chomp);
     }
@@ -84,12 +85,17 @@ public class SandyBasic : CharAbility
 
     private void Damage2(EffectDataPacket effectDataPacket)
     {
-        GameObject relevantObject = ((GameObject)effectDataPacket.GetValue("HitTarget1", false).Last()); //Gets access to GameObject Target.
         Attack attack = damage2;
-        EffectDealDamage effect = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<LivingCreature>(), attack);
+        List<BattleEffect> sendEffects = new List<BattleEffect>();
 
+        foreach (object hitTarget in effectDataPacket.GetValue("HitTarget1", false))
+        {
+            GameObject target = (GameObject)hitTarget;
+            EffectDealDamage effect = new EffectDealDamage(effectDataPacket, target.GetComponent<Unit>(), attack);
+            sendEffects.Add(effect);
 
-        List<BattleEffect> sendEffects = new List<BattleEffect>() { effect };
+        }
+
         ResolutionManager.instance.LoadBattleEffect(sendEffects);
     }
 
@@ -97,17 +103,37 @@ public class SandyBasic : CharAbility
     {
         TPorter effect = (TPorter)givenObject;
         CharAbility ability = (CharAbility)effect.effectData.GetValue("CharacterAbility", false)[0];
+
         Vector3 pos = CombatUtils.GiveShotConnector(effect.givenTSpecs[effect.runIndex].targetObj);
+
         base.AnimResponse(givenObject, givenCastAnim);
+
+
         if (this == ability && effect.differentiator == 0) 
         {
-            new AnimAbility(AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic1), pos);
-            Debug.Log("CHOMP");
+            new AnimAbility(this, AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic1), pos);
         }
+
         if (this == ability && effect.differentiator == 1)
         {
-            new AnimAbility(AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
-            Debug.Log("CHOMP");
+            try
+            {
+                AnimAbility oldAnim = (AnimAbility)ResolutionManager.instance.animationQueue.Last();
+                if(this == (object)oldAnim.source && oldAnim.animObject == AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2))
+                {
+                    oldAnim.forceGo = true;
+                    new AnimAbility(this, AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
+                }
+                else
+                {
+                    new AnimAbility(this, AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
+                }
+
+            }
+            catch (InvalidCastException)
+            {
+                new AnimAbility(this, AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
+            }
         }
     }
 }

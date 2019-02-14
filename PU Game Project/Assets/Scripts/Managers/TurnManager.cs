@@ -192,7 +192,7 @@ public class TurnManager : MonoBehaviour {
     {
         foreach (GameObject currentUnit in activeUnits)
         {
-            LivingCreature creatureScript = currentUnit.GetComponent<Unit>().CreatureScript;
+            Unit creatureScript = currentUnit.GetComponent<Unit>();
             creatureScript.CurrentEnergy = Mathf.RoundToInt(creatureScript.maxEnergy.Value);
         }
     }
@@ -315,11 +315,11 @@ public class TurnManager : MonoBehaviour {
         foreach(GameObject currentUnit in activeUnits)
         {
             Unit unitScript = currentUnit.GetComponent<Unit>();
-            foreach(Buff currentBuff in unitScript.CreatureScript.AddBuffList)
+            foreach(Buff currentBuff in unitScript.AddBuffList)
             {
-                unitScript.CreatureScript.BuffList.Add(currentBuff);
+                unitScript.BuffList.Add(currentBuff);
             }
-            unitScript.CreatureScript.AddBuffList.Clear();
+            unitScript.AddBuffList.Clear();
         }
     }
     public void CallEndBuffs()
@@ -327,7 +327,7 @@ public class TurnManager : MonoBehaviour {
         foreach (GameObject currentUnit in activeUnits)
         {
             Unit unitScript = currentUnit.GetComponent<Unit>();
-            foreach (Buff currentBuff in unitScript.CreatureScript.BuffList)
+            foreach (Buff currentBuff in unitScript.BuffList)
             {
                 currentBuff.BuffEndTurnApplication();
             }
@@ -338,7 +338,7 @@ public class TurnManager : MonoBehaviour {
         foreach (GameObject currentUnit in activeUnits)
         {
             Unit unitScript = currentUnit.GetComponent<Unit>();
-            foreach (Buff currentBuff in unitScript.CreatureScript.BuffList)
+            foreach (Buff currentBuff in unitScript.BuffList)
             {
                 currentBuff.CooldownReduce();
             }
@@ -348,7 +348,7 @@ public class TurnManager : MonoBehaviour {
     {
         foreach (GameObject currentUnit in activeUnits)
         {
-            LivingCreature unitScript = currentUnit.GetComponent<Unit>().CreatureScript;
+            Unit unitScript = currentUnit.GetComponent<Unit>();
             foreach (Buff buffToRemove in unitScript.RemoveBuffList)
             {
                 if (unitScript.BuffList.Contains(buffToRemove))

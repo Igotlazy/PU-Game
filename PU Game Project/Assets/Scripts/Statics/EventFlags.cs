@@ -14,7 +14,7 @@ namespace MHA.Events
 
         public class ETookDamageArgs : EventArgs
         {
-            public ETookDamageArgs(float _damageValue, LivingCreature _source, LivingCreature _target)
+            public ETookDamageArgs(float _damageValue, Unit _source, Unit _target)
             {
                 this.damageValue = _damageValue;
                 this.source = _source;
@@ -22,8 +22,25 @@ namespace MHA.Events
             }
 
             public float damageValue;
-            public LivingCreature source;
-            public LivingCreature target;
+            public Unit source;
+            public Unit target;
+        }
+
+        public static event EventHandler<EProjectileMoveArgs> ProjectileMove;
+        public static void EVENTProjectileMove(object sender, EProjectileMoveArgs e) { if (ProjectileMove != null) { ProjectileMove(sender, e); } }
+
+        public class EProjectileMoveArgs : EventArgs
+        {
+            public EProjectileMoveArgs(TPorterProjectile.Projectile _projectile, Vector3 _startPos, Vector3 _endPos)
+            {
+                this.projectile = _projectile;
+                this.startPos = _startPos;
+                this.endPos = _endPos;
+            }
+
+            TPorterProjectile.Projectile projectile;
+            public Vector3 startPos;
+            public Vector3 endPos;
         }
 
         //----------------Animation Events---------------//

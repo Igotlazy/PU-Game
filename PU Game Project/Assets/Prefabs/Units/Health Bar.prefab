@@ -264,7 +264,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fc39f64e36bde24fb4e162a5eff4701, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  associatedCreature: {fileID: 0}
   currentHealthImage: {fileID: 895779762783716256}
   backHealthImage: {fileID: 1803834483895277926}
   currentHealthValue: {fileID: 5678297008604212199}
@@ -572,7 +571,7 @@ MonoBehaviour:
     lineCount: 1
     pageCount: 1
     materialCount: 1
-  m_havePropertiesChanged: 1
+  m_havePropertiesChanged: 0
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
@@ -691,7 +690,7 @@ RectTransform:
   m_GameObject: {fileID: 8835396126252748534}
   m_LocalRotation: {x: 0, y: 0, z: -0.53729963, w: 0.8433914}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.004, y: 0.004, z: 1}
+  m_LocalScale: {x: 0.003, y: 0.003, z: 1}
   m_Children:
   - {fileID: 4042137712475895697}
   m_Father: {fileID: 9200126289950338316}
@@ -699,7 +698,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -65}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.442, y: 0.279}
+  m_AnchoredPosition: {x: 1.257, y: 0.225}
   m_SizeDelta: {x: 292, y: 391}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5515750946263878362

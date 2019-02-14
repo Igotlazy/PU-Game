@@ -47,11 +47,11 @@ public class StatsIndicator : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public void SetUpStatsIndicator()
     {
         unitName.text = associatedUnit.givenCharData.heroName;
-        unitTotalHealth.text = "HP: " + associatedUnit.CreatureScript.maxHealth.Value.ToString();
-        unitTotalEnergy.text = "ENG: " + associatedUnit.CreatureScript.maxEnergy.Value.ToString();
-        unitStrength.text = "STR: " + associatedUnit.CreatureScript.currentStrength.Value.ToString();
-        unitDefense.text = "DEF: " + associatedUnit.CreatureScript.currentDefense.Value.ToString();
-        unitLuck.text = "LUC: " + associatedUnit.CreatureScript.currentLuck.Value.ToString();
+        unitTotalHealth.text = "HP: " + associatedUnit.maxHealth.Value.ToString();
+        unitTotalEnergy.text = "ENG: " + associatedUnit.maxEnergy.Value.ToString();
+        unitStrength.text = "STR: " + associatedUnit.currentStrength.Value.ToString();
+        unitDefense.text = "DEF: " + associatedUnit.currentDefense.Value.ToString();
+        unitLuck.text = "LUC: " + associatedUnit.currentLuck.Value.ToString();
     }
 
     public void OnPointerEnter(PointerEventData eventData)

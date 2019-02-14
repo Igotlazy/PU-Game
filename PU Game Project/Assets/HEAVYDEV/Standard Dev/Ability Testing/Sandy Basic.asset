@@ -16,8 +16,8 @@ MonoBehaviour:
   abilityDescription: Sandy deals damage to a selected target, lowering their defense.
     Then, she deals damage to all targets around her.
   abilitySprite: {fileID: 21300008, guid: 700e165185f01354289fd022d3cd73e5, type: 3}
-  energyCost: 4
-  turnCooldown: 2
+  energyCost: 0
+  turnCooldown: 0
   currentCooldown: 0
   associatedUnit: {fileID: 0}
   currentActiveSelector: {fileID: 0}
@@ -34,6 +34,6 @@ MonoBehaviour:
     damageRange: 0
   damage2:
     damageType: 1
-    damageValue: 100
+    damageValue: 500
     damageSource: {fileID: 0}
     damageRange: 0

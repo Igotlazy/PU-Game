@@ -30,10 +30,12 @@ public class GeneralSelector : AttackSelection
 
     private void OnTriggerEnter(Collider enteringCollider)
     {
-        if (enteringCollider.gameObject.CompareTag("Tile"))
+        GameEntity foundEntity = enteringCollider.gameObject.GetComponent<GameEntity>();
+        if(foundEntity != null && foundEntity.entityType == GameEntity.EntityType.Tile)
         {
+            Debug.Log("Hello?: " + foundEntity.name);
             Node enteringNode = GridGen.instance.NodeFromWorldPoint(enteringCollider.gameObject.transform.position);
-            if(!collectedNodes.Contains(enteringNode) && givenAbility.associatedUnit.currentNode != enteringNode)
+            if (!collectedNodes.Contains(enteringNode) && givenAbility.associatedUnit.currentNode != enteringNode)
             {
                 enteringNode.IsAttackable = true;
                 collectedNodes.Add(enteringNode);
@@ -69,10 +71,11 @@ public class GeneralSelector : AttackSelection
                             hitChance = CombatUtils.MainFireCalculation(sourceShot, targetShot, targetPartial, out peekResult, out newFireSource);
                         }
 
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", sourceShot, SelectorPacket.SelectionType.Target);
+                        TargetSpecs newSpec = new TargetSpecs(hitObject.GetComponent<GameEntity>(), hitChance, sourceShot);
                         newSpec.didPeek = peekResult;
 
-                        newSpec.targetLivRef.healthBar.FadeHitChance();
+                        UnitHitChanceDisplay(newSpec, hitChance, true);
+
                         allSpecs.Add(newSpec);
                     }
                     if (!alreadyHas && selectType == SelectorPacket.SelectionType.AreaTarget)
@@ -92,10 +95,10 @@ public class GeneralSelector : AttackSelection
                             hitChance = CombatUtils.MainFireCalculation(sourceShot, targetShot, targetPartial, out peekResult, out newFireSource);
                         }
 
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", sourceShot, SelectorPacket.SelectionType.AreaTarget);
+                        TargetSpecs newSpec = new TargetSpecs(hitObject.GetComponent<GameEntity>(), hitChance, sourceShot);
                         newSpec.didPeek = peekResult;
 
-                        newSpec.targetLivRef.healthBar.DisplayHitChance();
+                        UnitHitChanceDisplay(newSpec, hitChance, false);
                         Unit unitScript = hitObject.GetComponent<Unit>();
                         newSpec.indicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
                         allSpecs.Add(newSpec);
@@ -110,10 +113,10 @@ public class GeneralSelector : AttackSelection
                         }
                         else
                         {
-                            hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedUnit.gameObject, hitObject); 
+                            hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedUnit.gameObject, hitObject);
                         }
-                        TargetSpecs newSpec = new TargetSpecs(hitObject, new Vector2(10f, 5f), hitChance, "", CombatUtils.GiveShotConnector(givenAbility.associatedUnit.gameObject), SelectorPacket.SelectionType.AoE);
-                        newSpec.targetLivRef.healthBar.DisplayHitChance();
+                        TargetSpecs newSpec = new TargetSpecs(hitObject.GetComponent<GameEntity>(), hitChance, CombatUtils.GiveShotConnector(givenAbility.associatedUnit.gameObject));
+                        UnitHitChanceDisplay(newSpec, hitChance, false);
                         allSpecs.Add(newSpec);
                         selectedSpecs.Add(newSpec);
                     }
@@ -121,8 +124,9 @@ public class GeneralSelector : AttackSelection
 
             }
         }
+    }  
         
-    }
+   
 
     private void OnTriggerExit(Collider exitingCollider)
     {
@@ -150,7 +154,12 @@ public class GeneralSelector : AttackSelection
                                 selectedSpecs.Remove(currentSpec);
                             }
                             allSpecs.Remove(currentSpec);
-                            currentSpec.targetLivRef.healthBar.HideHitChance();
+
+                            if(currentSpec.targetType == TargetSpecs.TargetType.Unit)
+                            {
+                                Unit unit = (Unit)currentSpec.entityScript;
+                                unit.healthBar.HideHitChance();
+                            }
                             break;
                         }
                     }

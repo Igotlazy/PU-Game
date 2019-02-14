@@ -96,7 +96,7 @@ namespace MHA.UserInterface
             abilityDescriptionInd.text = associatedAbility.abilityDescription;
             abilityCDInd.text = "CD: " + associatedAbility.turnCooldown;
             abilityCostInd.text = "Cost: " + associatedAbility.energyCost.ToString();
-            if(associatedAbility.energyCost > associatedAbility.associatedUnit.CreatureScript.CurrentEnergy)
+            if(associatedAbility.energyCost > associatedAbility.associatedUnit.CurrentEnergy)
             {
                 abilityCostInd.color = badColor;
             }
@@ -116,7 +116,7 @@ namespace MHA.UserInterface
 
         public void CastAbilityWithButton()
         {
-            if(associatedAbility.currentCooldown <= 0 && associatedAbility.associatedUnit.CreatureScript.CurrentEnergy >= associatedAbility.energyCost)
+            if(associatedAbility.currentCooldown <= 0 && associatedAbility.associatedUnit.CurrentEnergy >= associatedAbility.energyCost)
             {
                 abilityBar.audSource.clip = click;
                 abilityBar.audSource.Play();

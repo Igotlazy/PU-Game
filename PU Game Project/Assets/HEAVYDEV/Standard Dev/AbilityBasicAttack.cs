@@ -55,9 +55,9 @@ public class AbilityBasicAttack : CharAbility
     {
         GameObject relevantObject = ((GameObject)effectDataPacket.GetValue("HitTargets", false).Last()); //Gets access to GameObject Target.
         Attack attack = damage;
-        EffectDealDamage effect = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<LivingCreature>(), attack);
+        EffectDealDamage effect = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<Unit>(), attack);
 
-        TimedBuff buff = new TimedBuff(relevantObject.GetComponent<LivingCreature>(), this.associatedUnit.gameObject, "fire", 3);
+        TimedBuff buff = new TimedBuff(relevantObject.GetComponent<Unit>(), this.associatedUnit.gameObject, "fire", 3);
         EffectApplyBuff effect2 = new EffectApplyBuff(effectDataPacket, relevantObject.GetComponent<Unit>(), buff); 
 
 

@@ -18,12 +18,12 @@ public class EffectDeath : BattleEffect
 
     protected override void RunEffectImpl()
     {
-        deathTarget.CreatureScript.amDead = true;
+        deathTarget.amDead = true;
         deathTarget.currentNode.IsOccupied = false;
         deathTarget.currentNode.occupant = null;
         ReferenceObjects.RemovePlayerFromLists(deathTarget.gameObject);
 
-        new BBAnimDeath(deathTarget);
+        new BBAnimDeath(this, deathTarget);
     }
 
     protected override void CancelEffectImpl()

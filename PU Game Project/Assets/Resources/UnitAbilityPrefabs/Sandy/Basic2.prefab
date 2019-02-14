@@ -9448,7 +9448,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shouldWait: 1
   animFinished: 0
-  clipSpeed: 1.5
+  clipSpeed: 1.2
   leftSquirt: {fileID: 2226561546983787070}
   rightSquirt: {fileID: 2226561546724357570}
 --- !u!111 &2226561547466231578

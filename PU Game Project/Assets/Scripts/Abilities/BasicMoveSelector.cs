@@ -18,13 +18,13 @@ public class BasicMoveSelector : AttackSelection {
 
     protected override void InitializeImpl()
     {
-        if(givenAbility.associatedUnit.CreatureScript.CurrentEnergy <= 0)
+        if(givenAbility.associatedUnit.CurrentEnergy <= 0)
         {
             CancelSelection();
             return;
         }
 
-        allNodes = Pathfinding.instance.DisplayAvailableMoves(givenAbility.associatedUnit.currentNode, givenAbility.associatedUnit.CreatureScript.CurrentEnergy);
+        allNodes = Pathfinding.instance.DisplayAvailableMoves(givenAbility.associatedUnit.currentNode, givenAbility.associatedUnit.CurrentEnergy);
         foreach(Node currentNode in allNodes)
         {
             currentNode.IsSelectable = true;

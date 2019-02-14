@@ -7,7 +7,7 @@ using MHA.Events;
 
 public class TPorterProjectile : TPorter
 {
-    List<List<Vector3>> targetPaths = new List<List<Vector3>>();
+    List<Projectile> projectiles = new List<Projectile>();
     List<Vector3> originalTargetPositions = new List<Vector3>();
     GameObject fireObjectRef;
 
@@ -49,16 +49,22 @@ public class TPorterProjectile : TPorter
             {
                 foreach(TargetSpecs currSpecs in givenTSpecs)
                 {
-                    targetPaths.Add(CombatUtils.ProjectilePathSplicer(currSpecs.fireOriginPoint, CombatUtils.GiveShotConnector(currSpecs.targetObj)));
                     originalTargetPositions.Add(currSpecs.targetObj.transform.position);
+                    Projectile proj = new Projectile() { path = CombatUtils.ProjectilePathSplicer(currSpecs.fireOrigin, CombatUtils.GiveShotConnector(currSpecs.targetObj)) };
+                    proj.currentPos = proj.path[0];
+                    projectiles.Add(proj);
+
                 }
             }
             else
             {
                 if(givenTSpecs.Count > 0)
                 {
-                    targetPaths.Add(CombatUtils.ProjectilePathSplicer(givenTSpecs[runIndex].fireOriginPoint, CombatUtils.GiveShotConnector(givenTSpecs[runIndex].targetObj)));
                     originalTargetPositions.Add(givenTSpecs[runIndex].targetObj.transform.position);
+                    Projectile proj = new Projectile() { path = CombatUtils.ProjectilePathSplicer(givenTSpecs[runIndex].fireOrigin, CombatUtils.GiveShotConnector(givenTSpecs[runIndex].targetObj)) };
+                    proj.currentPos = proj.path[0];
+                    projectiles.Add(proj);
+
                 }
             }
         }
@@ -70,8 +76,8 @@ public class TPorterProjectile : TPorter
     {
         if (subRIndex == 0 && fireObjectRef != null) //If it's the first, instantiate the projectile.
         {
-            Quaternion lookRotation = Quaternion.LookRotation(targetPaths[runIndex][1] - targetPaths[runIndex][0]);
-            currentMovingObj = GameObject.Instantiate(fireObjectRef, targetPaths[runIndex][subRIndex], lookRotation);
+            Quaternion lookRotation = Quaternion.LookRotation(projectiles[runIndex].path[1] - projectiles[runIndex].path[0]);
+            currentMovingObj = GameObject.Instantiate(fireObjectRef, projectiles[runIndex].path[subRIndex], lookRotation);
         }
 
         ProjectileLogic();
@@ -84,11 +90,13 @@ public class TPorterProjectile : TPorter
             EventFlags.ANIMFinishCastCALL(this, new EventFlags.ECastAnim());
         }
 
-        Vector3 rayDir = targetPaths[runIndex][subRIndex + 1] - currentMovingObj.transform.position;
+        Projectile currentProj = projectiles[runIndex];
+
+        Vector3 rayDir = currentProj.path[subRIndex + 1] - currentMovingObj.transform.position;
         RaycastHit hitInfo;
         if (!givenPacket.isPure && Physics.Raycast(currentMovingObj.transform.position, rayDir, out hitInfo, rayDir.magnitude, CombatUtils.shotMask))
         {
-            new AnimMoveToPos(hitInfo.point, currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), true);
+            new AnimMoveToPos(this, hitInfo.point, currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), true);
 
             EventFlags.ANIMFinishProjCALL(this, new EventFlags.ECastAnim());
             Debug.LogWarning("Projectile BLOCKED Event");
@@ -100,21 +108,22 @@ public class TPorterProjectile : TPorter
         }
         else
         {
-            if (subRIndex >= targetPaths[runIndex].Count - 2)
+            if (subRIndex >= currentProj.path.Count - 2)
             {
-                new AnimMoveToPos(targetPaths[runIndex][subRIndex + 1], currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), true);
+                new AnimMoveToPos(this, currentProj.path[subRIndex + 1], currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), true);
                 Debug.Log("Projectile MOVE[END] Anim Event");
             }
             else
             {
-                new AnimMoveToPos(targetPaths[runIndex][subRIndex + 1], currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), false);
+                new AnimMoveToPos(this, currentProj.path[subRIndex + 1], currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), false);
                 Debug.Log("Projectile MOVE Anim Event");
             }
         }
 
+        //EventFlags.EVENTProjectileMove(this, new EventFlags.EProjectileMoveArgs(targetPaths[runIndex][subRIndex], targetPaths[runIndex][subRIndex + 1]));
         subRIndex++;
 
-        if (subRIndex >= targetPaths[runIndex].Count - 1)
+        if (subRIndex >= currentProj.path.Count - 1)
         {
             if (givenTSpecs[runIndex].targetObj.transform.position == originalTargetPositions[runIndex]) //May check this condition (Checks if target is still in same position. 
             {
@@ -123,7 +132,7 @@ public class TPorterProjectile : TPorter
                 if (unitScript == null)
                 {
                     effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
-                    TPorterFinishOverride = true;
+                    TPorterFinishActive = true;
 
                     EventFlags.ANIMFinishProjCALL(this, new EventFlags.ECastAnim());
                 }
@@ -131,12 +140,12 @@ public class TPorterProjectile : TPorter
                 {
                     if (!givenPacket.isPure)
                     {
-                        Vector3 fireDir = (targetPaths[runIndex][targetPaths[runIndex].Count - 1]) - (targetPaths[runIndex][targetPaths[runIndex].Count - 2]);
+                        Vector3 fireDir = (currentProj.path[currentProj.path.Count - 1]) - (currentProj.path[currentProj.path.Count - 2]);
 
-                        if (CombatUtils.AttackHitPercentages(CombatUtils.coverCheckCalculation(fireDir, unitScript.partialCoverCheck.transform.position, unitScript.shotConnecter.transform.position)))
+                        if (CombatUtils.PercentageCalculation(CombatUtils.coverCheckCalculation(fireDir, unitScript.partialCoverCheck.transform.position, unitScript.shotConnecter.transform.position)))
                         {
                             effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
-                            TPorterFinishOverride = true;
+                            TPorterFinishActive = true;
 
                             EventFlags.ANIMFinishProjCALL(this, new EventFlags.ECastAnim());
                         }
@@ -148,7 +157,7 @@ public class TPorterProjectile : TPorter
                     else
                     {
                         effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
-                        TPorterFinishOverride = true;
+                        TPorterFinishActive = true;
 
                         EventFlags.ANIMFinishProjCALL(this, new EventFlags.ECastAnim());
                     }
@@ -177,7 +186,7 @@ public class TPorterProjectile : TPorter
         subRIndex = 0;
         runIndex++;
 
-        if (runIndex >= targetPaths.Count)
+        if (runIndex >= projectiles.Count)
         {
             RemoveSelfFromResolveList();
         }
@@ -186,5 +195,11 @@ public class TPorterProjectile : TPorter
     protected override bool EffectSpecificCondition()
     {
         return true;
+    }
+
+    public class Projectile
+    {
+        public List<Vector3> path = new List<Vector3>();
+        public Vector3 currentPos;
     }
 }

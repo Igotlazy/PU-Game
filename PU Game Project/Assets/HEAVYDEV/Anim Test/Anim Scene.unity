@@ -663,11 +663,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sandy - Rig
       objectReference: {fileID: 0}
-    - target: {fileID: 6177067640685121328, guid: 689b968b09a3aa146ab388d5b7cc4e03,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6174210136550112516, guid: 689b968b09a3aa146ab388d5b7cc4e03,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -722,11 +717,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4701378992920824166, guid: 689b968b09a3aa146ab388d5b7cc4e03,
-        type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 689b968b09a3aa146ab388d5b7cc4e03, type: 3}

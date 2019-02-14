@@ -25,7 +25,6 @@ public abstract class AnimAbilityControl : MonoBehaviour
 
     public virtual void BeginAbilityAnimation()
     {
-        Debug.Log("Begin Anim");
         animComp.Play();
         foreach(AnimationState state in animComp)
         {
@@ -36,7 +35,6 @@ public abstract class AnimAbilityControl : MonoBehaviour
 
     public virtual void FinishAbilityAnimation()
     {
-        Debug.Log("Finished Anim");
         animFinished = true;
     }
 

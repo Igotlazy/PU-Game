@@ -8,9 +8,6 @@ namespace MHA.UserInterface
 {
     public class HealthBarControl : MonoBehaviour
     {
-        public LivingCreature associatedCreature;
-        [Space]
-
         [Header("Health Related:")]
         public Image currentHealthImage;
         public Image backHealthImage;
@@ -23,15 +20,12 @@ namespace MHA.UserInterface
 
         private Vector3 hitChanceScale;
 
+        private Transform cameraTrans;
+
         void Start()
         {
-            if(associatedCreature != null)
-            {
-                UpdateHealth(associatedCreature.currentHealth, associatedCreature.maxHealth.Value);
-            }
-
+            cameraTrans = Camera.main.transform;
             hitChanceScale = hitChanceObject.transform.localScale;
-
         }
 
         // Update is called once per frame
@@ -42,7 +36,7 @@ namespace MHA.UserInterface
 
         private void LateUpdate()
         {
-            transform.forward = Camera.main.transform.forward;
+            transform.forward = cameraTrans.forward;
         }
 
         public void UpdateHealth(float currentHealth, float maxHealth)

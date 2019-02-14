@@ -34,7 +34,7 @@ public class EffectGridMove : EffectMove {
             newNode.IsOccupied = true;
             newNode.occupant = moveTarget.gameObject; //Sets last Node to now be Occupied.
 
-            new AnimMoveToPos(locations[moveIndex], moveTarget.gameObject, moveSpeed, destroyAtEnd);
+            new AnimMoveToPos(this, locations[moveIndex], moveTarget.gameObject, moveSpeed, destroyAtEnd);
 
         }
     }

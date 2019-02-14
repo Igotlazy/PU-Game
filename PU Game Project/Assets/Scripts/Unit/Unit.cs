@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using Cinemachine;
 using MHA.BattleBehaviours;
 using MHA.Events;
+using MHA.UserInterface;
 using System.Collections;
+using Kryz.CharacterStats;
 
-public class Unit : MonoBehaviour {
+public class Unit : GameEntity {
 
     [Header("CHARACTER DATA:")]
     public CharDataSO givenCharData;
@@ -62,44 +64,78 @@ public class Unit : MonoBehaviour {
             return spriteRig;
         }
     }
-    private LivingCreature creatureScript;
-    public LivingCreature CreatureScript
+
+    public Node currentNode;
+
+    [Space]
+    [Header("STATS:")]
+    public float currentHealth;
+    [SerializeField]
+    private int currentEnergy;
+    public int CurrentEnergy
     {
         get
         {
-            return creatureScript;
+            return currentEnergy;
+        }
+        set
+        {
+            if (value < 0)
+            {
+                value = 0;
+            }
+            currentEnergy = value;
+            if (currentEnergy <= 0)
+            {
+                RespondFinishToTurn();
+            }
         }
     }
-    public Node currentNode;
+    public CharacterStat maxHealth;
+    public CharacterStat maxEnergy;
+    public CharacterStat currentStrength;
+    public CharacterStat currentDefense;
+    public CharacterStat currentLuck;
 
-    private void Awake()
+
+    [Header("State Bools:")]
+    public bool isInvincible;
+    public bool amDead;
+
+    [Header("MISC:")]
+    public List<Buff> BuffList = new List<Buff>();
+    public List<Buff> AddBuffList = new List<Buff>();
+    public List<Buff> RemoveBuffList = new List<Buff>();
+
+    public HealthBarControl healthBar;
+    public GameObject damageIndicator;
+
+    protected override void Awake()
     {
-        creatureScript = GetComponent<LivingCreature>();
-        if(creatureScript == null)
-        {
-            Debug.LogWarning("WARNING: No LivingCreature Script on: " + gameObject.name);
-        }
+        base.Awake();
+        entityType = EntityType.Unit;
+
         ReferenceObjects.AddToPlayerList(this.gameObject);
     }
 
-    void Start()
+    protected override void Start()
     {
-        UnPackCharData();
+        base.Start();
         PrepAbilities(out movementAbilitiesInsta, out passiveAbilitiesInsta, out activatableAbilitiesInsta);
-        creatureScript.LoadStatData(givenCharData);
-        creatureScript.healthBar.UpdateHealth(creatureScript.currentHealth, creatureScript.maxHealth.Value);
+        LoadStatData(givenCharData);
+        healthBar.UpdateHealth(currentHealth, maxHealth.Value);
 
         if(team == Teams.Hero)
         {
-            creatureScript.healthBar.currentHealthImage.color = heroColor;
+            healthBar.currentHealthImage.color = heroColor;
         }
         else if (team == Teams.Villain)
         {
-            creatureScript.healthBar.currentHealthImage.color = villainColor;
+            healthBar.currentHealthImage.color = villainColor;
         }
         else if (team == Teams.Vigilante)
         {
-            creatureScript.healthBar.currentHealthImage.color = vigilanteColor;
+            healthBar.currentHealthImage.color = vigilanteColor;
         }
 
         StartNodeFind();
@@ -114,9 +150,61 @@ public class Unit : MonoBehaviour {
         EventFlags.ANIMEndPeek -= UnitUnPeekAnim;
     }
 
-    private void UnPackCharData()
-    { 
-        
+
+    public void LoadStatData(CharDataSO givenData)
+    {
+        currentHealth = givenData.baseHealth;
+        maxHealth.BaseValue = givenData.baseHealth;
+
+        currentEnergy = givenData.baseEnergy;
+        maxEnergy.BaseValue = givenData.baseEnergy;
+
+        currentStrength.BaseValue = givenData.baseStrength;
+        currentDefense.BaseValue = givenData.baseDefense;
+        currentLuck.BaseValue = givenData.baseLuck;
+    }
+
+
+    public void CreatureHit(Attack receivedAttack)
+    {
+        if (!isInvincible && !amDead)
+        {
+            float damage = CombatUtils.DamageCalculation(receivedAttack, this);
+            currentHealth -= damage;
+
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth.Value);
+
+            new BBDealDamageAnim(this, this, currentHealth, damage);
+            Debug.Log("DEAL DAMAGE");
+
+            if (currentHealth <= 0 && !amDead)
+            {
+                Debug.Log("Creature Dead");
+                CharAbility.totalCastIndex++;
+                EffectDataPacket packet = new EffectDataPacket(this, null);
+                EffectDeath effectDeath = new EffectDeath(packet);
+                ResolutionManager.instance.LoadBattleEffect(effectDeath);
+            }
+        }
+    }
+
+    public void AddBuff(Buff buffToApply)
+    {
+        Debug.Log("Added Buff");
+        AddBuffList.Add(buffToApply);
+    }
+
+    public void RemoveBuff(Buff buffToRemove)
+    {
+        RemoveBuffList.Add(buffToRemove);
+    }
+
+    public void ClearBuffs()
+    {
+        foreach (Buff currentBuff in BuffList)
+        {
+            currentBuff.RemoveSelf();
+        }
     }
 
     public void PrepAbilities(out List<CharAbility> movementAb, out List<CharAbility> passiveAb, out List<CharAbility> activatableAb)
@@ -156,21 +244,13 @@ public class Unit : MonoBehaviour {
             yield return StartCoroutine(AILogicAttack());
         }
     }
-
-    /*
-    public AIProceed()
-    {
-
-    }
-    */
-
     public IEnumerator AILogicMove()
     {
         AbilityPrefabRef.SelectorData selectorData = movementAbilitiesInsta[0].selectorPacketBaseData[0][0].selectorData;
         if (selectorData.SelectorName.Equals(AbilityPrefabRef.BasicMoveSelector))
         {
             //AbilityPrefabRef.BasicMoveSelectorData trueData = (AbilityPrefabRef.BasicMoveSelectorData)selectorData;
-            int energy = CreatureScript.CurrentEnergy;
+            int energy = CurrentEnergy;
             List<Node> foundNodes = Pathfinding.instance.DisplayAvailableMoves(currentNode, energy);
             yield return null;
             List<Node> coverNodes = new List<Node>();
@@ -291,6 +371,8 @@ public class Unit : MonoBehaviour {
             foundNode.occupant = this.gameObject;
             transform.position = new Vector3(currentNode.worldPosition.x, transform.position.y, currentNode.worldPosition.z);
         }
+        BoxCollider collider = GetComponent<BoxCollider>();
+        collider.size = new Vector3(GridGen.instance.NodeDiameter, collider.size.y, GridGen.instance.NodeDiameter);
     }
 
     public void UnitPeekAnim(object sender, EventFlags.EPeekStart peekArgs)
@@ -300,7 +382,7 @@ public class Unit : MonoBehaviour {
             Debug.Log("Peek: " + peekArgs.peekingObject.name);
             peekArgs.peekPosition = new Vector3(peekArgs.peekPosition.x, spriteRig.transform.localPosition.y, peekArgs.peekPosition.z);
 
-            new AnimMoveToPos(peekArgs.peekPosition, spriteRig, 3f, false);
+            new AnimMoveToPos(this, peekArgs.peekPosition, spriteRig, 3f, false);
             peekArgs.AddToPeek();
         }
     }
@@ -310,7 +392,7 @@ public class Unit : MonoBehaviour {
         if (peekArgs.peekingObject == this)
         {
             Debug.Log("UnPeek: " + peekArgs.peekingObject.name);
-            new AnimMoveToPos(peekArgs.GiveOriginalPos(), spriteRig, 3f, false);
+            new AnimMoveToPos(this, peekArgs.GiveOriginalPos(), spriteRig, 3f, false);
             peekArgs.RemoveFromPeek();
         }
     }

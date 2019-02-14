@@ -12,13 +12,15 @@ public class ResolutionManager : MonoBehaviour {
     public BattleEffect currentEffect;
     public bool effectResolutionRunning;
 
-    public Queue<BattleAnimation> animationQueue = new Queue<BattleAnimation>();
+    public List<BattleAnimation> animationQueue = new List<BattleAnimation>();
+    private int animationTracker;
     public bool animationResolutionRunning;
     public bool resolutionRunning;
 
 
     public int currentResolutionCalls = 0;
     public int maxResolutionPerFrame;
+    public int totalCalls;
 
     private void Awake()
     {
@@ -83,6 +85,7 @@ public class ResolutionManager : MonoBehaviour {
             }
 
             currentResolutionCalls = 0;
+            totalCalls = 0;
             StartCoroutine(EffectResolution());
         }
     }
@@ -101,10 +104,11 @@ public class ResolutionManager : MonoBehaviour {
 
         while (resolvingEffects.Count > 0 )
         {
-            currentEffect = resolvingEffects.Last();
+            currentEffect = resolvingEffects[resolvingEffects.Count - 1];
             currentEffect.RunEffect();
 
             currentResolutionCalls++;
+            totalCalls++;
 
             if (currentResolutionCalls > maxResolutionPerFrame)
             {
@@ -116,7 +120,9 @@ public class ResolutionManager : MonoBehaviour {
         CharAbility.totalCastIndex = 0; //Resets individual cast tracker when Resolution empties. 
         effectResolutionRunning = false;
 
+        animationTracker = -1;
         NextQueuedAnimation();
+        Debug.LogError("ANIM RESOLUTION START");
     }
 
     TurnManager.BattlePhase originalBattlePhase;
@@ -124,29 +130,24 @@ public class ResolutionManager : MonoBehaviour {
 
     public void QueueAnimation(BattleAnimation givenAnimation)
     {
-        animationQueue.Enqueue(givenAnimation);
-        /*
-        if (!animQueueRunning)
-        {
-            animQueueRunning = true;
-            NextQueueAnimation();
-        }
-        */
+        animationQueue.Add(givenAnimation);
     }
 
     public void NextQueuedAnimation()
     {
-        if(animationQueue.Count > 0)
+        animationTracker++;
+        if (animationTracker > animationQueue.Count - 1)
         {
-            animationResolutionRunning = true;
-            Debug.LogWarning("PLAYED ANIM");
-            animationQueue.Dequeue().PlayBattleAnimation();
+            animationResolutionRunning = false;
+            animationTracker = -1;
+            animationQueue.Clear();
+            ReturnToOriginalBattlePhase();
+            Debug.LogError("ANIM RESOLUTION DONE");
         }
         else
         {
-            animationResolutionRunning = false;
-            ReturnToOriginalBattlePhase();
-            Debug.LogError("ANIM RESOLUTION DONE");
+            animationResolutionRunning = true;
+            animationQueue[animationTracker].PlayBattleAnimation();
         }
     }
 

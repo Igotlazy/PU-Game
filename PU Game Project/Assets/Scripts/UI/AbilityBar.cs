@@ -106,7 +106,7 @@ namespace MHA.UserInterface
             attackButton.GetComponent<Button>().interactable = true;
             moveButton.GetComponent<Button>().interactable = true;
             itemButton.GetComponent<Button>().interactable = true;
-            energyIndicator.GetComponent<TextMeshProUGUI>().text = ClickSelection.instance.selectedUnitScript.CreatureScript.CurrentEnergy.ToString();
+            energyIndicator.GetComponent<TextMeshProUGUI>().text = ClickSelection.instance.selectedUnitScript.CurrentEnergy.ToString();
             energyIndicator.transform.parent.gameObject.SetActive(true);
 
             statsIndicator.GetComponent<StatsIndicator>().AssociatedUnit = ClickSelection.instance.selectedUnitScript;

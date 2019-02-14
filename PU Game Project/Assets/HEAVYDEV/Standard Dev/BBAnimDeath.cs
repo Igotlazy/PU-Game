@@ -6,7 +6,7 @@ using MHA.BattleBehaviours;
 public class BBAnimDeath : BattleAnimation
 {
     Unit deathUnit;
-    public BBAnimDeath(Unit _deathUnit)
+    public BBAnimDeath(object _source, Unit _deathUnit) : base(_source)
     {
         deathUnit = _deathUnit;
     }

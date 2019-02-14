@@ -6,8 +6,11 @@ namespace MHA.BattleBehaviours
 {
     public abstract class BattleAnimation
     {
-        public BattleAnimation()
+        public object source;
+
+        public BattleAnimation(object _source)
         {
+            source = _source;
             LoadBattleAnimation();
         }
 

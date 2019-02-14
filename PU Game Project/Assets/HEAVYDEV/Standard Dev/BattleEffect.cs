@@ -14,9 +14,9 @@ public abstract class BattleEffect {
     protected bool hasWarned;
 
     //For TPorters
-    protected bool TPorterRemoveOverride = true; //Turn to false for T porters to separate movements. 
-    protected bool TPorterFinishOverride = true;
-    protected bool TPorterWarnOverride = true;
+    protected bool TPorterRemoveActive = true; //Turn to false for T porters to separate movements. 
+    protected bool TPorterFinishActive = true;
+    protected bool TPorterWarnActive = true;
 
     protected bool canBeCancelled = true;
 
@@ -32,12 +32,15 @@ public abstract class BattleEffect {
 
     public void RunEffect()
     {
-        if (!hasWarned)
+        if (!hasWarned && TPorterWarnActive)
         {
-            if (TPorterWarnOverride)
+            WarnEffect();
+            /*
+            if (TPorterWarnActive)
             {
                 WarnEffect();
             }
+            */
             hasWarned = true;
         }
         else
@@ -52,13 +55,13 @@ public abstract class BattleEffect {
             {
                 RunEffectImpl();
 
-                if (TPorterFinishOverride)
+                if (TPorterFinishActive)
                 {
                     FinishEffect();
                 }
             }
 
-            if (TPorterRemoveOverride)
+            if (TPorterRemoveActive)
             {
                 RemoveSelfFromResolveList();
             }
@@ -93,7 +96,7 @@ public abstract class BattleEffect {
     }
     protected abstract void CancelEffectImpl();
 
-    protected void FinishEffect()
+    protected virtual void FinishEffect()
     {
         if (!isCancelled)
         {
@@ -104,8 +107,10 @@ public abstract class BattleEffect {
 
     protected virtual void RemoveSelfFromResolveList()
     {
+        Debug.Log("REMOVING FROM LIST: " + differentiator);
         if (ResolutionManager.instance.resolvingEffects.Contains(this))
         {
+            Debug.Log("REMOVED FROM LIST: " + differentiator);
             ResolutionManager.instance.resolvingEffects.Remove(this);
         }
     }

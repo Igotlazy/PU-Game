@@ -37,7 +37,7 @@ public abstract class TPorter : BattleEffect
 
             if (warnOnce)
             {
-                TPorterWarnOverride = false;
+                TPorterWarnActive = false;
             }
         }
     }
@@ -45,18 +45,20 @@ public abstract class TPorter : BattleEffect
     protected virtual void CameraMove()
     {
         Unit unit = (Unit)(effectData.GetValue("Caster", false)[0]);
-        new BBAnimCameraMove(unit.gameObject.transform);
+        new BBAnimCameraMove(this, unit.gameObject.transform);
     }
 
     protected override void RunEffectImpl()
     {
-        TPorterFinishOverride = false;
-        TPorterRemoveOverride = false;
+        Debug.Log("PORTER RUN");
+        TPorterFinishActive = false;
+        TPorterRemoveActive = false;
 
         if (!doEnding)
         {
             if(givenTSpecs.Count > 0)
             {
+                Debug.Log("PORTER REAL RUN");
                 TPorterRun();
             }
             if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
@@ -75,7 +77,8 @@ public abstract class TPorter : BattleEffect
         if (runIndex > givenTSpecs.Count - 1)
         {
             //Anim Event for very End of Cast
-            TPorterRemoveOverride = true;
+            TPorterRemoveActive = true;
+            Debug.Log("RemoveOverride - Normal: " + TPorterRemoveActive);
         }
     }
     protected abstract void TPorterRun();
@@ -93,26 +96,42 @@ public abstract class TPorter : BattleEffect
     //Called in the TPorterWarn.
     protected virtual void PeekCheck()
     {
-        if (!givenPacket.isPure && (givenTSpecs[runIndex].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[runIndex].selectionType == SelectorPacket.SelectionType.AreaTarget))
+        if (!givenPacket.isPure && (givenPacket.selectionType == SelectorPacket.SelectionType.Target || givenPacket.selectionType == SelectorPacket.SelectionType.AreaTarget))
         {
             TargetSpecs currentSpec = givenTSpecs[runIndex];
             Vector3 targetShot = CombatUtils.GiveShotConnector(currentSpec.targetObj);
             Vector3 targetPartial = CombatUtils.GivePartialCheck(currentSpec.targetObj);
-            CombatUtils.MainFireCalculation(currentSpec.fireOriginPoint, targetShot, targetPartial, out currentSpec.didPeek, out currentSpec.fireOriginPoint);
+            CombatUtils.MainFireCalculation(currentSpec.fireOrigin, targetShot, targetPartial, out currentSpec.didPeek, out currentSpec.fireOrigin);
 
             if (currentSpec.didPeek)
             {
                 Unit sourceObj = ((Unit)effectData.GetValue("Caster", false)[0]);
-                EventFlags.ANIMStartPeekCALL(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOriginPoint, sourceObj.gameObject.transform.position)); //EVENT
+                EventFlags.ANIMStartPeekCALL(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOrigin, sourceObj.gameObject.transform.position)); //EVENT
             }
         }
     }
 
     protected void PeekRecovery()
     {
-        if (givenTSpecs[runIndex].didPeek && (givenTSpecs[runIndex].selectionType == SelectorPacket.SelectionType.Target || givenTSpecs[runIndex].selectionType == SelectorPacket.SelectionType.AreaTarget))
+        if (givenTSpecs[runIndex].didPeek && (givenPacket.selectionType == SelectorPacket.SelectionType.Target || givenPacket.selectionType == SelectorPacket.SelectionType.AreaTarget))
         {
             EventFlags.ANIMEndPeekCALL(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
+        }
+    }
+
+    protected override void FinishEffect()
+    {
+        Debug.Log("PORTER FINISH");
+        if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
+        {
+            if (runIndex + 1 > givenTSpecs.Count - 1) // <= Needs to know if the last TSpecs has been evaluated. runIndex updates too late, and PeekRecovery needs runIndex as well. 
+            {
+                base.FinishEffect();
+            }
+        }
+        else
+        {
+            base.FinishEffect();
         }
     }
 

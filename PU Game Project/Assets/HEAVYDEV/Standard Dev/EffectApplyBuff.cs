@@ -23,9 +23,9 @@ public class EffectApplyBuff : BattleEffect
 
     protected override void RunEffectImpl()
     {
-        if(hitTarget.CreatureScript != null)
+        if(hitTarget != null)
         {
-            hitTarget.CreatureScript.AddBuff(givenBuff);
+            hitTarget.AddBuff(givenBuff);
             givenBuff.BuffInitialApplication();
         }
     }

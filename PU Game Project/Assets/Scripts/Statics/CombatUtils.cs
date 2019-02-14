@@ -327,18 +327,18 @@ public static class CombatUtils {
         return partialPos;
     }
 
-    public static bool AttackHitPercentages(float hitPercent) //Gives a true or false based on the % given.
+    public static bool PercentageCalculation(float givenPercent) //Gives a true or false based on the % given.
     {
-        hitPercent = Mathf.Clamp(hitPercent, 0, 100); //Clamps just in case.
+        givenPercent = Mathf.Clamp(givenPercent, 0, 100); //Clamps just in case.
 
-        if(hitPercent == 0)
+        if(givenPercent == 0)
         {
             return false; 
         }
 
         float randomRange = UnityEngine.Random.Range(0f, 100f);
 
-        if(randomRange <= hitPercent)
+        if(randomRange <= givenPercent)
         {
             return true;
         }
@@ -348,7 +348,7 @@ public static class CombatUtils {
         }
     }
 
-    public static bool CanCast(LivingCreature creatureScript, int energyToLose, bool subtract)
+    public static bool CanCast(Unit creatureScript, int energyToLose, bool subtract)
     {
         if (creatureScript.CurrentEnergy >= energyToLose)
         {
@@ -481,7 +481,7 @@ public static class CombatUtils {
 
         if(receivedAttack.damageType == Attack.DamageType.Regular)
         {
-            float percentDamage = Mathf.Pow(5f, (-1f / 100f) * attackedUnit.CreatureScript.currentDefense.Value);
+            float percentDamage = Mathf.Pow(5f, (-1f / 100f) * attackedUnit.currentDefense.Value);
 
             returnDamage =  chosenDamage * percentDamage;
         }
@@ -489,6 +489,13 @@ public static class CombatUtils {
         {
             returnDamage  = chosenDamage;
         }
+
+        float luck = attackedUnit.currentLuck.Value;
+        if (PercentageCalculation(luck))
+        {
+            returnDamage *= 1.5f;
+        }
+
 
         returnDamage = Mathf.FloorToInt(returnDamage);
         if(returnDamage == 0)

@@ -8,13 +8,13 @@ namespace MHA.BattleBehaviours
 {
     public class BBDealDamageAnim : BattleAnimation
     {
-        LivingCreature givenCreature;
+        Unit givenUnit;
         float healthRemaining;
         float damage;
 
-        public BBDealDamageAnim(LivingCreature _givenCreature, float _healthRemaining, float _damage)
+        public BBDealDamageAnim(object _source, Unit _givenCreature, float _healthRemaining, float _damage) : base (_source)
         {
-            givenCreature = _givenCreature;
+            givenUnit = _givenCreature;
             healthRemaining = _healthRemaining;
             damage = _damage;
         }
@@ -23,9 +23,9 @@ namespace MHA.BattleBehaviours
         {
             //mono.StartCoroutine(DisplayDamage());
             
-            givenCreature.healthBar.UpdateHealth(healthRemaining, givenCreature.maxHealth.Value);
+            givenUnit.healthBar.UpdateHealth(healthRemaining, givenUnit.maxHealth.Value);
 
-            GameObject indicatorObj = GameObject.Instantiate(givenCreature.damageIndicator, new Vector3(givenCreature.transform.position.x, givenCreature.transform.position.y + 2f, givenCreature.transform.position.z), Quaternion.identity);
+            GameObject indicatorObj = GameObject.Instantiate(givenUnit.damageIndicator, new Vector3(givenUnit.transform.position.x, givenUnit.transform.position.y + 2f, givenUnit.transform.position.z), Quaternion.identity);
             indicatorObj.GetComponent<DamageIndicator>().SetText(damage);
 
             AnimFinished = true;
@@ -35,9 +35,9 @@ namespace MHA.BattleBehaviours
         private IEnumerator DisplayDamage()
         {
 
-            givenCreature.healthBar.UpdateHealth(healthRemaining, givenCreature.maxHealth.Value);
+            givenUnit.healthBar.UpdateHealth(healthRemaining, givenUnit.maxHealth.Value);
 
-            GameObject indicatorObj = GameObject.Instantiate(givenCreature.damageIndicator, new Vector3 (givenCreature.transform.position.x, givenCreature.transform.position.y + 2f, givenCreature.transform.position.z), Quaternion.identity);
+            GameObject indicatorObj = GameObject.Instantiate(givenUnit.damageIndicator, new Vector3 (givenUnit.transform.position.x, givenUnit.transform.position.y + 2f, givenUnit.transform.position.z), Quaternion.identity);
             indicatorObj.GetComponent<DamageIndicator>().SetText(damage);
 
             yield return new WaitForSeconds(2f);

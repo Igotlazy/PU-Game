@@ -73,7 +73,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1084756164167057755}
   - component: {fileID: 1047839386628443335}
-  - component: {fileID: 5433111017211015716}
   - component: {fileID: 1151430960058287343}
   m_Layer: 9
   m_Name: (Model) - Unit
@@ -111,6 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5554bb6e9cb02a143b8742d0a1e6892f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  entityType: 0
   givenCharData: {fileID: 0}
   passiveAbilities: []
   movementAbilities: []
@@ -127,18 +127,6 @@ MonoBehaviour:
   partialCoverCheck: {fileID: 1087863511881545123}
   centerPoint: {fileID: 1708930509399549286}
   spriteRig: {fileID: 2117131912469951019}
---- !u!114 &5433111017211015716
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1088056736798936513}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2be02a94d2c2474491f0537fdf39e33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   currentHealth: 0
   currentEnergy: 0
   maxHealth:
@@ -153,10 +141,8 @@ MonoBehaviour:
     BaseValue: 0
   isInvincible: 0
   amDead: 0
-  healthBar: {fileID: 817244392594371434}
-  damageIndicator: {fileID: 1388622767760518, guid: a41fb87bd3c079a42be01ff36458a442,
-    type: 3}
-  attachedUnit: {fileID: 0}
+  healthBar: {fileID: 0}
+  damageIndicator: {fileID: 0}
 --- !u!65 &1151430960058287343
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -410,15 +396,3 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 2023764213512314926}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &817244392594371434 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1676101734239884100, guid: 6d6962a616df21d41b34cd51c50b19a4,
-    type: 3}
-  m_PrefabInstance: {fileID: 2023764213512314926}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fc39f64e36bde24fb4e162a5eff4701, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

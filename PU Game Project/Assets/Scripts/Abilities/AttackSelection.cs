@@ -118,7 +118,11 @@ public abstract class AttackSelection : MonoBehaviour {
         }
         foreach (TargetSpecs currentSpec in allSpecs)
         {
-            currentSpec.targetLivRef.healthBar.HideHitChance();
+            if(currentSpec.targetType == TargetSpecs.TargetType.Unit)
+            {
+                Unit unit = (Unit)currentSpec.entityScript;
+                unit.healthBar.HideHitChance();
+            }
 
             if (currentSpec.indicator != null)
             {
@@ -151,25 +155,60 @@ public abstract class AttackSelection : MonoBehaviour {
                     {
                         Unit unitScript = hitObject.GetComponent<Unit>();
                         currentSpec.indicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
-                        currentSpec.targetLivRef.healthBar.DisplayHitChance();
+
+                        if(currentSpec.targetType == TargetSpecs.TargetType.Unit)
+                        {
+                            Unit unit = (Unit)currentSpec.entityScript;
+                            unit.healthBar.DisplayHitChance(); 
+                        }
+
                         selectedSpecs.Add(currentSpec);
 
                         if (selectedSpecs.Count > maxNumOfSelections)
                         {
-                            Destroy(selectedSpecs[0].indicator);
-                            selectedSpecs[0].targetLivRef.healthBar.FadeHitChance();
+                            TargetSpecs zero = selectedSpecs[0];
+                            Destroy(zero.indicator);
+
+                            if (zero.targetType == TargetSpecs.TargetType.Unit)
+                            {
+                                Unit unit = (Unit)currentSpec.entityScript;
+                                unit.healthBar.FadeHitChance();
+                            }
+
                             selectedSpecs.RemoveAt(0);
                         }
                     }
                     else
                     {
                         Destroy(currentSpec.indicator);
-                        currentSpec.targetLivRef.healthBar.FadeHitChance();
+                        if (currentSpec.targetType == TargetSpecs.TargetType.Unit)
+                        {
+                            Unit unit = (Unit)currentSpec.entityScript;
+                            unit.healthBar.FadeHitChance();
+                        }
                         selectedSpecs.Remove(currentSpec);
                     }
                     break;
                 }
             }
+        }
+    }
+
+    protected void UnitHitChanceDisplay(TargetSpecs givenSpec, float hitChance, bool faded)
+    {
+        if (givenSpec.targetType == TargetSpecs.TargetType.Unit)
+        {
+            Unit unit = (Unit)givenSpec.entityScript;
+            unit.healthBar.SetHitChance(hitChance);
+            if (faded)
+            {
+                unit.healthBar.FadeHitChance();
+            }
+            else
+            {
+                unit.healthBar.DisplayHitChance();
+            }
+
         }
     }
 }

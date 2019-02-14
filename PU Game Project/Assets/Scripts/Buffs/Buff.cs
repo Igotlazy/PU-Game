@@ -8,7 +8,7 @@ using UnityEngine;
 public abstract class Buff
 {
 
-    protected LivingCreature bTarget;
+    protected Unit bTarget;
     protected GameObject bSource;
     protected string bName;
 
@@ -16,14 +16,14 @@ public abstract class Buff
     public int currentCooldown;
     public int turnCooldown;
 
-    public Buff(LivingCreature _buffTarget, GameObject _buffSource, string _buffName)
+    public Buff(Unit _buffTarget, GameObject _buffSource, string _buffName)
     {
         this.bTarget = _buffTarget;
         this.bName = _buffName;
         this.bSource = _buffSource;
     }
 
-    public Buff(LivingCreature _buffTarget, GameObject _buffSource, string _buffName, int _turnCooldown)
+    public Buff(Unit _buffTarget, GameObject _buffSource, string _buffName, int _turnCooldown)
     {
         this.bTarget = _buffTarget;
         this.bName = _buffName;

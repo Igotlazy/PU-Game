@@ -7,7 +7,7 @@ using Cinemachine;
 public class BBAnimCameraMove : BattleAnimation
 {
     Transform cameraTransform;
-    public BBAnimCameraMove (Transform givenTransform)
+    public BBAnimCameraMove (object _source, Transform givenTransform) : base(_source)
     {
         cameraTransform = givenTransform;
     }

@@ -4,13 +4,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile : MonoBehaviour {
+public class Tile : GameEntity {
+
 
     public Node carryingNode;
     public Material[] tileMatArray;
     public MeshRenderer meshRend;
 
     public Material baseMaterial;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        entityType = EntityType.Tile;
+    }
 
 
     public void ReconfigureMats()

@@ -40,10 +40,10 @@ public class TPorterInstant : TPorter
         {
             if (!givenPacket.isPure)
             {
-                float result = CombatUtils.MainFireCalculation(givenTSpecs[runIndex].fireOriginPoint, targetScript.shotConnecter.transform.position, targetScript.partialCoverCheck.transform.position);
-                if (CombatUtils.AttackHitPercentages(result))
+                float result = CombatUtils.MainFireCalculation(givenTSpecs[runIndex].fireOrigin, targetScript.shotConnecter.transform.position, targetScript.partialCoverCheck.transform.position);
+                if (CombatUtils.PercentageCalculation(result))
                 {
-                    TPorterFinishOverride = true;
+                    TPorterFinishActive = true;
                     effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
 
                     EventFlags.ANIMFinishCastCALL(this, new EventFlags.ECastAnim());
@@ -57,7 +57,7 @@ public class TPorterInstant : TPorter
             }
             else
             {
-                TPorterFinishOverride = true;
+                TPorterFinishActive = true;
                 effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
 
                 EventFlags.ANIMFinishCastCALL(this, new EventFlags.ECastAnim());
