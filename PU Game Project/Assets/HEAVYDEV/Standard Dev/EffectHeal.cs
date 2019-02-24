@@ -6,7 +6,11 @@ public class EffectHeal : BattleEffect {
 
     float healAmount;
 
-    public EffectHeal (EffectDataPacket _effectData) : base(_effectData)
+    public EffectHeal (GameEntity _source) : base(_source)
+    {
+
+    }
+    public EffectHeal(GameEntity _source, EffectDataPacket _effectData) : base(_source, _effectData)
     {
 
     }

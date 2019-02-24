@@ -10,8 +10,7 @@ public class TargetSpecs
         Position,
         Unit,
         Tile,
-        MapObject,
-        Projectile
+        Structure,
     }
 
     public TargetType targetType;
@@ -37,7 +36,6 @@ public class TargetSpecs
             
         this.hitChance = _hitChance;
         this.fireOrigin = _fireOrigin;
-        Debug.Log(targetObj.name);
     }
 
     public TargetSpecs(Vector3 _targetVector, Vector3 _fireOrigin)
@@ -59,11 +57,8 @@ public class TargetSpecs
             case GameEntity.EntityType.Tile:
                 return TargetType.Tile;
 
-            case GameEntity.EntityType.MapObject:
-                return TargetType.MapObject;
-
-            case GameEntity.EntityType.Projectile:
-                return TargetType.Projectile;
+            case GameEntity.EntityType.Structure:
+                return TargetType.Structure;
 
             default:  return TargetType.Position;
         }

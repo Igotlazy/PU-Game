@@ -11,9 +11,9 @@ public class SandyBasic : CharAbility
 {
     [Header("Selectors:")]
     [SerializeField]
-    AbilityPrefabRef.CircleSelectorData firstSelector = new AbilityPrefabRef.CircleSelectorData();
+    SelectorData.Circle firstSelector = new SelectorData.Circle();
     [SerializeField]
-    AbilityPrefabRef.CircleSelectorData secondSelector = new AbilityPrefabRef.CircleSelectorData();
+    SelectorData.Circle secondSelector = new SelectorData.Circle();
     [Space]
 
     [Header("Properties")]
@@ -22,7 +22,7 @@ public class SandyBasic : CharAbility
     [SerializeField]
     Attack damage2 = new Attack();
 
-    public override void Initialize(Unit givenUnit)
+    public override void Initialize(GameEntity givenUnit)
     {
         base.Initialize(givenUnit);
 
@@ -36,62 +36,49 @@ public class SandyBasic : CharAbility
     }
     private void PrepSelectorPacket()
     {
-        SelectorPacket firstSP = new SelectorPacket(SelectorPacket.SelectionType.Target, false)
-        {
-            maxNumOfSelect = 1,
-            selectorData = firstSelector
-        };
-        SelectorPacket secondSP = new SelectorPacket(SelectorPacket.SelectionType.AoE, false)
-        {
-            selectorData = secondSelector
-        };
-        selectorPacketBaseData.Add(new List<SelectorPacket> { firstSP, secondSP });
+        selectorData.Add(new List<SelectorData>() { firstSelector, secondSelector });
     }
 
     private void Run(EffectDataPacket effectDataPacket)
     {
         effectDataPacket.AppendValue("Repeat", 0f);
-        SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetValue("Targets", false)[0]); //Gives packet.
-        GameObject projectile = AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.TakahiroBasic);
+        SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetVarValue("Targets", false)[0]); //Gives packet.
 
-        TPorterInstant projectileEffect = new TPorterInstant(effectDataPacket, currentPacket);
-        projectileEffect.REPORTKEY = "HitTarget";
-        projectileEffect.finishedEffectAuxCall += AoEScratch;
-        projectileEffect.finishedEffectAuxCall += Damage1;
+        TPorterInstant bite = new TPorterInstant(associatedEntity, effectDataPacket, currentPacket);
+        bite.REPORTKEY = "HitTarget";
+        bite.finishedEffectAuxCall += Damage1;
 
-        ResolutionManager.instance.LoadBattleEffect(projectileEffect);
-    }
 
-    private void Damage1(EffectDataPacket effectDataPacket)
-    {
-        GameObject relevantObject = ((GameObject)effectDataPacket.GetValue("HitTarget", false).Last()); //Gets access to GameObject Target.
-        Attack attack = damage;
-        EffectDealDamage chomp = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<Unit>(), attack);
+        SelectorPacket currentPacket2 = ((SelectorPacket)effectDataPacket.GetVarValue("Targets", false)[1]); //Gives packet.
 
-        ResolutionManager.instance.LoadBattleEffect(chomp);
-    }
-
-    private void AoEScratch(EffectDataPacket effectDataPacket)
-    {
-        SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetValue("Targets", false)[1]); //Gives packet.
-
-        TPorterInstant scratch = new TPorterInstant(effectDataPacket, currentPacket);
+        TPorterInstant scratch = new TPorterInstant(associatedEntity, effectDataPacket, currentPacket2);
         scratch.differentiator = 1;
         scratch.REPORTKEY = "HitTarget1";
         scratch.finishedEffectAuxCall += Damage2;
 
-        ResolutionManager.instance.LoadBattleEffect(scratch);
+        ResolutionManager.instance.LoadBattleEffect(new List<BattleEffect>() { bite, scratch });
+    }
+
+    private void Damage1(EffectDataPacket effectDataPacket)
+    {
+        GameObject relevantObject = ((GameObject)effectDataPacket.GetVarValue("HitTarget", false).Last()); //Gets access to GameObject Target.
+        Attack attack = damage;
+        EffectDealDamage chomp = new EffectDealDamage(associatedEntity, effectDataPacket, relevantObject.GetComponent<Unit>(), attack);
+
+        ResolutionManager.instance.LoadBattleEffect(chomp);
     }
 
     private void Damage2(EffectDataPacket effectDataPacket)
     {
+        Debug.Log("Attack 2 beign called");
         Attack attack = damage2;
         List<BattleEffect> sendEffects = new List<BattleEffect>();
 
-        foreach (object hitTarget in effectDataPacket.GetValue("HitTarget1", false))
+        foreach (object hitTarget in effectDataPacket.GetVarValue("HitTarget1", false))
         {
             GameObject target = (GameObject)hitTarget;
-            EffectDealDamage effect = new EffectDealDamage(effectDataPacket, target.GetComponent<Unit>(), attack);
+            EffectDealDamage effect = new EffectDealDamage(associatedEntity, effectDataPacket, target.GetComponent<Unit>(), attack);
+            effect.effectData = effectDataPacket;
             sendEffects.Add(effect);
 
         }
@@ -102,7 +89,7 @@ public class SandyBasic : CharAbility
     public override void AnimResponse(object givenObject, EventFlags.ECastAnim givenCastAnim)
     {
         TPorter effect = (TPorter)givenObject;
-        CharAbility ability = (CharAbility)effect.effectData.GetValue("CharacterAbility", false)[0];
+        CharAbility ability = (CharAbility)effect.effectData.GetStaticValue("CharacterAbility", false);
 
         Vector3 pos = CombatUtils.GiveShotConnector(effect.givenTSpecs[effect.runIndex].targetObj);
 
@@ -111,7 +98,7 @@ public class SandyBasic : CharAbility
 
         if (this == ability && effect.differentiator == 0) 
         {
-            new AnimAbility(this, AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic1), pos);
+            new AnimAbility(this, AbilityPrefabRef.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic1), pos);
         }
 
         if (this == ability && effect.differentiator == 1)
@@ -119,20 +106,20 @@ public class SandyBasic : CharAbility
             try
             {
                 AnimAbility oldAnim = (AnimAbility)ResolutionManager.instance.animationQueue.Last();
-                if(this == (object)oldAnim.source && oldAnim.animObject == AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2))
+                if(this == (object)oldAnim.source && oldAnim.animObject == AbilityPrefabRef.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2))
                 {
                     oldAnim.forceGo = true;
-                    new AnimAbility(this, AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
+                    new AnimAbility(this, AbilityPrefabRef.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
                 }
                 else
                 {
-                    new AnimAbility(this, AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
+                    new AnimAbility(this, AbilityPrefabRef.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
                 }
 
             }
             catch (InvalidCastException)
             {
-                new AnimAbility(this, AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
+                new AnimAbility(this, AbilityPrefabRef.GiveAbilityPrefab(AbilityPrefabRef.SandyBasic2), pos);
             }
         }
     }

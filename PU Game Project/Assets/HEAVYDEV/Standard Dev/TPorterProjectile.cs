@@ -19,7 +19,11 @@ public class TPorterProjectile : TPorter
 
     public string REPORTKEY;
 
-    public TPorterProjectile(EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_effectData, _givenPacket)
+    public TPorterProjectile(GameEntity _source, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_source, _givenPacket)
+    {
+        this.fireObjectRef = _fireObjectRef;
+    }
+    public TPorterProjectile(GameEntity _source, EffectDataPacket _effectData, SelectorPacket _givenPacket, GameObject _fireObjectRef) : base(_source, _effectData, _givenPacket)
     {
         this.fireObjectRef = _fireObjectRef;
     }
@@ -94,7 +98,7 @@ public class TPorterProjectile : TPorter
 
         Vector3 rayDir = currentProj.path[subRIndex + 1] - currentMovingObj.transform.position;
         RaycastHit hitInfo;
-        if (!givenPacket.isPure && Physics.Raycast(currentMovingObj.transform.position, rayDir, out hitInfo, rayDir.magnitude, CombatUtils.shotMask))
+        if (!givenPacket.selectorData.isPure && Physics.Raycast(currentMovingObj.transform.position, rayDir, out hitInfo, rayDir.magnitude, CombatUtils.shotMask))
         {
             new AnimMoveToPos(this, hitInfo.point, currentMovingObj, (baseMoveSpeed + (moveSpeedAccel * subRIndex)), true);
 
@@ -138,7 +142,7 @@ public class TPorterProjectile : TPorter
                 }
                 else
                 {
-                    if (!givenPacket.isPure)
+                    if (!givenPacket.selectorData.isPure)
                     {
                         Vector3 fireDir = (currentProj.path[currentProj.path.Count - 1]) - (currentProj.path[currentProj.path.Count - 2]);
 

@@ -873,9 +873,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 832e486194866664aa34276e0f6a6498, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  endTurnButton: {fileID: 1618260230947226}
+  endTurnButton: {fileID: 114870893198082734}
   heroTurnIntro: {fileID: 1107615998007012}
-  mainButtonSelection: {fileID: 1470450268565016}
+  mainButtonSelection: {fileID: 114556701160235668}
 --- !u!1 &1509945788939682
 GameObject:
   m_ObjectHideFlags: 0

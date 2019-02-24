@@ -69,7 +69,6 @@ public class Unit : GameEntity {
 
     [Space]
     [Header("STATS:")]
-    public float currentHealth;
     [SerializeField]
     private int currentEnergy;
     public int CurrentEnergy
@@ -91,7 +90,6 @@ public class Unit : GameEntity {
             }
         }
     }
-    public CharacterStat maxHealth;
     public CharacterStat maxEnergy;
     public CharacterStat currentStrength;
     public CharacterStat currentDefense;
@@ -181,8 +179,7 @@ public class Unit : GameEntity {
             {
                 Debug.Log("Creature Dead");
                 CharAbility.totalCastIndex++;
-                EffectDataPacket packet = new EffectDataPacket(this, null);
-                EffectDeath effectDeath = new EffectDeath(packet);
+                EffectDeath effectDeath = new EffectDeath(this, this);
                 ResolutionManager.instance.LoadBattleEffect(effectDeath);
             }
         }
@@ -246,7 +243,7 @@ public class Unit : GameEntity {
     }
     public IEnumerator AILogicMove()
     {
-        AbilityPrefabRef.SelectorData selectorData = movementAbilitiesInsta[0].selectorPacketBaseData[0][0].selectorData;
+        SelectorData selectorData = movementAbilitiesInsta[0].selectorData[0][0];
         if (selectorData.SelectorName.Equals(AbilityPrefabRef.BasicMoveSelector))
         {
             //AbilityPrefabRef.BasicMoveSelectorData trueData = (AbilityPrefabRef.BasicMoveSelectorData)selectorData;
@@ -285,11 +282,11 @@ public class Unit : GameEntity {
     }
     public IEnumerator AILogicAttack()
     {
-        AbilityPrefabRef.SelectorData selectorData = activatableAbilitiesInsta[0].selectorPacketBaseData[0][0].selectorData;
+        SelectorData selectorData = activatableAbilitiesInsta[0].selectorData[0][0];
 
         if (selectorData.SelectorName.Equals(AbilityPrefabRef.CircleSelector))
         {
-            AbilityPrefabRef.CircleSelectorData trueData = (AbilityPrefabRef.CircleSelectorData)selectorData;
+            SelectorData.Circle trueData = (SelectorData.Circle)selectorData;
             float range = trueData.radius;
             //Debug.Log(trueData.radius);
 
@@ -313,7 +310,7 @@ public class Unit : GameEntity {
             if (hitObject != null)
             {
                 activatableAbilitiesInsta[0].InitiateAbility(0);
-                AttackSelection selectScript = activatableAbilitiesInsta[0].currentActiveSelector;
+                AbilitySelection selectScript = activatableAbilitiesInsta[0].currentActiveSelector;
                 selectScript.isAIControlled = true;
 
                 yield return new WaitForSeconds(1f);

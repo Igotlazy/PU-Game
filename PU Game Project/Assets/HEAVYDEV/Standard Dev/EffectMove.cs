@@ -9,7 +9,13 @@ public abstract class EffectMove : BattleEffect
     public List<Vector3> locations;
     public int moveIndex;
 
-    public EffectMove(EffectDataPacket _effectData, GameObject _moveTarget, List<Vector3> _locations) : base(_effectData)
+    public EffectMove(GameEntity _source, GameObject _moveTarget, List<Vector3> _locations) : base(_source)
+    {
+        moveTarget = _moveTarget;
+        locations = _locations;
+        TPorterRemoveActive = false;
+    }
+    public EffectMove(GameEntity _source, EffectDataPacket _effectData, GameObject _moveTarget, List<Vector3> _locations) : base(_source, _effectData)
     {
         moveTarget = _moveTarget;
         locations = _locations;

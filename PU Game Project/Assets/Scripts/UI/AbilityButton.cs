@@ -54,11 +54,9 @@ namespace MHA.UserInterface
         private AudioClip hover;
         [SerializeField]
         private AudioClip click;
-        private AudioSource audioSource;
 
         private void Awake()
         {
-            audioSource = GetComponent<AudioSource>();
             abilityIcon = GetComponent<Image>();
             descriptionGroup.SetActive(false);
         }
@@ -96,7 +94,8 @@ namespace MHA.UserInterface
             abilityDescriptionInd.text = associatedAbility.abilityDescription;
             abilityCDInd.text = "CD: " + associatedAbility.turnCooldown;
             abilityCostInd.text = "Cost: " + associatedAbility.energyCost.ToString();
-            if(associatedAbility.energyCost > associatedAbility.associatedUnit.CurrentEnergy)
+            Unit unit = (Unit)associatedAbility.associatedEntity;
+            if(associatedAbility.energyCost > unit.CurrentEnergy)
             {
                 abilityCostInd.color = badColor;
             }
@@ -116,7 +115,8 @@ namespace MHA.UserInterface
 
         public void CastAbilityWithButton()
         {
-            if(associatedAbility.currentCooldown <= 0 && associatedAbility.associatedUnit.CurrentEnergy >= associatedAbility.energyCost)
+            Unit unit = (Unit)associatedAbility.associatedEntity; 
+            if (associatedAbility.currentCooldown <= 0 && unit.CurrentEnergy >= associatedAbility.energyCost)
             {
                 abilityBar.audSource.clip = click;
                 abilityBar.audSource.Play();

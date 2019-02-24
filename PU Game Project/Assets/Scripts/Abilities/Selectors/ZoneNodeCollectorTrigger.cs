@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ZoneNodeCollectorTrigger : AttackSelection
+public class ZoneNodeCollectorTrigger : AbilitySelection
 {
     public List<Node> nodeList = new List<Node>();
-    public AttackSelection attackInd;
+    public AbilitySelection attackInd;
 
     private void Awake()
     {
-        attackInd = GetComponent<AttackSelection>();
+        attackInd = GetComponent<AbilitySelection>();
     }
 
     protected override void InitializeImpl()

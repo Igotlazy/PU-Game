@@ -1,21 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 public class SelectorPacket {
 
-    public enum SelectionType
+    public SelectorData selectorData;
+
+    public struct Targets
     {
-        Null,
-        Target,
-        AreaTarget,
-        AoE,
+        public List<TargetSpecs> primaryTargets;
+        public List<TargetSpecs> pecondaryTargets;
     }
-    public SelectionType selectionType;
-    public int maxNumOfSelect;
-    public bool isPure;
 
-
+    public Targets foundTargets = new Targets();
 
     private HashSet<Node> targetNodes = new HashSet<Node>();
     public HashSet<Node> TargetNodes
@@ -31,82 +26,5 @@ public class SelectorPacket {
     }
 
     public List<TargetSpecs> targetObjectSpecs = new List<TargetSpecs>();
-    public AbilityPrefabRef.SelectorData selectorData;
 
-
-
-    public SelectorPacket(SelectionType _selectionType, bool _isPure)
-    {
-        this.selectionType = _selectionType;
-        this.isPure = _isPure;
-    }
-
-
-
-    public List<GameObject> ReturnObjectsOnNodes()
-    {
-        List<GameObject> returnList = new List<GameObject>();
-
-        foreach(Node currentNode in targetNodes)
-        {
-            if (currentNode.IsOccupied)
-            {
-                returnList.Add(currentNode.occupant);
-            }
-        }
-
-        return returnList;
-    }
-
-    public List<GameObject> ReturnObjectsOnNodes(Unit dontInclude)
-    {
-        List<GameObject> returnList = new List<GameObject>();
-
-        foreach (Node currentNode in targetNodes)
-        {
-            if (currentNode.IsOccupied && (dontInclude != currentNode.occupant.GetComponent<Unit>()))
-            {
-                returnList.Add(currentNode.occupant);
-            }
-        }
-
-        return returnList;
-    }
-
-    /*
-    public List<GameObject> ReturnObjectsOnNodes(int teamInt)
-    {
-        List<GameObject> returnList = new List<GameObject>();
-
-        foreach (Node currentNode in targetNodes)
-        {
-            if (currentNode.IsOccupied)
-            {
-                Unit unitScript = currentNode.occupant.GetComponent<Unit>();
-
-                if(unitScript.teamValue != teamInt)
-                {
-                    returnList.Add(currentNode.occupant);
-                }
-            }
-        }
-
-        return returnList;
-    }
-    */
-
-    public static SelectorPacket Clone(SelectorPacket givenPacket)
-    {
-        SelectorPacket returnPacket = new SelectorPacket(givenPacket.selectionType, givenPacket.isPure)
-        {
-            selectorData = givenPacket.selectorData       
-        };
-
-        if(givenPacket.selectionType == SelectionType.Target)
-        {
-            returnPacket.maxNumOfSelect = givenPacket.maxNumOfSelect;
-        }
-
-        return returnPacket;
-    }
 }

@@ -14,11 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityName: 
   abilityDescription: 
-  abilitySprite: {fileID: 21300006, guid: 700e165185f01354289fd022d3cd73e5, type: 3}
+  abilitySprite: {fileID: 21300000, guid: aca0bf2f62e498d40b431d744ca73f26, type: 3}
   energyCost: 0
   turnCooldown: 0
-  associatedUnit: {fileID: 0}
-  slotValue: 0
-  abilityType: 2
+  currentCooldown: 0
+  associatedEntity: {fileID: 0}
+  currentActiveSelector: {fileID: 0}
   firstSelector:
-    radius: 10
+    SelectorName: Circle Selector
+    range: 0
+    selectionType: 1
+    maxNumOfSelect: 2
+    isPure: 0
+    targetType: 
+    radius: 5
+  damage:
+    damageType: 0
+    damageValue: 15
+    damageSource: {fileID: 0}
+    damageRange: 0

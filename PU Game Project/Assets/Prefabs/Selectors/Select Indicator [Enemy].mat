@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Intersect
+  m_Name: Select Indicator [Enemy]
   m_Shader: {fileID: 4800000, guid: 22d543e8cdb08e3488971fb3c52a509e, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -45,14 +45,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - Vector1_3C2AB981: 5
-    - Vector1_4D4C9663: 0.746
+    - Vector1_4D4C9663: 1.058
     - Vector1_735C2F4C: 15
     - Vector1_7865C40A: 100
     - Vector1_7D42CD5F: 1.33
     - Vector1_AD3BDB06: 2.4
     - Vector1_B15887C2: 0.15
     - Vector1_DA4C95C0: 15
-    - Vector1_FEEE6AD9: 15
+    - Vector1_FEEE6AD9: 2.5
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 1
@@ -72,6 +72,8 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
+    - Color_45328245: {r: 0, g: 0, b: 0, a: 0}
+    - Color_7AAD14CB: {r: 1, g: 0.07450981, b: 0.07450981, a: 0}
     - Color_F9AAF465: {r: 1, g: 0.1462264, b: 0.1462264, a: 0}
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

@@ -6,9 +6,13 @@ public class EffectDeath : BattleEffect
 {
     Unit deathTarget; 
 
-    public EffectDeath(EffectDataPacket _effectData) : base(_effectData)
+    public EffectDeath(GameEntity _source, Unit _deathTarget) : base (_source)
     {
-        deathTarget = (Unit)_effectData.GetValue("Caster", false)[0];
+        deathTarget = _deathTarget;
+    }
+    public EffectDeath(GameEntity _source, EffectDataPacket _effectData, Unit _deathTarget) : base(_source, _effectData)
+    {
+        deathTarget = _deathTarget;
     }
 
     protected override void WarnEffect()

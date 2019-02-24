@@ -9,28 +9,23 @@ public class AbilityBasicMove : CharAbility {
 
     [Header("Selectors:")]
     [SerializeField]
-    AbilityPrefabRef.BasicMoveSelectorData moveSelector = new AbilityPrefabRef.BasicMoveSelectorData();
+    SelectorData.BasicMove moveSelector = new SelectorData.BasicMove();
 
-    public override void Initialize(Unit givenUnit)
+    public override void Initialize(GameEntity givenUnit)
     {
         base.Initialize(givenUnit);
 
         castableAbilities.Add(new Action<EffectDataPacket>(Run));
 
-        SelectorPacket firstSP = new SelectorPacket(SelectorPacket.SelectionType.Null, false)
-        {
-            selectorData = moveSelector
-        };
-
-        selectorPacketBaseData.Add(new List<SelectorPacket> { firstSP });
+        selectorData.Add(new List<SelectorData>() { moveSelector });
     }
 
 
-    private void Run(EffectDataPacket effectPacket)
+    private void Run(EffectDataPacket effectDataPacket)
     {
         List<Vector3> path = new List<Vector3>();
 
-        SelectorPacket relevantTargets = (SelectorPacket)effectPacket.GetValue("Targets", false)[0];
+        SelectorPacket relevantTargets = (SelectorPacket)effectDataPacket.GetVarValue("Targets", false)[0];
         foreach (Node currentNode in relevantTargets.TargetNodes) //Get Path Location Data
         {
             path.Add(currentNode.worldPosition);
@@ -42,13 +37,13 @@ public class AbilityBasicMove : CharAbility {
 
         for (int i = 0; i < path.Count; i++) //Store Path Location Data (not really needed in this case)
         {
-            effectPacket.AppendValue("MovePath", path[i]);
+            effectDataPacket.AppendValue("MovePath", path[i]);
         }
-        effectPacket.AppendValue("MovingTarget", associatedUnit);
+        effectDataPacket.AppendValue("MovingTarget", associatedEntity);
 
 
-        Unit movingTarget = (Unit)effectPacket.GetValue("MovingTarget", false)[0];
-        EffectGridMove moveEffect = new EffectGridMove(effectPacket, movingTarget.gameObject, path);
+        Unit movingTarget = (Unit)effectDataPacket.GetVarValue("MovingTarget", false)[0];
+        EffectGridMove moveEffect = new EffectGridMove(associatedEntity, effectDataPacket, movingTarget.gameObject, path);
         moveEffect.moveSpeed = 5f;
 
         moveEffect.finishedEffectAuxCall += base.PayEnergyCost;

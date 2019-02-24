@@ -4,48 +4,67 @@ using UnityEngine;
 
 public class EffectDataPacket {
 
-    public Dictionary<string, List<object>> blackboard = new Dictionary<string, List<object>>();
+    public Dictionary<string, object> staticBlackboard = new Dictionary<string, object>();
+    public Dictionary<string, List<object>> variableBlackboard = new Dictionary<string, List<object>>();
 
 
-    public EffectDataPacket(Unit _caster, CharAbility _charAbility)
+    public object GetStaticValue(string getKey, bool zero)
     {
-        AppendValue("Caster", _caster);
-        AppendValue("CharacterAbility", _charAbility);
-        AppendValue("CastIndex", CharAbility.totalCastIndex);
-        
-    }
-
-    public List<object> GetValue(string getKey, bool zero)
-    {
-        if (blackboard.ContainsKey(getKey))
+        if (staticBlackboard.ContainsKey(getKey))
         {
-            return blackboard[getKey];
+            return staticBlackboard[getKey];
         }
         else
         {
-            Debug.LogWarning("WARNING: KEY TO ON EDP DOES NOT EXIST");
+            Debug.LogError("WARNING: KEY ON STATIC DATA PACKET DOES NOT EXIST");
             if (zero)
             {
-                blackboard.Add(getKey, new List<object> { 0 });
+                staticBlackboard.Add(getKey, 0);
             }
             else
             {
-                blackboard.Add(getKey, new List<object> { null });
+                staticBlackboard.Add(getKey, null);
             }
-            return blackboard[getKey];
+            return staticBlackboard[getKey];
+        }
+    }
+
+    public void AppendStaticValue(string setString, object setObject)
+    {
+        staticBlackboard.Add(setString, setObject);
+    }
+
+    public List<object> GetVarValue(string getKey, bool zero)
+    {
+        if (variableBlackboard.ContainsKey(getKey))
+        {
+            return variableBlackboard[getKey];
+        }
+        else
+        {
+            Debug.LogError("WARNING: KEY ON VARIABLE DATA PACKET DOES NOT EXIST");
+            if (zero)
+            {
+                variableBlackboard.Add(getKey, new List<object> { 0 });
+            }
+            else
+            {
+                variableBlackboard.Add(getKey, new List<object> { null });
+            }
+            return variableBlackboard[getKey];
         }
     }
 
     public void AppendValue(string setKey, object setObject)
     {
-        if (blackboard.ContainsKey(setKey))
+        if (variableBlackboard.ContainsKey(setKey))
         {
-            blackboard[setKey].Add(setObject);
+            variableBlackboard[setKey].Add(setObject);
         }
         else
         {
-            blackboard.Add(setKey, new List<object>());
-            blackboard[setKey].Add(setObject);
+            variableBlackboard.Add(setKey, new List<object>());
+            variableBlackboard[setKey].Add(setObject);
         }
     }
 }

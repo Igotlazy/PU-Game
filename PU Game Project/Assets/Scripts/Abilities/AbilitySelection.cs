@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using MHA.BattleBehaviours;
 using MHA.UserInterface;
 
-public abstract class AttackSelection : MonoBehaviour {
+public abstract class AbilitySelection : MonoBehaviour {
 
     protected int maxNumOfSelections;
     public bool hasLoadedTargets;
@@ -15,11 +15,12 @@ public abstract class AttackSelection : MonoBehaviour {
     protected List<TargetSpecs> selectedSpecs = new List<TargetSpecs>();
     public List<TargetSpecs> allSpecs = new List<TargetSpecs>();
 
-    public SelectorPacket attachedTargetPacket;
+    public SelectorPacket selPacket;
+    public SelectorData selectorData;
 
     public GameObject selectionIndicator;
 
-    protected SelectorPacket.SelectionType selectType = SelectorPacket.SelectionType.Null;
+    protected SelectorData.SelectionType selectType = SelectorData.SelectionType.Null;
 
     public bool isAIControlled;
 
@@ -27,76 +28,59 @@ public abstract class AttackSelection : MonoBehaviour {
     public void Initialize()
     {
         AbilityBar.AbilityButtonClickEVENT += CancelSelection;
+        CursorController.instance.CursorNewNodeEVENT += MoveSelector;
         ClickSelection.instance.canSelect = false;
 
-        selectType = attachedTargetPacket.selectionType;
-        if(selectType == SelectorPacket.SelectionType.Target)
-        {
-            maxNumOfSelections = attachedTargetPacket.maxNumOfSelect;
-        }
+        selectorData = selPacket.selectorData;
 
-        isAIControlled = givenAbility.associatedUnit.isAIControlled;
-        if (isAIControlled)
+        selectType = selectorData.selectionType;
+        if(selectType == SelectorData.SelectionType.Pick)
         {
-            AISelect();
+            maxNumOfSelections = selectorData.maxNumOfSelect;
         }
 
         InitializeImpl();
     }
     protected abstract void InitializeImpl();
-    protected virtual void AISelect()
-    {
-
-    }
 
     protected virtual void Update()
     {
         if (!isAIControlled)
         {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                MadeSelection();
-            }
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 CancelSelection();
-            }
-
-            if (Input.GetMouseButtonDown(0) && (selectType == SelectorPacket.SelectionType.Target))
-            {
-                GatherClick();
             }
         }
     }
 
     public void MadeSelection()
     {
-        if((selectedSpecs.Count > 0 && (attachedTargetPacket.selectionType == SelectorPacket.SelectionType.Target || attachedTargetPacket.selectionType == SelectorPacket.SelectionType.AreaTarget)) 
-            || attachedTargetPacket.selectionType == SelectorPacket.SelectionType.AoE || attachedTargetPacket.selectionType == SelectorPacket.SelectionType.Null)
-        {
-            AbilityBar.AbilityButtonClickEVENT -= CancelSelection;
-            ClickSelection.instance.canSelect = true;
 
-            DisplayCleanup();
-
-            attachedTargetPacket.targetObjectSpecs = selectedSpecs;
-            attachedTargetPacket.TargetNodes = collectedNodes;
+        if((selectedSpecs.Count > 0 && 
+            (selectorData.selectionType == SelectorData.SelectionType.Pick || selectorData.selectionType == SelectorData.SelectionType.AreaPick)) 
+            || 
+            selectorData.selectionType == SelectorData.SelectionType.AoE
+            || 
+            selectorData.selectionType == SelectorData.SelectionType.Null)
+        {         
+            CleanUp();
 
             MadeSelectionImpl();
 
+            selPacket.targetObjectSpecs = selectedSpecs;
+            selPacket.TargetNodes = collectedNodes;
+
             hasLoadedTargets = true;
 
-            Destroy(this.gameObject);
+            DestroyImmediate(this.gameObject);
         }
     }
     protected abstract void MadeSelectionImpl();
 
     public void CancelSelection()
     {
-        AbilityBar.AbilityButtonClickEVENT -= CancelSelection;
-        ClickSelection.instance.canSelect = true;
-
-        DisplayCleanup();
+        CleanUp();
 
         CancelSelectionImpl();
 
@@ -106,8 +90,13 @@ public abstract class AttackSelection : MonoBehaviour {
     }
     protected abstract void CancelSelectionImpl();
 
-    public virtual void DisplayCleanup()
+    public virtual void CleanUp()
     {
+        AbilityBar.AbilityButtonClickEVENT -= CancelSelection;
+        CursorController.instance.CursorNewNodeEVENT -= MoveSelector;
+
+        ClickSelection.instance.canSelect = true;
+
         DrawIndicators.instance.ClearTileMatStates(true, true, true);
         foreach(Node currNode in collectedNodes)
         {
@@ -131,7 +120,7 @@ public abstract class AttackSelection : MonoBehaviour {
         }
     }
 
-    private void GatherClick()
+    protected void GatherClick()
     {
         RaycastHit hitInfo;
         bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.gameEntityMask);
@@ -141,6 +130,15 @@ public abstract class AttackSelection : MonoBehaviour {
             GameObject hitObject = hitInfo.collider.gameObject;
             Gather(hitObject);
         }
+    }
+
+    protected virtual void MoveSelector(Node givenNode)
+    {
+        
+    }
+    protected virtual void RotateSelector()
+    {
+
     }
 
     public void Gather(GameObject hitObject)
@@ -171,7 +169,7 @@ public abstract class AttackSelection : MonoBehaviour {
 
                             if (zero.targetType == TargetSpecs.TargetType.Unit)
                             {
-                                Unit unit = (Unit)currentSpec.entityScript;
+                                Unit unit = (Unit)zero.entityScript;
                                 unit.healthBar.FadeHitChance();
                             }
 

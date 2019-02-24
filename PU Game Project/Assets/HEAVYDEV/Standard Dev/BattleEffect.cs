@@ -5,6 +5,8 @@ using System;
 
 public abstract class BattleEffect {
 
+    public GameEntity source;
+    public int castIndex;
     public EffectDataPacket effectData; //Reference to data for this Effect.
 
     public Action cancelEffectAuxCalls; //Methods that can be called when this effect is cancelled. For closely related strings of effects that need to all get cancelled should one of them get cancelled. Add the Cancel Effect of the last one to this.
@@ -24,9 +26,17 @@ public abstract class BattleEffect {
 
 
 
-    public BattleEffect(EffectDataPacket _effectData)
+    public BattleEffect(GameEntity _source)
     {
+        source = _source;
+        CharAbility.totalCastIndex++;
+        castIndex = CharAbility.totalCastIndex;
+    }
+    public BattleEffect(GameEntity _source, EffectDataPacket _effectData)
+    {
+        source = _source;
         effectData = _effectData;
+        castIndex = CharAbility.totalCastIndex;
     }
 
 
@@ -48,7 +58,14 @@ public abstract class BattleEffect {
             bool conditionResult = true;
             if (!isCancelled && conditionCheck != null) //Checks set condition if the effect hasn't already been cancelled.
             {
-                conditionResult = conditionCheck.Invoke(effectData, this);
+                if(effectData != null)
+                {
+                    conditionResult = conditionCheck.Invoke(effectData, this);
+                }
+                else
+                {
+                    Debug.LogError("WARNING: CALLING CONDITION CHECK WITHOUT DATA PACKET");
+                }
             }
 
             if (!isCancelled && conditionResult && EffectSpecificCondition()) //Does effect if it hasn't been cancelled, and all conditions have been met. 
@@ -100,17 +117,25 @@ public abstract class BattleEffect {
     {
         if (!isCancelled)
         {
-            if(finishedEffectAuxCall != null) { finishedEffectAuxCall.Invoke(effectData); }          
+            if(finishedEffectAuxCall != null)
+            {
+                if(effectData != null)
+                {
+                    finishedEffectAuxCall.Invoke(effectData);
+                }
+                else
+                {
+                    Debug.LogError("WARNING: CALLING FINISH EFFECT WITHOUT DATAPACKET");
+                }
+            }          
         }
     }
 
 
     protected virtual void RemoveSelfFromResolveList()
     {
-        Debug.Log("REMOVING FROM LIST: " + differentiator);
         if (ResolutionManager.instance.resolvingEffects.Contains(this))
         {
-            Debug.Log("REMOVED FROM LIST: " + differentiator);
             ResolutionManager.instance.resolvingEffects.Remove(this);
         }
     }

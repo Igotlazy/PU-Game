@@ -17,12 +17,16 @@ MonoBehaviour:
   abilitySprite: {fileID: 21300008, guid: 700e165185f01354289fd022d3cd73e5, type: 3}
   energyCost: 0
   turnCooldown: 0
-  associatedUnit: {fileID: 0}
-  slotValue: 0
-  abilityType: 2
+  currentCooldown: 0
+  associatedEntity: {fileID: 0}
   currentActiveSelector: {fileID: 0}
   firstSelector:
+    SelectorName: Circle Selector
     range: 0
+    selectionType: 1
+    targetType: 
+    maxNumOfSelect: 3
+    isPure: 0
     radius: 4
   damage:
     damageType: 0

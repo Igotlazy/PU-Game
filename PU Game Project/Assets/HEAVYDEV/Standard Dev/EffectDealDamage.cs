@@ -14,7 +14,12 @@ public class EffectDealDamage : BattleEffect {
 
     
 
-    public EffectDealDamage(EffectDataPacket _effectData, Unit _damageTarget, Attack _damageAttack) : base(_effectData)
+    public EffectDealDamage(GameEntity _source, Unit _damageTarget, Attack _damageAttack) : base(_source)
+    {
+        this.damageTarget = _damageTarget;
+        this.damageAttack = _damageAttack;
+    }
+    public EffectDealDamage(GameEntity _source, EffectDataPacket _effectData, Unit _damageTarget, Attack _damageAttack) : base(_source, _effectData)
     {
         this.damageTarget = _damageTarget;
         this.damageAttack = _damageAttack;
@@ -35,7 +40,7 @@ public class EffectDealDamage : BattleEffect {
     {
         damageTarget.CreatureHit(damageAttack);
 
-        EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs(damageAttack.damageValue, ((Unit)effectData.GetValue("Caster", false)[0]), damageTarget));
+        EventFlags.EVENTTookDamage(this, new EventFlags.ETookDamageArgs(damageAttack.damageValue, (Unit)source, damageTarget));
 
         if (KEYdamageAttack != null)
         {

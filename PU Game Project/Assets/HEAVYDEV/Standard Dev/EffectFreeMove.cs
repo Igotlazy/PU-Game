@@ -9,7 +9,11 @@ public class EffectFreeMove : EffectMove
     public float moveSpeed = 5f;
     public bool destroyAtEnd;
 
-    public EffectFreeMove(EffectDataPacket _effectData, GameObject _moveTarget, List<Vector3> _locations) : base(_effectData, _moveTarget, _locations)
+    public EffectFreeMove(GameEntity _source, GameObject _moveTarget, List<Vector3> _locations) : base(_source, _moveTarget, _locations)
+    {
+
+    }
+    public EffectFreeMove(GameEntity _source, EffectDataPacket _effectPacket, GameObject _moveTarget, List<Vector3> _locations) : base(_source, _effectPacket, _moveTarget, _locations)
     {
 
     }

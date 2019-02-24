@@ -10,7 +10,7 @@ using MHA.BattleBehaviours;
 public class ReactionShot : CharAbility
 {
 
-    public override void Initialize(Unit givenUnit)
+    public override void Initialize(GameEntity givenUnit)
     {
         base.Initialize(givenUnit);
 
@@ -26,8 +26,8 @@ public class ReactionShot : CharAbility
 
     private void ProjectileMoveReceiver(object sender, EventFlags.EProjectileMoveArgs e)
     {
-        EffectDataPacket packet = new EffectDataPacket(associatedUnit, this);
-        SelectorPacket selectorPacket = new SelectorPacket(SelectorPacket.SelectionType.Target, false);
+        //EffectDataPacket packet = new EffectDataPacket(associatedEntity, this);
+        //SelectorPacket selectorPacket = new SelectorPacket(SelectorPacket.SelectionType.Target, false);
         //TPorterProjectile porter = new TPorterProjectile()
         //packet.
     }
@@ -40,10 +40,10 @@ public class ReactionShot : CharAbility
     private void Run(EffectDataPacket effectDataPacket)
     {
         effectDataPacket.AppendValue("Repeat", 0f);
-        SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetValue("Targets", false)[0]); //Gives packet.
-        GameObject projectile = AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.TakahiroBasic);
+        SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetVarValue("Targets", false)[0]); //Gives packet.
+        //GameObject projectile = AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.TakahiroBasic);
 
-        TPorterInstant projectileEffect = new TPorterInstant(effectDataPacket, currentPacket);
+        TPorterInstant projectileEffect = new TPorterInstant(associatedEntity, effectDataPacket, currentPacket);
         projectileEffect.REPORTKEY = "HitTarget";
         //projectileEffect.finishedEffectAuxCall += AoEScratch;
         //projectileEffect.finishedEffectAuxCall += Damage1;

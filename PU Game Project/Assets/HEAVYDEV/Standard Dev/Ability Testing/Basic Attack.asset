@@ -20,12 +20,23 @@ MonoBehaviour:
   energyCost: 3
   turnCooldown: 3
   currentCooldown: 0
-  slotValue: 0
-  abilityType: 2
-  associatedUnit: {fileID: 0}
+  associatedEntity: {fileID: 0}
   currentActiveSelector: {fileID: 0}
+  selectorSpawnLoc: {x: 0, y: 0, z: 0}
   firstSelector:
+    SelectorName: Circle Selector
     range: 0
+    selectionType: 2
+    maxNumOfSelect: 3
+    isPure: 0
+    mainTargetType: 0
+    secUnit: 0
+    secTile: 0
+    secStructure: 0
+    secProjectile: 0
+    follow: 1
+    followRange: 5
+    rotate: 0
     radius: 6
   damage:
     damageType: 0

@@ -1,24 +1,28 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Kryz.CharacterStats;
 
 public class GameEntity : MonoBehaviour
 {
     public enum EntityType
     {
-        Null,
+        Environtment,
         Unit,
         Tile,
-        MapObject,
+        Structure,
         Projectile
     }
 
     public EntityType entityType;
 
+    public float currentHealth;
+    public CharacterStat maxHealth;
+
 
     protected virtual void Awake()
     {
-        entityType = EntityType.Null;
+        entityType = EntityType.Environtment;
     }
 
     protected virtual void Start()

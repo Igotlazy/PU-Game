@@ -30,17 +30,18 @@ public class CharAbility : ScriptableObject
 
 
     //References:
-    [HideInInspector]
-    public Unit associatedUnit;
     public static int totalCastIndex;
 
-    public List<List<SelectorPacket>> selectorPacketBaseData = new List<List<SelectorPacket>>();
+    public List<List<SelectorData>> selectorData = new List<List<SelectorData>>();
     public List<Action<EffectDataPacket>> castableAbilities = new List<Action<EffectDataPacket>>();
-    public AttackSelection currentActiveSelector;
 
-    public virtual void Initialize(Unit givenUnit)
+    [HideInInspector] public GameEntity associatedEntity;
+    [HideInInspector] public AbilitySelection currentActiveSelector;
+    [HideInInspector] public Vector3 selectorSpawnLoc;
+
+    public virtual void Initialize(GameEntity givenUnit)
     {
-        this.associatedUnit = givenUnit;
+        this.associatedEntity = givenUnit;
         EventFlags.ANIMStartCast += AnimResponse;
     }
 
@@ -48,37 +49,43 @@ public class CharAbility : ScriptableObject
     {      
         CancelTargets();
         collectorCoroutine = CollectTargets(abilityIndex);
-        associatedUnit.StartCoroutine(collectorCoroutine);
+        associatedEntity.StartCoroutine(collectorCoroutine);
     }
 
     private IEnumerator CollectTargets(int abilityIndex)
     {
+
         List<SelectorPacket> targetPacketList = new List<SelectorPacket>();
         int selectorIndex = 0;
-        while(selectorIndex < selectorPacketBaseData[abilityIndex].Count)
+        selectorSpawnLoc = associatedEntity.transform.position;
+
+        while (selectorIndex < selectorData[abilityIndex].Count)
         {
-            SelectorPacket targets = SelectorPacket.Clone(selectorPacketBaseData[abilityIndex][selectorIndex]);
-            GameObject selectorRef = AbilityPrefabRef.instance.GiveNodeSelectorPrefab(targets.selectorData);
+            SelectorData data = selectorData[abilityIndex][selectorIndex].Clone();
+            SelectorPacket targets = new SelectorPacket();
+            targets.selectorData = data;
 
-            GameObject spawnedSelector = GameObject.Instantiate(selectorRef, associatedUnit.transform.position, Quaternion.identity);
-            currentActiveSelector = spawnedSelector.GetComponentInChildren<AttackSelection>();
+            GameObject selectorRef = AbilityPrefabRef.GiveSelectorPrefab(data);
+            GameObject spawnedSelector = GameObject.Instantiate(selectorRef, selectorSpawnLoc, Quaternion.identity);
 
-
+            currentActiveSelector = spawnedSelector.GetComponentInChildren<AbilitySelection>();
             currentActiveSelector.givenAbility = this;
-            currentActiveSelector.attachedTargetPacket = targets;
+            currentActiveSelector.selPacket = targets;
             currentActiveSelector.Initialize();
 
             yield return new WaitUntil(() => currentActiveSelector.hasLoadedTargets);
+
             targetPacketList.Add(targets);
 
             selectorIndex++;
-            if(selectorIndex < selectorPacketBaseData[abilityIndex].Count)
+            if(selectorIndex < selectorData[abilityIndex].Count)
             {
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.2f);
             }
         }
 
         currentActiveSelector = null;
+
         CastAbility(abilityIndex, targetPacketList);
     }
     IEnumerator collectorCoroutine;
@@ -87,16 +94,17 @@ public class CharAbility : ScriptableObject
     {
         if(collectorCoroutine != null)
         {
-            associatedUnit.StopCoroutine(collectorCoroutine);
+            associatedEntity.StopCoroutine(collectorCoroutine);
             currentActiveSelector = null;
         }
     }
 
     private void CastAbility(int abilityIndex, List<SelectorPacket> givenTargets)
     {
-        totalCastIndex += 1;
+        totalCastIndex++;
 
-        EffectDataPacket effectPacket = new EffectDataPacket(associatedUnit, this);
+        EffectDataPacket effectPacket = new EffectDataPacket();
+        effectPacket.AppendStaticValue("CharacterAbility", this);
         foreach(SelectorPacket currentPacket in givenTargets)
         {
             effectPacket.AppendValue("Targets", currentPacket);
@@ -110,9 +118,10 @@ public class CharAbility : ScriptableObject
 
     protected virtual void PayEnergyCost(EffectDataPacket givenPacket)
     {
-        if(associatedUnit != null)
+        if(associatedEntity != null && associatedEntity.entityType == GameEntity.EntityType.Unit)
         {
-            associatedUnit.CurrentEnergy -= energyCost;
+            Unit unit = (Unit)associatedEntity;
+            unit.CurrentEnergy -= energyCost;
         }
     }
 

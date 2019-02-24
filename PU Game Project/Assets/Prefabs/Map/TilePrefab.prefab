@@ -45,7 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebaad548d6cd0e54f80160e80cd67515, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityType: 1
+  entityType: 2
+  currentHealth: 0
+  maxHealth:
+    BaseValue: 0
   tileMatArray:
   - {fileID: 2100000, guid: c0f24d21bdc0173499006677fa966c9d, type: 2}
   - {fileID: 2100000, guid: 23fe0240b2ee44c439e862a01734d95f, type: 2}
@@ -55,6 +58,40 @@ MonoBehaviour:
   - {fileID: 2100000, guid: a25d0802751d6034880afebb8f888c49, type: 2}
   meshRend: {fileID: 23147059691483938}
   baseMaterial: {fileID: 0}
+  growAnim:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.50533044
+      value: 0.88192916
+      inSlope: -0.803282
+      outSlope: -0.803282
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.14955993
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0.05080814
+      outSlope: 0.05080814
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.60294324
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  growTime: 0.4
 --- !u!65 &3681867865869950674
 BoxCollider:
   m_ObjectHideFlags: 0

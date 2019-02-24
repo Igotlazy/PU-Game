@@ -9,16 +9,16 @@ public class AbilityBasicAttack : CharAbility
 {
     [Header("Selectors:")]
     [SerializeField]
-    AbilityPrefabRef.CircleSelectorData firstSelector = new AbilityPrefabRef.CircleSelectorData();
+    SelectorData.Circle firstSelector = new SelectorData.Circle();
     [Space]
 
     [Header("Properties")]
     [SerializeField]
     Attack damage = new Attack();
 
-    public override void Initialize(Unit givenUnit)
+    public override void Initialize(GameEntity givenEntity)
     {
-        base.Initialize(givenUnit);
+        base.Initialize(givenEntity);
 
         PrepCast();
         PrepSelectorPacket();
@@ -30,20 +30,15 @@ public class AbilityBasicAttack : CharAbility
     }
     private void PrepSelectorPacket()
     {
-        SelectorPacket firstTP = new SelectorPacket(SelectorPacket.SelectionType.Target, false)
-        {
-            maxNumOfSelect = 3,
-            selectorData = firstSelector           
-        };
-        selectorPacketBaseData.Add(new List<SelectorPacket> { firstTP });
+        selectorData.Add(new List<SelectorData>() { firstSelector });
     }
 
     private void Run(EffectDataPacket effectDataPacket)
     {
-        SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetValue("Targets", false)[0]); //Gives packet.
-        GameObject projectile = AbilityPrefabRef.instance.GiveAbilityPrefab(AbilityPrefabRef.TakahiroBasic);
+        SelectorPacket currentPacket = ((SelectorPacket)effectDataPacket.GetVarValue("Targets", false)[0]); //Gives packet.
+        GameObject projectile = AbilityPrefabRef.GiveAbilityPrefab(AbilityPrefabRef.TakahiroBasic);
 
-        TPorterProjectile projectileEffect = new TPorterProjectile(effectDataPacket, currentPacket, projectile);
+        TPorterProjectile projectileEffect = new TPorterProjectile(associatedEntity, effectDataPacket, currentPacket, projectile);
         projectileEffect.REPORTKEY = "HitTargets";
         projectileEffect.finishedEffectAuxCall += DamageOnImpact;
 
@@ -53,12 +48,12 @@ public class AbilityBasicAttack : CharAbility
 
     private void DamageOnImpact(EffectDataPacket effectDataPacket)
     {
-        GameObject relevantObject = ((GameObject)effectDataPacket.GetValue("HitTargets", false).Last()); //Gets access to GameObject Target.
+        GameObject relevantObject = ((GameObject)effectDataPacket.GetVarValue("HitTargets", false).Last()); //Gets access to GameObject Target.
         Attack attack = damage;
-        EffectDealDamage effect = new EffectDealDamage(effectDataPacket, relevantObject.GetComponent<Unit>(), attack);
+        EffectDealDamage effect = new EffectDealDamage(associatedEntity, effectDataPacket, relevantObject.GetComponent<Unit>(), attack);
 
-        TimedBuff buff = new TimedBuff(relevantObject.GetComponent<Unit>(), this.associatedUnit.gameObject, "fire", 3);
-        EffectApplyBuff effect2 = new EffectApplyBuff(effectDataPacket, relevantObject.GetComponent<Unit>(), buff); 
+        TimedBuff buff = new TimedBuff(relevantObject.GetComponent<Unit>(), associatedEntity, "fire", 3);
+        EffectApplyBuff effect2 = new EffectApplyBuff(associatedEntity, effectDataPacket, relevantObject.GetComponent<Unit>(), buff);
 
 
         List<BattleEffect> sendEffects = new List<BattleEffect>() { effect, effect2 };

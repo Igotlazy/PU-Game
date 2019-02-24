@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class BasicMoveSelector : AttackSelection {
+public class BasicMoveSelector : AbilitySelection {
 
     public Vector3[] path;
     int targetIndex;
@@ -18,22 +18,40 @@ public class BasicMoveSelector : AttackSelection {
 
     protected override void InitializeImpl()
     {
-        if(givenAbility.associatedUnit.CurrentEnergy <= 0)
+        if(givenAbility.associatedEntity.entityType == GameEntity.EntityType.Unit)
         {
+            Unit unit = (Unit)givenAbility.associatedEntity;
+
+            if (unit.CurrentEnergy <= 0)
+            {
+                CancelSelection();
+                return;
+            }
+
+            allNodes = Pathfinding.instance.DisplayAvailableMoves(unit.currentNode, unit.CurrentEnergy);
+            foreach (Node currentNode in allNodes)
+            {
+                currentNode.IsSelectable = true;
+            }
+        }
+        else
+        {
+            Debug.Log("NONE UNIT USING UNIT MOVEMENT");
             CancelSelection();
             return;
-        }
-
-        allNodes = Pathfinding.instance.DisplayAvailableMoves(givenAbility.associatedUnit.currentNode, givenAbility.associatedUnit.CurrentEnergy);
-        foreach(Node currentNode in allNodes)
-        {
-            currentNode.IsSelectable = true;
         }
     }
 
     protected override void Update()
     {
         base.Update();
+        if (!isAIControlled)
+        {
+            if (Input.GetMouseButtonDown(1))
+            {
+                MadeSelection();
+            }
+        }
     }
 
     public void SetMovePath(Node givenNode) //Drawing of path happens in the pathfinding script. 

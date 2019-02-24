@@ -20,7 +20,7 @@ MonoBehaviour:
   baseEnergy: 20
   baseStrength: 12
   baseDefense: 20
-  baseLuck: 0
+  baseLuck: 50
   healthGrowth: 0
   energyGrowth: 0
   strengthGrowth: 0

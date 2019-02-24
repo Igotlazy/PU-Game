@@ -8,7 +8,12 @@ public class EffectApplyBuff : BattleEffect
     Unit hitTarget;
     Buff givenBuff;
 
-    public EffectApplyBuff(EffectDataPacket _effectPacket, Unit _hitTarget, Buff _givenBuff) : base(_effectPacket)
+    public EffectApplyBuff(GameEntity _source, Unit _hitTarget, Buff _givenBuff) : base(_source)
+    {
+        hitTarget = _hitTarget;
+        givenBuff = _givenBuff;
+    }
+    public EffectApplyBuff(GameEntity _source, EffectDataPacket _effectData, Unit _hitTarget, Buff _givenBuff) : base(_source, _effectData)
     {
         hitTarget = _hitTarget;
         givenBuff = _givenBuff;

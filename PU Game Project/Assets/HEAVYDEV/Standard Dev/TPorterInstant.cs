@@ -10,7 +10,11 @@ public class TPorterInstant : TPorter
     public string REPORTKEY;
 
 
-    public TPorterInstant(EffectDataPacket _effectData, SelectorPacket _givenPacket) : base(_effectData, _givenPacket)
+    public TPorterInstant(GameEntity _source, SelectorPacket _givenPacket) : base(_source, _givenPacket)
+    {
+
+    }
+    public TPorterInstant(GameEntity _source, EffectDataPacket _effectData, SelectorPacket _givenPacket) : base(_source, _effectData, _givenPacket)
     {
 
     }
@@ -38,12 +42,11 @@ public class TPorterInstant : TPorter
         Unit targetScript = givenTSpecs[runIndex].targetObj.GetComponent<Unit>();
         if (givenPacket.TargetNodes.Contains(targetScript.currentNode))
         {
-            if (!givenPacket.isPure)
+            if (!givenPacket.selectorData.isPure)
             {
                 float result = CombatUtils.MainFireCalculation(givenTSpecs[runIndex].fireOrigin, targetScript.shotConnecter.transform.position, targetScript.partialCoverCheck.transform.position);
                 if (CombatUtils.PercentageCalculation(result))
                 {
-                    TPorterFinishActive = true;
                     effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
 
                     EventFlags.ANIMFinishCastCALL(this, new EventFlags.ECastAnim());
@@ -51,18 +54,18 @@ public class TPorterInstant : TPorter
                 }
                 else
                 {
-                    Debug.Log("Instant MISSED Anim Event");
+                    //Debug.Log("Instant MISSED Anim Event");
                     Debug.LogWarning("Instant MISSED Event");
                 }
             }
             else
             {
-                TPorterFinishActive = true;
                 effectData.AppendValue(REPORTKEY, givenTSpecs[runIndex].targetObj);
 
                 EventFlags.ANIMFinishCastCALL(this, new EventFlags.ECastAnim());
                 Debug.LogWarning("Instant HIT Event");
             }
+            TPorterFinishActive = true;
         }
 
         //if AoE foreach

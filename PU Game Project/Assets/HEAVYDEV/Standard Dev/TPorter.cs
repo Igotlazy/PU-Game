@@ -12,12 +12,22 @@ public abstract class TPorter : BattleEffect
     protected bool warnOnce;
     protected bool doEnding;
 
-    public TPorter(EffectDataPacket _effectData, SelectorPacket _givenPacket) : base(_effectData)
+    public TPorter(GameEntity _source, SelectorPacket _givenPacket) : base(_source)
     {
         this.givenPacket = _givenPacket;
         this.givenTSpecs = givenPacket.targetObjectSpecs;
 
-        if (givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
+        if (givenPacket.selectorData.selectionType == SelectorData.SelectionType.AoE)
+        {
+            this.warnOnce = true;
+        }
+    }
+    public TPorter(GameEntity _source, EffectDataPacket _effectData, SelectorPacket _givenPacket) : base(_source, _effectData)
+    {
+        this.givenPacket = _givenPacket;
+        this.givenTSpecs = givenPacket.targetObjectSpecs;
+
+        if (givenPacket.selectorData.selectionType == SelectorData.SelectionType.AoE)
         {
             this.warnOnce = true;
         }
@@ -42,15 +52,14 @@ public abstract class TPorter : BattleEffect
         }
     }
     protected abstract void TPorterWarn();
+
     protected virtual void CameraMove()
     {
-        Unit unit = (Unit)(effectData.GetValue("Caster", false)[0]);
-        new BBAnimCameraMove(this, unit.gameObject.transform);
+        new BBAnimCameraMove(this, source.transform);
     }
 
     protected override void RunEffectImpl()
     {
-        Debug.Log("PORTER RUN");
         TPorterFinishActive = false;
         TPorterRemoveActive = false;
 
@@ -58,10 +67,9 @@ public abstract class TPorter : BattleEffect
         {
             if(givenTSpecs.Count > 0)
             {
-                Debug.Log("PORTER REAL RUN");
                 TPorterRun();
             }
-            if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
+            if(givenPacket.selectorData.selectionType == SelectorData.SelectionType.AoE)
             {
                 //Update Area with foreach. 
             }
@@ -96,7 +104,7 @@ public abstract class TPorter : BattleEffect
     //Called in the TPorterWarn.
     protected virtual void PeekCheck()
     {
-        if (!givenPacket.isPure && (givenPacket.selectionType == SelectorPacket.SelectionType.Target || givenPacket.selectionType == SelectorPacket.SelectionType.AreaTarget))
+        if (!givenPacket.selectorData.isPure && (givenPacket.selectorData.selectionType == SelectorData.SelectionType.Pick || givenPacket.selectorData.selectionType == SelectorData.SelectionType.AreaPick))
         {
             TargetSpecs currentSpec = givenTSpecs[runIndex];
             Vector3 targetShot = CombatUtils.GiveShotConnector(currentSpec.targetObj);
@@ -105,7 +113,7 @@ public abstract class TPorter : BattleEffect
 
             if (currentSpec.didPeek)
             {
-                Unit sourceObj = ((Unit)effectData.GetValue("Caster", false)[0]);
+                Unit sourceObj = (Unit)source;
                 EventFlags.ANIMStartPeekCALL(this, new EventFlags.EPeekStart(sourceObj, currentSpec.fireOrigin, sourceObj.gameObject.transform.position)); //EVENT
             }
         }
@@ -113,24 +121,25 @@ public abstract class TPorter : BattleEffect
 
     protected void PeekRecovery()
     {
-        if (givenTSpecs[runIndex].didPeek && (givenPacket.selectionType == SelectorPacket.SelectionType.Target || givenPacket.selectionType == SelectorPacket.SelectionType.AreaTarget))
+        if (givenTSpecs[runIndex].didPeek && (givenPacket.selectorData.selectionType == SelectorData.SelectionType.Pick || givenPacket.selectorData.selectionType == SelectorData.SelectionType.AreaPick))
         {
-            EventFlags.ANIMEndPeekCALL(this, new EventFlags.EPeekEnd(((Unit)effectData.GetValue("Caster", false)[0])));
+            EventFlags.ANIMEndPeekCALL(this, new EventFlags.EPeekEnd((Unit)source));
         }
     }
 
     protected override void FinishEffect()
     {
-        Debug.Log("PORTER FINISH");
-        if(givenPacket.selectionType == SelectorPacket.SelectionType.AoE)
+        if(givenPacket.selectorData.selectionType == SelectorData.SelectionType.AoE)
         {
             if (runIndex + 1 > givenTSpecs.Count - 1) // <= Needs to know if the last TSpecs has been evaluated. runIndex updates too late, and PeekRecovery needs runIndex as well. 
             {
+                Debug.Log("Finish Porter AOE");
                 base.FinishEffect();
             }
         }
         else
         {
+            Debug.Log("Finish Porter Target");
             base.FinishEffect();
         }
     }

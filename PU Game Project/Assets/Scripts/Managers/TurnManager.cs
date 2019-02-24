@@ -299,11 +299,9 @@ public class TurnManager : MonoBehaviour {
     {
         AddBuffsToMainList();
 
-        EffectDataPacket packet = new EffectDataPacket(null, null);
-
-        EffectCustomAction callEndBuffs = new EffectCustomAction(packet, new Action(CallEndBuffs));
-        EffectCustomAction callCooldownBuffs = new EffectCustomAction(packet, new Action(CallBuffCooldown));
-        EffectCustomAction callRemoveBuffs = new EffectCustomAction(packet, new Action(RemoveBuffs));
+        EffectCustomAction callEndBuffs = new EffectCustomAction(null, new Action(CallEndBuffs));
+        EffectCustomAction callCooldownBuffs = new EffectCustomAction(null, new Action(CallBuffCooldown));
+        EffectCustomAction callRemoveBuffs = new EffectCustomAction(null, new Action(RemoveBuffs));
 
         List<BattleEffect> effects = new List<BattleEffect>() { callEndBuffs, callCooldownBuffs, callRemoveBuffs };
         ResolutionManager.instance.LoadBattleEffect(effects);

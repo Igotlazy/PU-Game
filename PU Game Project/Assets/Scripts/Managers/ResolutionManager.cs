@@ -48,7 +48,7 @@ public class ResolutionManager : MonoBehaviour {
             }
             else
             {
-                Debug.LogError("RESOLUTION START");
+                Debug.LogWarning("RESOLUTION START");
                 resolvingEffects.Clear(); //Technically all of these should be clear, but just in case.
 
                 for (int i = givenEffects.Count - 1; i >= 0; i--)
@@ -75,7 +75,7 @@ public class ResolutionManager : MonoBehaviour {
         }
         else
         {
-            Debug.LogError("RESOLUTION START");
+            Debug.LogWarning("RESOLUTION START");
             resolvingEffects.Clear(); //Technically this should be clear, but just in case.
             resolvingEffects.Add(givenEffect);
 
@@ -122,7 +122,7 @@ public class ResolutionManager : MonoBehaviour {
 
         animationTracker = -1;
         NextQueuedAnimation();
-        Debug.LogError("ANIM RESOLUTION START");
+        Debug.LogWarning("ANIM RESOLUTION START");
     }
 
     TurnManager.BattlePhase originalBattlePhase;
@@ -142,7 +142,7 @@ public class ResolutionManager : MonoBehaviour {
             animationTracker = -1;
             animationQueue.Clear();
             ReturnToOriginalBattlePhase();
-            Debug.LogError("ANIM RESOLUTION DONE");
+            Debug.LogWarning("ANIM RESOLUTION DONE");
         }
         else
         {

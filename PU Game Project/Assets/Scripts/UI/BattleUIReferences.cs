@@ -7,15 +7,23 @@ namespace MHA.UserInterface
 {
     public class BattleUIReferences : MonoBehaviour
     {
-        public GameObject endTurnButton;
+        public NextPhaseButton endTurnButton;
         public GameObject heroTurnIntro;
-        public GameObject mainButtonSelection;
+        public AbilityBar mainButtonSelection;
 
         public static BattleUIReferences instance;
 
         private void Awake()
         {
-            instance = this;
+            if(instance == null)
+            {
+                instance = this;
+            }
+            else
+            {
+                Debug.Log("WARNING: Two Copies of BattleUIReferences");
+                Destroy(this.gameObject);
+            }
         }
     }
 }

@@ -8,7 +8,11 @@ public class EffectGridMove : EffectMove {
     public float moveSpeed = 3.5f;
     public bool destroyAtEnd;
 
-    public EffectGridMove(EffectDataPacket _effectData, GameObject _moveTarget, List<Vector3> _locations) : base(_effectData, _moveTarget, _locations)
+    public EffectGridMove(GameEntity _source, GameObject _moveTarget, List<Vector3> _locations) : base(_source, _moveTarget, _locations)
+    {
+
+    }
+    public EffectGridMove(GameEntity _source, EffectDataPacket _effectData, GameObject _moveTarget, List<Vector3> _locations) : base(_source, _effectData, _moveTarget, _locations)
     {
 
     }
