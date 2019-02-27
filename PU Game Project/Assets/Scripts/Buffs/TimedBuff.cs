@@ -3,6 +3,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MHA.BattleEffects;
 
 
 public class TimedBuff : Buff
@@ -36,7 +37,7 @@ public class TimedBuff : Buff
     private void LoadDamage()
     {
         burnAttack.damageValue = 50f;
-        EffectDealDamage damageEffect = new EffectDealDamage(bSource, bTarget, burnAttack);
+        BEffectDealDamage damageEffect = new BEffectDealDamage(bSource, bTarget, burnAttack);
 
         ResolutionManager.instance.LoadBattleEffect(damageEffect);
     }

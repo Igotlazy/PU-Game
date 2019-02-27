@@ -7,7 +7,7 @@ using UnityEngine;
 using Cinemachine;
 using System.Linq; //Gives List.Last
 using MHA.UserInterface;
-using MHA.BattleBehaviours;
+using MHA.BattleEffects;
 
 public class TurnManager : MonoBehaviour {
 
@@ -299,9 +299,9 @@ public class TurnManager : MonoBehaviour {
     {
         AddBuffsToMainList();
 
-        EffectCustomAction callEndBuffs = new EffectCustomAction(null, new Action(CallEndBuffs));
-        EffectCustomAction callCooldownBuffs = new EffectCustomAction(null, new Action(CallBuffCooldown));
-        EffectCustomAction callRemoveBuffs = new EffectCustomAction(null, new Action(RemoveBuffs));
+        BEffectCustomAction callEndBuffs = new BEffectCustomAction(null, new Action(CallEndBuffs));
+        BEffectCustomAction callCooldownBuffs = new BEffectCustomAction(null, new Action(CallBuffCooldown));
+        BEffectCustomAction callRemoveBuffs = new BEffectCustomAction(null, new Action(RemoveBuffs));
 
         List<BattleEffect> effects = new List<BattleEffect>() { callEndBuffs, callCooldownBuffs, callRemoveBuffs };
         ResolutionManager.instance.LoadBattleEffect(effects);

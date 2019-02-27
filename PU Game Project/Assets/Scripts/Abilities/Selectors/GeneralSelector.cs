@@ -204,6 +204,12 @@ public class GeneralSelector : AbilitySelection
                     spawnedFollowZoneMarker.transform.position = returnedNode.worldPosition;
                 }
             }
+
+            if (selectorData.fireFromSelector)
+            {
+                UpdateTargetPositions();
+            }
+
         }
     }
 
@@ -310,7 +316,151 @@ public class GeneralSelector : AbilitySelection
     private void OnTriggerEnter(Collider enteringCollider)
     {
         GameEntity foundEntity = enteringCollider.gameObject.GetComponent<GameEntity>();
-        if(foundEntity == null)
+        if(foundEntity == null || (!selectorData.includeCaster && foundEntity == givenAbility.associatedEntity))
+        {         
+            return;
+        }
+
+        GameEntity.EntityType foundType = TargetTypeConversion(selectorData.mainTargetType);
+
+        if (foundEntity.entityType == foundType)
+        {
+            if(foundEntity.entityType == GameEntity.EntityType.Tile) //Just to make it more obvious;
+            {
+                Tile tileScript = (Tile)foundEntity;
+                if (!visualNodes.Contains(tileScript.carryingNode))
+                {
+                    tileScript.carryingNode.IsAttackable = true;
+                    visualNodes.Add(tileScript.carryingNode);
+                }
+            }
+            //Node enteringNode = GridGen.instance.NodeFromWorldPoint(enteringCollider.gameObject.transform.position);
+            GameObject hitObject = foundEntity.gameObject;
+            foreach (TargetSpecs currentSpec in allSpecs)
+            {
+                if (currentSpec.targetObj.Equals(hitObject))
+                {
+                    return;
+                }
+            }
+            if (selectType == SelectorData.SelectionType.Pick)
+            {
+                float hitChance = 0;
+                TargetSpecs newSpec = TargetSpecCreator(foundEntity, false, out hitChance);
+                UnitHitChanceDisplay(newSpec, hitChance, true);
+
+                allSpecs.Add(newSpec);
+            }
+            if (selectType == SelectorData.SelectionType.AreaPick)
+            {
+                float hitChance = 0;
+                TargetSpecs newSpec = TargetSpecCreator(foundEntity, false, out hitChance);
+                UnitHitChanceDisplay(newSpec, hitChance, false);
+
+                newSpec.indicator = Instantiate(selectionIndicator, CombatUtils.GiveCenterPoint(foundEntity.gameObject), Quaternion.identity);
+
+                allSpecs.Add(newSpec);
+                selectedSpecs.Add(newSpec);
+            }
+            if (selectType == SelectorData.SelectionType.AoE)
+            {
+                float hitChance = 0;
+                TargetSpecs newSpec = TargetSpecCreator(foundEntity, true, out hitChance);
+                UnitHitChanceDisplay(newSpec, hitChance, false);
+
+                allSpecs.Add(newSpec);
+                selectedSpecs.Add(newSpec);
+            }
+        }
+    }  
+
+    private TargetSpecs TargetSpecCreator(GameEntity foundEntity, bool isAOE, out float hitChance)
+    {
+
+        bool peekResult = false;
+        hitChance = 0;
+        Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedEntity.gameObject);
+        Vector3 targetShot = CombatUtils.GiveShotConnector(foundEntity.gameObject);
+        Vector3 selectorPos = new Vector3(transform.position.x, transform.position.y + (GridGen.instance.nodeHeightDif * 0.25f), transform.position.z);
+        Vector3 targetPartial = CombatUtils.GivePartialCheck(foundEntity.gameObject);
+
+        if (!isAOE)
+        {
+            if (selectorData.isPure)
+            {
+                hitChance = 100f;
+            }
+            else
+            {
+                if (!selectorData.fireFromSelector)
+                {
+                    Vector3 newFireSource;
+                    hitChance = CombatUtils.MainFireCalculation(sourceShot, targetShot, targetPartial, out peekResult, out newFireSource);
+                }
+                else
+                {
+                    hitChance = CombatUtils.MainFireCalculation(selectorPos, targetShot, targetPartial);
+                }
+            }
+        }
+        else
+        {
+            if (selectorData.isPure)
+            {
+                hitChance = 100f;
+            }
+            else
+            {
+                if (!selectorData.fireFromSelector)
+                {
+                    hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedEntity.gameObject, foundEntity.gameObject);
+                }
+                else
+                {
+                    hitChance = CombatUtils.MainFireCalculation(
+                        new Vector3(transform.position.x, transform.position.y + (GridGen.instance.nodeHeightDif * 0.25f), transform.position.z), 
+                        targetShot, targetPartial);
+                }
+            }
+        }
+
+        if (!selectorData.fireFromSelector)
+        {
+            TargetSpecs newSpec = new TargetSpecs(foundEntity, sourceShot);
+            newSpec.didPeek = peekResult;
+            return newSpec;
+        }
+        else
+        {
+            TargetSpecs newSpec = new TargetSpecs(foundEntity, selectorPos);
+            return newSpec;
+        }
+
+    }
+
+    protected void UpdateTargetPositions()
+    {
+        Vector3 selectorPos = new Vector3(transform.position.x, transform.position.y + (GridGen.instance.nodeHeightDif * 0.25f), transform.position.z);
+
+        foreach (TargetSpecs target in allSpecs)
+        {
+            target.fireOrigin = selectorPos;
+            if(selectorData.selectionType == SelectorData.SelectionType.Pick)
+            {
+                UnitHitChanceDisplay(target, CombatUtils.MainFireCalculation(target.fireOrigin, target.entityScript.gameObject), true);
+            }
+            else
+            {
+                UnitHitChanceDisplay(target, CombatUtils.MainFireCalculation(target.fireOrigin, target.entityScript.gameObject), false);
+            }
+        }
+    }
+
+
+    private void OnTriggerExit(Collider exitingCollider)
+    {
+        GameEntity foundEntity = exitingCollider.gameObject.GetComponent<GameEntity>();
+        if (foundEntity == null)
         {
             return;
         }
@@ -319,164 +469,44 @@ public class GeneralSelector : AbilitySelection
 
         if (foundEntity.entityType == foundType)
         {
-            if(foundType != GameEntity.EntityType.Unit)
+            if (foundEntity.entityType == GameEntity.EntityType.Tile)
             {
-
-            }
-            Node enteringNode = GridGen.instance.NodeFromWorldPoint(enteringCollider.gameObject.transform.position);
-            Unit unit = (Unit)givenAbility.associatedEntity;
-            if (!collectedNodes.Contains(enteringNode) && unit.currentNode != enteringNode)
-            {
-                enteringNode.IsAttackable = true;
-                collectedNodes.Add(enteringNode);
-
-                if (enteringNode.occupant != null)
+                Tile tileScript = (Tile)foundEntity;
+                if (visualNodes.Contains(tileScript.carryingNode))
                 {
-                    GameObject hitObject = enteringNode.occupant;
-
-                    bool alreadyHas = false;
-                    foreach (TargetSpecs currentSpec in allSpecs)
-                    {
-                        if (currentSpec.targetObj.Equals(hitObject))
-                        {
-                            alreadyHas = true;
-                            break;
-                        }
-                    }
-
-                    if (!alreadyHas && selectType == SelectorData.SelectionType.Pick)
-                    {
-                        Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedEntity.gameObject);
-                        Vector3 targetShot = CombatUtils.GiveShotConnector(hitObject);
-                        Vector3 targetPartial = CombatUtils.GivePartialCheck(hitObject);
-                        bool peekResult = false;
-                        float hitChance = 0;
-                        if (selectorData.isPure)
-                        {
-                            hitChance = 100f;
-                        }
-                        else
-                        {
-                            Vector3 newFireSource;
-                            hitChance = CombatUtils.MainFireCalculation(sourceShot, targetShot, targetPartial, out peekResult, out newFireSource);
-                        }
-
-                        TargetSpecs newSpec = new TargetSpecs(hitObject.GetComponent<GameEntity>(), hitChance, sourceShot);
-                        newSpec.didPeek = peekResult;
-
-                        UnitHitChanceDisplay(newSpec, hitChance, true);
-
-                        allSpecs.Add(newSpec);
-                    }
-                    if (!alreadyHas && selectType == SelectorData.SelectionType.AreaPick)
-                    {
-                        Vector3 sourceShot = CombatUtils.GiveShotConnector(givenAbility.associatedEntity.gameObject);
-                        Vector3 targetShot = CombatUtils.GiveShotConnector(hitObject);
-                        Vector3 targetPartial = CombatUtils.GivePartialCheck(hitObject);
-                        bool peekResult = false;
-                        float hitChance = 0;
-                        if (selectorData.isPure)
-                        {
-                            hitChance = 100f;
-                        }
-                        else
-                        {
-                            Vector3 newFireSource;
-                            hitChance = CombatUtils.MainFireCalculation(sourceShot, targetShot, targetPartial, out peekResult, out newFireSource);
-                        }
-
-                        TargetSpecs newSpec = new TargetSpecs(hitObject.GetComponent<GameEntity>(), hitChance, sourceShot);
-                        newSpec.didPeek = peekResult;
-
-                        UnitHitChanceDisplay(newSpec, hitChance, false);
-                        Unit unitScript = hitObject.GetComponent<Unit>();
-                        newSpec.indicator = Instantiate(selectionIndicator, unitScript.centerPoint.transform.position, Quaternion.identity);
-                        allSpecs.Add(newSpec);
-                        selectedSpecs.Add(newSpec);
-                    }
-                    if (!alreadyHas && selectType == SelectorData.SelectionType.AoE)
-                    {
-                        float hitChance = 0;
-                        if (selectorData.isPure)
-                        {
-                            hitChance = 100f;
-                        }
-                        else
-                        {
-                            hitChance = CombatUtils.MainFireCalculation(givenAbility.associatedEntity.gameObject, hitObject);
-                        }
-                        TargetSpecs newSpec = new TargetSpecs(hitObject.GetComponent<GameEntity>(), hitChance, CombatUtils.GiveShotConnector(givenAbility.associatedEntity.gameObject));
-                        UnitHitChanceDisplay(newSpec, hitChance, false);
-                        allSpecs.Add(newSpec);
-                        selectedSpecs.Add(newSpec);
-                    }
-                }
-
-            }
-        }
-    }  
-        
-   
-    private void OnTriggerExit(Collider exitingCollider)
-    {
-        if (exitingCollider.gameObject.CompareTag("Tile"))
-        {
-            Node exitingNode = GridGen.instance.NodeFromWorldPoint(exitingCollider.gameObject.transform.position);
-            if (collectedNodes.Contains(exitingNode))
-            {
-                exitingNode.IsAttackable = false;
-                collectedNodes.Remove(exitingNode);
-
-                if(exitingNode.occupant != null)
-                {
-                    GameObject hitObject = exitingNode.occupant;
-                    foreach (TargetSpecs currentSpec in allSpecs)
-                    {
-                        if (currentSpec.targetObj.Equals(hitObject))
-                        {
-                            if(currentSpec.indicator != null)
-                            {
-                                Destroy(currentSpec.indicator);                               
-                            }
-                            if (selectedSpecs.Contains(currentSpec))
-                            {
-                                selectedSpecs.Remove(currentSpec);
-                            }
-                            allSpecs.Remove(currentSpec);
-
-                            if(currentSpec.targetType == TargetSpecs.TargetType.Unit)
-                            {
-                                Unit unit = (Unit)currentSpec.entityScript;
-                                unit.healthBar.HideHitChance();
-                            }
-                            break;
-                        }
-                    }
+                    tileScript.carryingNode.IsAttackable = false;
+                    visualNodes.Remove(tileScript.carryingNode);
                 }
             }
-        }
+
+            GameObject hitObject = foundEntity.gameObject;
+            foreach (TargetSpecs currentSpec in allSpecs)
+            {
+                if (currentSpec.targetObj.Equals(hitObject))
+                {
+                    if (currentSpec.indicator != null)
+                    {
+                        Destroy(currentSpec.indicator);
+                    }
+                    if (selectedSpecs.Contains(currentSpec))
+                    {
+                        selectedSpecs.Remove(currentSpec);
+                    }
+                    allSpecs.Remove(currentSpec);
+
+                    if (currentSpec.targetType == TargetSpecs.TargetType.Unit)
+                    {
+                        Unit unit = (Unit)currentSpec.entityScript;
+                        unit.healthBar.HideHitChance();
+                    }
+                    break;
+                }
+            }
+        }                 
     }
 
-
-    private GameEntity.EntityType TargetTypeConversion(SelectorData.TargetType type)
+    protected void GameEntitySwitch(GameEntity givenEntity)
     {
-        switch (type)
-        {
-            case SelectorData.TargetType.Unit:
-                return GameEntity.EntityType.Unit;
 
-            case SelectorData.TargetType.Tile:
-                return GameEntity.EntityType.Tile;
-
-            case SelectorData.TargetType.Structure:
-                return GameEntity.EntityType.Structure;
-
-            case SelectorData.TargetType.Projectile:
-                return GameEntity.EntityType.Projectile;
-
-            default: return GameEntity.EntityType.Unit;
-        }
     }
-
-
 }

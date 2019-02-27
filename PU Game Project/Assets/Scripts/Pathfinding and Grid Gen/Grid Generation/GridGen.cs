@@ -120,6 +120,7 @@ public class GridGen : MonoBehaviour {
 
                     GameObject tileObject = Instantiate(tilePrefab, new Vector3(nodePoint.x, nodePoint.y + tileGraphicSpawnHeight, nodePoint.z), Quaternion.identity);
                     tileObject.name = "Tile " + x + "," + yGridPos + "," + z;
+                    tileObject.transform.localScale = new Vector3(NodeDiameter, tileObject.transform.localScale.y, NodeDiameter);
                     tileObject.transform.SetParent(gridParent.transform);
 
                     //Debug.Log(obstacleHits.Length);

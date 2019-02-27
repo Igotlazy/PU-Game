@@ -1,4 +1,5 @@
-﻿using MHA.BattleBehaviours;
+﻿using MHA.BattleEffects;
+using MHA.BattleAnimations;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using MHA.BattleEffects;
 
 public static class CombatUtils {
 
@@ -58,6 +59,22 @@ public static class CombatUtils {
         Vector3 targetPartial = targetUnit.partialCoverCheck.transform.position;
 
         return MainFireCalculation(sourceConnector, targetConnector, targetPartial);
+    }
+
+    public static float MainFireCalculation(Vector3 source, GameObject targetObject) //Figures out the chance of a given attack between two objects hitting.
+    {
+        Unit targetUnit = targetObject.GetComponent<Unit>();
+        if(targetUnit != null)
+        {
+            Vector3 targetConnector = targetUnit.shotConnecter.transform.position;
+            Vector3 targetPartial = targetUnit.partialCoverCheck.transform.position;
+
+            return MainFireCalculation(source, targetConnector, targetPartial);
+        }
+        else
+        {
+            return MainFireCalculation(source, targetObject.transform.position, targetObject.transform.position);
+        }
     }
 
     public static float MainFireCalculation(Vector3 sourceConnector, Vector3 targetConnector, Vector3 targetPartial, out bool didPeek, out Vector3 fireSource) //Figures out the chance of a given attack between two objects hitting.
@@ -310,6 +327,23 @@ public static class CombatUtils {
         return connectorPos;
     }
 
+    public static Vector3 GiveCenterPoint(GameObject objectWithCenter)
+    {
+        Unit sourceScript = objectWithCenter.GetComponent<Unit>();
+
+        Vector3 centerPos;
+        if (sourceScript != null)
+        {
+            centerPos = sourceScript.shotConnecter.transform.position;
+        }
+        else
+        {
+            centerPos = objectWithCenter.transform.position;
+        }
+
+        return centerPos;
+    }
+
     public static Vector3 GivePartialCheck(GameObject objectWithPartial)
     {
         Unit sourceScript = objectWithPartial.GetComponent<Unit>();
@@ -405,12 +439,13 @@ public static class CombatUtils {
         Vector3 intermediate = (endPoint - startPoint).normalized * cutDistance;
         Vector3 builder = startPoint;
 
-
-        while(Vector3.Distance(builder, endPoint) > cutDistance)
+        do
         {
             returnList.Add(builder);
             builder += intermediate;
         }
+        while (Vector3.Distance(builder, endPoint) > cutDistance);
+
         returnList.Add(endPoint);
 
         return returnList;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using MHA.BattleEffects;
 
 namespace MHA.Events
 {
@@ -31,14 +32,14 @@ namespace MHA.Events
 
         public class EProjectileMoveArgs : EventArgs
         {
-            public EProjectileMoveArgs(TPorterProjectile.Projectile _projectile, Vector3 _startPos, Vector3 _endPos)
+            public EProjectileMoveArgs(BEffectTPProjectile.Projectile _projectile, Vector3 _startPos, Vector3 _endPos)
             {
                 this.projectile = _projectile;
                 this.startPos = _startPos;
                 this.endPos = _endPos;
             }
 
-            TPorterProjectile.Projectile projectile;
+            BEffectTPProjectile.Projectile projectile;
             public Vector3 startPos;
             public Vector3 endPos;
         }
