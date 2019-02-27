@@ -18,8 +18,7 @@ namespace MHA.UserInterface
         public Color endTurnColor;
         public Color endTurnHighlight;
 
-        public bool isInInput;
-        public bool allFinished;
+        public bool hasSetToFinish;
 
         void Start()
         {
@@ -29,49 +28,57 @@ namespace MHA.UserInterface
         // Update is called once per frame
         void Update()
         {
-            ButtonSet();
+            if(TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
+            {
+                if(!buttonComp.interactable)
+                {
+                    ButtonSet();
+                    buttonComp.interactable = true;
+                }
+                if(TurnManager.instance.activeUnits.Count <= 0 && !hasSetToFinish)
+                {
+                    hasSetToFinish = true;
+                    ButtonFinish();
+                }
+            }
+            else if(buttonComp.interactable)
+            {
+                ResetButton();
+                buttonComp.interactable = false;
+            }
+
         }
 
         void ButtonSet()
         {
-            if(TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
-            {
-                if (!isInInput)
-                {
-                    if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
-                    {
-                        isInInput = true;
-                        buttonComp.interactable = true;
-
-                        ColorBlock colors = buttonComp.colors;
-                        colors.normalColor = baseColor;
-                        colors.highlightedColor = baseHighlight;
-                        buttonComp.colors = colors;
-                    }
-                }
-                if (allFinished /*&& TurnManager.instance.activePlayers.Count <= 0*/)
-                {
-                    allFinished = false;
-                    ColorBlock colors = buttonComp.colors;
-                    colors.normalColor = endTurnColor;
-                    colors.highlightedColor = endTurnHighlight;
-                    buttonComp.colors = colors;
-                }
-            }
-        }
-
-        public void ResetButton()
-        {
-            buttonComp.interactable = false;
-            isInInput = false;
-            allFinished = false;
-
             ColorBlock colors = buttonComp.colors;
             colors.normalColor = baseColor;
             colors.highlightedColor = baseHighlight;
             buttonComp.colors = colors;
-
-            TurnManager.instance.NextMainBattlePhase();
         }
-    }
+
+        public void ButtonFinish()
+        {
+            ColorBlock colors = buttonComp.colors;
+            colors.normalColor = endTurnColor;
+            colors.highlightedColor = endTurnHighlight;
+            buttonComp.colors = colors;
+        }
+
+        public void ResetButton()
+        {
+            hasSetToFinish = false;
+            ColorBlock colors = buttonComp.colors;
+            colors.normalColor = baseColor;
+            colors.highlightedColor = baseHighlight;
+            buttonComp.colors = colors;
+        }
+
+        public void EndTurnCall()
+        {
+            TurnManager.instance.NextMainBattlePhase();
+            ClickSelection.instance.ClearSelection();
+            ClickSelection.instance.ResetToDefault();
+        }
+    } 
 }

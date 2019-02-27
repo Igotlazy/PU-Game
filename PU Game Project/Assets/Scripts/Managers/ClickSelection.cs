@@ -3,106 +3,78 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ClickSelection : MonoBehaviour
 {
-    private Camera currentCamera;
     public ParticleSystem selectionParticles;
-    public LayerMask clickLayerMask;
+    [Space]
+
+    [Header("Selection References")]
     public GameObject selectedUnitObj;
-    private LivingCreature selectedCreatureScript;
-    private Unit selectedUnitScript;
-    public GameObject hitTileObj;
+    public Unit selectedUnitScript;
+    public Node lastHitNode;
+    [Space]
 
-
+    [Header("State Bools")]
     public bool hasSelection;
-    public bool isAttacking;
+    [Space]
 
-    public bool isPlayerInput;
-
-    public GameObject basicAttackProjectile;
+    public bool prepAttack;
+    public bool canSelect;
 
     private bool particlesPlaying;
 
     public static ClickSelection instance;
 
+    public delegate void NewUnitSelection(GameObject newSelection);
+    public event NewUnitSelection NewSelectionEvent;
+
+    public delegate void ClearUnitSelection();
+    public event ClearUnitSelection ClearSelectionEvent;
+
     private void Awake()
     {
         instance = this;
-        currentCamera = Camera.main;
     }
 
     void Start()
     {
+        TurnManager.instance.BattlePhaseResponseEVENT += BattlePhaseReceiver;
+    }
+    private void OnDestroy()
+    {
+        TurnManager.instance.BattlePhaseResponseEVENT -= BattlePhaseReceiver;
+    }
 
+    void BattlePhaseReceiver(TurnManager.BattlePhase givenPhase)
+    {
+        if(givenPhase == TurnManager.BattlePhase.PlayerInput)
+        {
+            canSelect = true;
+        }
+        else if (givenPhase == TurnManager.BattlePhase.ActionPhase)
+        {
+            canSelect = false;
+        }
+        else
+        {
+            canSelect = false;
+            ClearSelection();
+        }
     }
 
     void Update()
     {
-        if (TurnManager.instance.CurrentBattlePhase == TurnManager.BattlePhase.PlayerInput)
+        if (Input.GetMouseButtonDown(0) && !prepAttack && canSelect)
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                SelectionClick();
-            }
-            if (Input.GetMouseButtonDown(1))
-            {
-                if (hasSelection)
-                {
-                    if (!isAttacking)
-                    {
-                        MoveClick();
-                    }
-                    else
-                    {
-                        AttackClick();
-                    }
-
-                }
-
-            }
-
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                if (hasSelection)
-                {
-                    isAttacking = !isAttacking;
-                    if (isAttacking)
-                    {
-                        AttackSelect();
-                    }
-                    else
-                    {
-                        DrawIndicators.instance.ClearTileMatStates(true, true, true);
-                        DrawIndicators.instance.BFSSelectableReturn();
-                    }
-                }
-            }
-
-            if (hasSelection && !isAttacking)
-            {
-                SetMovePath();
-            }
-
-
-
-
-            if (selectedUnitObj != null && !particlesPlaying) //For Selection Particles
-            {
-                selectionParticles.gameObject.SetActive(true);
-                particlesPlaying = true;
-            }
-            else if (selectedUnitObj == null && particlesPlaying)
-            {
-                selectionParticles.gameObject.SetActive(false);
-                particlesPlaying = false;
-            }
+            SelectionClick();
         }
     }
 
     private void LateUpdate()
     {
-        if (selectedUnitObj != null) //For Selection Indicator
+        if (particlesPlaying) //For Selection Indicator
         {
             selectionParticles.gameObject.transform.position = new Vector3(
                 selectedUnitObj.transform.position.x,
@@ -115,153 +87,66 @@ public class ClickSelection : MonoBehaviour
 
     private void SelectionClick()
     {
-        if (Input.GetMouseButtonDown(0))
+        RaycastHit hitInfo = new RaycastHit();
+        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, CombatUtils.clickLayerMask);
+
+        if (!EventSystem.current.IsPointerOverGameObject()) //Makes sure it doesn't interact with UI
         {
-
-            RaycastHit hitInfo = new RaycastHit();
-            bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
-
-            if (hit)
+            if (hit && (hitInfo.transform.gameObject.CompareTag("Champion") && hitInfo.collider.gameObject.GetComponent<Unit>().team == 0))
             {
-                if ((hitInfo.transform.gameObject.tag == "Champion")
-                    && hitInfo.collider.gameObject.activeInHierarchy)
-                {
-                    hasSelection = true;
-                    selectedUnitObj = hitInfo.collider.gameObject;
-                    selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
-                    selectedCreatureScript = selectedUnitObj.GetComponent<LivingCreature>();
-
-                    isAttacking = false;
-
-
-                    DrawMoveZone();
-
-                    TurnManager.instance.SetCameraTargetBasic(selectedUnitScript.unitCamera); //Makes camera follow them.
-                }
+                ClickedSelection(hitInfo.collider.gameObject.transform);
             }
-
-            if ((hitInfo.transform.gameObject.tag != "Champion"))
+            else
             {
                 ClearSelection();
-                DrawIndicators.instance.ClearTileMatStates(true, true, true); //Clears path idicators on null selection.
+                ResetToDefault();
             }
-                   
         }
     }
 
-    private void ClearSelection()
+    public void ClickedSelection(Transform potentialNewSelection)
     {
+        hasSelection = true;
+
+        if(potentialNewSelection.gameObject != selectedUnitObj)
+        {
+            selectedUnitObj = potentialNewSelection.gameObject;
+            selectedUnitScript = selectedUnitObj.GetComponent<Unit>();
+
+            if (NewSelectionEvent != null)
+            {
+                NewSelectionEvent(selectedUnitObj); //EVENT TO RESPOND TO NEW SELECTION;
+            }
+
+            selectionParticles.gameObject.SetActive(true);
+            particlesPlaying = true;
+
+            ResetToDefault();
+            CameraManager.instance.SetCameraTargetBasic(selectedUnitObj.transform); //Makes camera follow selected Unit.
+        }
+    }
+
+    public void ClearSelection()
+    {
+        hasSelection = false;
         selectedUnitObj = null;
         selectedUnitScript = null;
-        selectedCreatureScript = null;
-        hasSelection = false;
-    }
 
-    private void MoveClick()
-    {
-        if(selectedCreatureScript.RemainingEnergy > 0 && selectedUnitScript.hasSuccessfulPath)
-        {        
-            selectedUnitScript.RunFollowPath();
-            int movedSpaces = selectedUnitScript.path.Length;
-            selectedCreatureScript.RemainingEnergy -= movedSpaces;
+        selectionParticles.gameObject.SetActive(false);
+        particlesPlaying = false;
 
-           //TurnManager.instance.CurrentBattleState = TurnManager.BattleState.ActionPhase;      //Returns to PlayerInput through Unit - FollowPath();
+        if (ClearSelectionEvent != null)
+        {
+            ClearSelectionEvent(); //EVENT TO RESPOND TO CLEARED SELECTION.
         }
     }
 
-    private void DrawMoveZone()
+    public void ResetToDefault()
     {
+
         DrawIndicators.instance.ClearTileMatStates(true, true, true);
 
-        List<Node> availableNodes = Pathfinding.instance.DisplayAvailableMoves(selectedUnitScript.currentNode, selectedCreatureScript.RemainingEnergy); //BFS Call
-        DrawIndicators.instance.BFSSelectableSet(availableNodes); 
-            //BFS set tiles to Selectable. 
-        //DrawIndicators.instance.OnPathReturn();
-    }
-
-    private void SetMovePath() //Drawing of path happens in the pathfinding script. 
-    {
-        RaycastHit hitInfo = new RaycastHit();
-        bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
-
-        if (hit && hitInfo.collider.gameObject != hitTileObj)
-        {
-            if ((hitInfo.transform.gameObject.tag == "Map") && hitInfo.collider.gameObject.activeInHierarchy)
-            {
-                hitTileObj = hitInfo.collider.gameObject;
-                Node hitNode = GridGen.instance.NodeFromWorldPoint(hitInfo.point);
-
-                if (hitNode.IsSelectable)
-                {
-                    selectedUnitObj.GetComponent<Unit>().SelectionPathRequest(hitInfo.point);
-                }
-                else
-                {
-                    selectedUnitScript.path = null;
-                    selectedUnitScript.hasSuccessfulPath = false;
-                    DrawIndicators.instance.ClearTileMatStates(true, false, false);
-                }
-            }
-        }
-    }
-
-    private void AttackSelect()
-    {
-        List<Node> attackNodes = GetAttackableTiles();
-        DrawIndicators.instance.ClearTileMatStates(true, true, false);
-        DrawIndicators.instance.AttackableSet(attackNodes);
-        hitTileObj = null; //Just so when you return to movement select you don't need to hover over a new tile to get the path to be drawn. 
-    }
-
-    private List<Node> GetAttackableTiles()
-    {
-        List<Node> nodesToReturn = new List<Node>();
-
-        Collider[] hitObjects = Physics.OverlapSphere(new Vector3(selectedUnitObj.transform.position.x, 0.55f, selectedUnitObj.transform.position.z), selectedCreatureScript.range.Value, clickLayerMask);
-
-        foreach(Collider currentCol in hitObjects)
-        {
-            Tile currentTile = currentCol.gameObject.GetComponent<Tile>();
-            if(currentTile != null && (currentTile.carryingNode.IsWalkable || currentTile.carryingNode.IsOccupied))
-            {
-                nodesToReturn.Add(currentTile.carryingNode);
-            }
-        }
-
-        return nodesToReturn;
-    }
-
-    private void AttackClick()
-    {
-        RaycastHit hitInfo = new RaycastHit();
-        bool hit = Physics.Raycast(currentCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, 100f, clickLayerMask);
-
-        if (hit)
-        {
-            if ((hitInfo.transform.gameObject.tag == "Champion") && hitInfo.collider.gameObject.activeInHierarchy)
-            {
-                Unit targetUnitScript = hitInfo.collider.gameObject.GetComponent<Unit>();
-
-                if (targetUnitScript.currentNode.IsAttackable)
-                {
-                    Attack attack = new Attack(5, Attack.DamageType.Magical, selectedUnitObj);
-                    BattleAttack battleAttack = new BattleAttack(attack, basicAttackProjectile, selectedUnitObj, hitInfo.collider.gameObject);
-                    TurnManager.instance.EventResolutionReceiver(battleAttack);
-
-                    CombatUtils.AttackHitCalculation(selectedUnitObj, hitInfo.collider.gameObject); //[TESTING FOR % CHECK.]                    
-                }
-            }
-        }
-    }
-
-    public void ReturnToPlayerInput(bool fromBattle)
-    {
-        TurnManager.instance.CurrentBattlePhase = TurnManager.BattlePhase.PlayerInput;
-        DrawMoveZone();
-
-        if (fromBattle)
-        {
-            isAttacking = false;
-        }
+        prepAttack = false;
+        //prepMoving = false;
     }
 }

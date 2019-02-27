@@ -5,8 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - Champion
-  - Map
   - Obstacle
+  - Tile
+  - Map Base
+  - Map
+  - Floor
   layers:
   - Default
   - TransparentFX
@@ -19,8 +22,8 @@ TagManager:
   - PostProcessing
   - GameEntity
   - GameTerrain
-  - UnWalkable
-  - 
+  - GameTerrainFade
+  - Obstacle
   - 
   - 
   - 
@@ -41,6 +44,15 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2940862031
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Abilities
+    uniqueID: 2598113569
+    locked: 0
+  - name: Health Bar
+    uniqueID: 3458595149
     locked: 0

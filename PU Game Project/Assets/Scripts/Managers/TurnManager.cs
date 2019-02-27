@@ -1,25 +1,23 @@
 ﻿//Manages turn progression.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using System.Linq; //Gives List.Last
+using MHA.UserInterface;
+using MHA.BattleEffects;
 
 public class TurnManager : MonoBehaviour {
 
     public enum BattlePhase
     {
         MatchStart,
-
         TurnStart,
-
         PlayerInput,
-
-        EnemyInput,
-
+        AIInput,
         ActionPhase,
-
         TurnEnd,
     }
 
@@ -34,55 +32,40 @@ public class TurnManager : MonoBehaviour {
         set
         {
             currentBattlePhase = value;
-            BattlePhaseChange(currentBattlePhase);
-            Debug.Log("BattleStateSet: " + value);
-            if (value != BattlePhase.ActionPhase) //Action Phase CANNOT be set directly. Must use the set up function as it requires the Resolve Group.
+            BattlePhaseInitiation(currentBattlePhase);
+
+            if(BattlePhaseResponseEVENT != null)
             {
-                //put the stuff on the top back in here later. 
+                BattlePhaseResponseEVENT(currentBattlePhase);
             }
         }
     }
+    public delegate void BattlePhaseResponse(BattlePhase currentPhase);
+    public event BattlePhaseResponse BattlePhaseResponseEVENT;
 
-    public List<GameObject> activePlayers = new List<GameObject>();
+    public List<GameObject> activeUnits = new List<GameObject>();
     public List<GameObject> finishedPlayers = new List<GameObject>();
-    public int activeSizeCount;
-    private bool teamTracker;
+
+    public Unit.Teams teamTracker;
     public int turnCounter = 1;
 
-    public List<CinemachineVirtualCamera> unitCameraList = new List<CinemachineVirtualCamera>();
-    public CinemachineVirtualCamera currentCamera;
-
     public static TurnManager instance;
-    
-    public List<List<BattleEvent>> battleResolveBranches = new List<List<BattleEvent>>();
-    public List<BattleEvent> currentResolveBranch = new List<BattleEvent>();
-    private BattleEvent currentBattleEvent; 
-    public BattleEvent CurrentBattleEvent { get { return currentBattleEvent; } } //For other things to be able to know what's currently being resolved. 
-
-    public List<BattleEvent> battleResolveAddList = new List<BattleEvent>();
-
-    public bool eventResolutionRunning;
 
 
     private void Awake()
     {
-        instance = this;
+        if(instance == null){ instance = this;} else{ Destroy(this);}
     }
 
-    void Start ()
+    void Start()
     {
-        foreach(GameObject currentPlayer in ReferenceObjects.UnitList)
-        {
-            unitCameraList.Add(currentPlayer.GetComponent<Unit>().unitCamera);
-        }
-
         CurrentBattlePhase = BattlePhase.MatchStart;
-	}
-	
-	void Update ()
+    }
+
+    void Update()
     {
         //DEBUG
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.N))
         {
             NextMainBattlePhase();
         }
@@ -90,86 +73,34 @@ public class TurnManager : MonoBehaviour {
 
 
 
-    public void SetCameraTargetBasic(CinemachineVirtualCamera selectedCamera) //Controls Cinemachine camera movement between Units. Should honestly be on another script. 
-    {
-        foreach (CinemachineVirtualCamera vCam in unitCameraList)
-        {
-            if(vCam != selectedCamera)
-            {
-                vCam.Priority = 10;
-            }
-        }
-
-        selectedCamera.Priority = 11;
-    }
-
-
-
-    public void BattlePhaseChange(BattlePhase chosenState) //Skeleton for method calls upon specific Phase change. 
+    public void BattlePhaseInitiation(BattlePhase chosenState) //Skeleton for method calls upon specific Phase change. 
     {
         switch (chosenState)
         {
             case (BattlePhase.MatchStart):
+                StartCoroutine(MatchStartManager());
                 break;
 
             case (BattlePhase.TurnStart):
-                StartStateSetup();
+                StartCoroutine(TurnStartManager());
                 break;
 
             case (BattlePhase.PlayerInput):
                 break;
 
-            case (BattlePhase.EnemyInput):
+            case (BattlePhase.AIInput):
+                Debug.Log("Requesting AI Input");
+                StartCoroutine(TurnAIControl());
                 break;
 
             case (BattlePhase.ActionPhase):
-
                 break;
 
             case (BattlePhase.TurnEnd):
+                StartCoroutine(TurnEndManager());
                 break;
         }
     }
-
-
-    public void StartStateSetup() 
-    {
-        TeamSwitch();
-    }
-
-    public void TeamSwitch()
-    {
-        teamTracker = !teamTracker;
-
-        if (teamTracker)
-        {
-            activePlayers = ReferenceObjects.UnitAllyList;
-        }
-        else
-        {
-            activePlayers = ReferenceObjects.UnitEnemyList;
-        }
-
-        finishedPlayers.Clear();
-        activeSizeCount = activePlayers.Count;
-    }
-
-    public void SetPlayerAsFinished(GameObject finishedPlayer) //Keeps track of when a player runs out of moves.
-    {
-        if (activePlayers.Contains(finishedPlayer))
-        {
-            activePlayers.Remove(finishedPlayer);
-        }
-        if (!finishedPlayers.Contains(finishedPlayer))
-        {
-            finishedPlayers.Add(finishedPlayer);
-        }
-        if(finishedPlayers.Count == activeSizeCount)
-        {
-            Debug.Log("TURN END - ALL PLAYERS FINISHED");
-        }
-    }
-
 
     public void NextMainBattlePhase() //Progresses through the Main Battle Phases. Action Phase is a separate branch coming off and then returns to the Input Phases.
     {
@@ -180,33 +111,19 @@ public class TurnManager : MonoBehaviour {
                 break;
 
             case (BattlePhase.TurnStart):
-                if (teamTracker)
-                {
-                    CurrentBattlePhase = BattlePhase.PlayerInput;
-                }
-                else
-                {
-                    CurrentBattlePhase = BattlePhase.EnemyInput;
-                }
+                CurrentBattlePhase = BattlePhase.PlayerInput;
                 break;
 
             case (BattlePhase.PlayerInput):
-                CurrentBattlePhase = BattlePhase.TurnEnd;
+                CurrentBattlePhase = BattlePhase.AIInput;
                 break;
 
-            case (BattlePhase.EnemyInput):
+            case (BattlePhase.AIInput):
                 CurrentBattlePhase = BattlePhase.TurnEnd;
                 break;
 
             case (BattlePhase.ActionPhase):
-                if (teamTracker)
-                {
-                    CurrentBattlePhase = BattlePhase.PlayerInput;
-                }
-                else
-                {
-                    CurrentBattlePhase = BattlePhase.EnemyInput;
-                }
+                CurrentBattlePhase = BattlePhase.PlayerInput;
                 break;
 
             case (BattlePhase.TurnEnd):
@@ -215,137 +132,229 @@ public class TurnManager : MonoBehaviour {
         }
     }
 
-
-    public void EventResolutionReceiver(BattleEvent receivedEvent) //Takes in one BattleEvent.
+    public IEnumerator MatchStartManager()
     {
-        if (eventResolutionRunning)
+        yield return new WaitForSeconds(1f);
+        NextMainBattlePhase();
+    }
+
+
+    public IEnumerator TurnStartManager()
+    {
+        TeamSwitch();
+        EnergyReset();
+        CooldownDrop();
+
+        BattleUIReferences.instance.heroTurnIntro.GetComponent<Animator>().SetTrigger("Animate");
+
+        yield return new WaitForSeconds(2f);
+
+        if(teamTracker == Unit.Teams.Hero)
         {
-            battleResolveAddList.Add(receivedEvent);
+            NextMainBattlePhase();
         }
         else
         {
-            battleResolveAddList.Clear(); //Technically all of these should be clear, but just in case.
-            currentResolveBranch.Clear();
-            battleResolveBranches.Clear();
-            battleResolveBranches.Add(new List<BattleEvent> {receivedEvent});
-
-            CurrentBattlePhase = BattlePhase.ActionPhase;
-
-            eventResolutionRunning = true;
-
-            StartCoroutine(EffectResolutionTree());
+            CurrentBattlePhase = BattlePhase.AIInput;
         }
     }
-
-    public void EventResolutionReceiver(List<BattleEvent> receivedEvents) //Takes in many. Use for buff resolution and other predetermined lists of Events.
+    public void TeamSwitch()
     {
-        if (eventResolutionRunning)
+        activeUnits.Clear();
+
+        if(teamTracker == Unit.Teams.Hero)
         {
-            foreach(BattleEvent currentEvent in receivedEvents)
+            foreach (GameObject currentAlly in ReferenceObjects.HeroList)
             {
-                battleResolveAddList.Add(currentEvent);
+                activeUnits.Add(currentAlly);
             }
         }
-        else
+        else if (teamTracker == Unit.Teams.Villain)
         {
-            battleResolveAddList.Clear(); //Technically all of these should be clear, but just in case.
-            currentResolveBranch.Clear();
-            battleResolveBranches.Clear();
-            battleResolveBranches.Add(receivedEvents);
+            foreach (GameObject currentAlly in ReferenceObjects.VillainList)
+            {
+                activeUnits.Add(currentAlly);
+            }
 
-            CurrentBattlePhase = BattlePhase.ActionPhase;
+        }
+        else if(teamTracker == Unit.Teams.Vigilante)
+        {
+            foreach (GameObject currentAlly in ReferenceObjects.VigilanteList)
+            {
+                activeUnits.Add(currentAlly);
+            }
+        }
 
-            eventResolutionRunning = true;
 
-            StartCoroutine(EffectResolutionTree());
+        finishedPlayers.Clear();
+    }
+    public void EnergyReset()
+    {
+        foreach (GameObject currentUnit in activeUnits)
+        {
+            Unit creatureScript = currentUnit.GetComponent<Unit>();
+            creatureScript.CurrentEnergy = Mathf.RoundToInt(creatureScript.maxEnergy.Value);
+        }
+    }
+    public void CooldownDrop()
+    {
+        foreach(GameObject currentUnit in activeUnits)
+        {
+            Unit unitScript = currentUnit.GetComponent<Unit>();
+            foreach(CharAbility currAbility in unitScript.activatableAbilitiesInsta)
+            {
+                currAbility.CooldownDecrease();
+            }
+            foreach (CharAbility currAbility in unitScript.movementAbilitiesInsta)
+            {
+                currAbility.CooldownDecrease();
+            }
+            foreach (CharAbility currAbility in unitScript.passiveAbilitiesInsta)
+            {
+                currAbility.CooldownDecrease();
+            }
         }
     }
 
-    private IEnumerator EffectResolutionTree() //Literally handles the ordering and resolution of every BattleEvent. 
-    {   
-        if(battleResolveBranches.Count <= 0)
-        {
-            if (currentResolveBranch.Count <= 0)
-            {
-                if (battleResolveBranches.Count <= 0)
-                {
-                    eventResolutionRunning = false;
-                    CurrentBattlePhase = BattlePhase.PlayerInput; //Create a function to handle finishing (currently just works through Action Phase, probably want it available for End and Start Phase).
 
-                    yield break; //End of Resolution Tree.
+    public void SetPlayerAsFinished(GameObject finishedPlayer) //Keeps track of when a player runs out of moves.
+    {
+        if (activeUnits.Contains(finishedPlayer))
+        {
+            activeUnits.Remove(finishedPlayer);
+        }
+        if (!finishedPlayers.Contains(finishedPlayer))
+        {
+            finishedPlayers.Add(finishedPlayer);
+        }
+        if(activeUnits.Count == 0)
+        {
+            Debug.Log("TURN END - ALL PLAYERS FINISHED");
+        }
+    }
+
+    public IEnumerator TurnAIControl()
+    {
+        Debug.Log("Turn AI START");
+
+        yield return null; //Phase change cleared selector without this.
+
+        List<Unit> aiUnits = new List<Unit>();
+        foreach (GameObject obj in activeUnits)
+        {
+            Unit unitScript = obj.GetComponent<Unit>();
+            if(unitScript != null && unitScript.isAIControlled)
+            {
+                aiUnits.Add(unitScript);
+            }
+        }
+
+        foreach(Unit currUnit in aiUnits)
+        {
+            yield return StartCoroutine(currUnit.AIResponder());
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        Debug.Log("Turn AI END");
+        NextMainBattlePhase();
+    }
+
+    public IEnumerator TurnEndManager()
+    {
+        //Add Buff Resolution.
+        yield return new WaitForSeconds(1f);
+
+        EndTurnBuffHandling();
+        yield return null;
+        yield return new WaitUntil(() => !ResolutionManager.instance.resolutionRunning);
+
+        switch (teamTracker)
+        {
+            case (Unit.Teams.Hero):
+                teamTracker = Unit.Teams.Villain;
+                break;
+
+            case (Unit.Teams.Villain):
+                if (ReferenceObjects.VigilanteList.Count > 0)
+                {
+                    teamTracker = Unit.Teams.Vigilante;
                 }
                 else
                 {
-                    currentResolveBranch = battleResolveBranches[0];
-                    currentBattleEvent = currentResolveBranch.Last();
+                    teamTracker = Unit.Teams.Hero;
+                    turnCounter++;
                 }
-            }
-            else
-            {
-                currentBattleEvent = currentResolveBranch.Last();
-            }
-        }
-        else
-        {
-            currentResolveBranch = battleResolveBranches[0];
-            currentBattleEvent = currentResolveBranch.Last();
+                break;
+
+            case (Unit.Teams.Vigilante):
+                teamTracker = Unit.Teams.Hero;
+                turnCounter++;
+                break;
         }
 
-
-        if (currentBattleEvent.IsDirty)
-        {
-            currentBattleEvent.BattleEventResume();
-        }
-        else
-        {
-            currentBattleEvent.BattleEventRun();
-        }
-
-        yield return null; //Allows Events to react to instantenous Events by being able to load on before it gets Popped out of the stack. 
-
-        //Wait until the current BattleEvent either finishes or is interrupted by a new Event on the stack.
-        while (!currentBattleEvent.IsFinished && battleResolveBranches[0].Last() == currentBattleEvent)
-        {
-            if(battleResolveAddList.Count > 0)
-            {
-                Debug.Log("ADD SIZE: " + battleResolveAddList.Count);
-                for(int i = battleResolveAddList.Count - 1; i >= 0; i--)
-                {
-                    if(i == 0)
-                    {
-                        currentResolveBranch.Add(battleResolveAddList[i]); //Puts the last one to react into the current branch.
-                    }
-                    else
-                    {
-                        battleResolveBranches.Insert(0, new List<BattleEvent> { battleResolveAddList[i]}); //Puts the others in order of who reacted first into new Branches at the top.
-                    }
-                }
-                battleResolveAddList.Clear();
-            }
-            yield return null; //Allows Events to react midway through other Events. 
-        }
-
-        if (currentBattleEvent.IsFinished) //If Event HAS finished.
-        {
-            currentResolveBranch.Remove(currentBattleEvent); //Basically removes the last BattleEvent in the list. Allows resolution within a branch to work like a Stack. 
-
-            if(currentResolveBranch.Count <= 0) 
-            {
-                battleResolveBranches.RemoveAt(0); //Removes the first Branch in the branch list. Allows resolution between branches to work like a Queue. 
-            }
-  
-            StartCoroutine(EffectResolutionTree());
-        }
-        if(!currentBattleEvent.IsFinished && battleResolveBranches[0].Last() != currentBattleEvent) //If the Event HASN'T finished and IT ISN'T at the top of the "Stack".
-        {
-            currentBattleEvent.BattleEventPause();
-
-            StartCoroutine(EffectResolutionTree());
-        }
-
-            //Needs to be a check where if the current running BattleEvent is not on the top of the stack. If so, pause that BattleEvent and start the one on top. 
-            //isFinished to represent it being done.
-            //isDirty to represent if it's already started and needs to be resumed as opposed to started fresh.
+        NextMainBattlePhase();
     }
-    
+
+    private void EndTurnBuffHandling()
+    {
+        AddBuffsToMainList();
+
+        BEffectCustomAction callEndBuffs = new BEffectCustomAction(null, new Action(CallEndBuffs));
+        BEffectCustomAction callCooldownBuffs = new BEffectCustomAction(null, new Action(CallBuffCooldown));
+        BEffectCustomAction callRemoveBuffs = new BEffectCustomAction(null, new Action(RemoveBuffs));
+
+        List<BattleEffect> effects = new List<BattleEffect>() { callEndBuffs, callCooldownBuffs, callRemoveBuffs };
+        ResolutionManager.instance.LoadBattleEffect(effects);
+    }
+
+    public void AddBuffsToMainList()
+    {
+        Debug.Log("Hello?");
+        foreach(GameObject currentUnit in activeUnits)
+        {
+            Unit unitScript = currentUnit.GetComponent<Unit>();
+            foreach(Buff currentBuff in unitScript.AddBuffList)
+            {
+                unitScript.BuffList.Add(currentBuff);
+            }
+            unitScript.AddBuffList.Clear();
+        }
+    }
+    public void CallEndBuffs()
+    {
+        foreach (GameObject currentUnit in activeUnits)
+        {
+            Unit unitScript = currentUnit.GetComponent<Unit>();
+            foreach (Buff currentBuff in unitScript.BuffList)
+            {
+                currentBuff.BuffEndTurnApplication();
+            }
+        }
+    }
+    public void CallBuffCooldown()
+    {
+        foreach (GameObject currentUnit in activeUnits)
+        {
+            Unit unitScript = currentUnit.GetComponent<Unit>();
+            foreach (Buff currentBuff in unitScript.BuffList)
+            {
+                currentBuff.CooldownReduce();
+            }
+        }
+    }
+    public void RemoveBuffs()
+    {
+        foreach (GameObject currentUnit in activeUnits)
+        {
+            Unit unitScript = currentUnit.GetComponent<Unit>();
+            foreach (Buff buffToRemove in unitScript.RemoveBuffList)
+            {
+                if (unitScript.BuffList.Contains(buffToRemove))
+                {
+                    unitScript.BuffList.Remove(buffToRemove);
+                }
+            }
+            unitScript.RemoveBuffList.Clear();
+        }
+    }
 }

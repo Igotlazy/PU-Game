@@ -4,37 +4,86 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile : MonoBehaviour {
+public class Tile : GameEntity {
+
 
     public Node carryingNode;
     public Material[] tileMatArray;
     public MeshRenderer meshRend;
 
     public Material baseMaterial;
+    private Material currentMat;
+
+    private Vector3 originalScale;
+    public AnimationCurve growAnim;
+    public float growTime = 0.25f;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        entityType = EntityType.Tile;
+        originalScale = meshRend.transform.localScale;
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        if (growing)
+        {
+            if (currentTime < growTime)
+            {
+                currentTime += Time.deltaTime;
+                float currentSize = growAnim.Evaluate(currentTime / growTime);
+                meshRend.gameObject.transform.localScale = new Vector3(originalScale.x * currentSize, originalScale.y * currentSize, originalScale.z * currentSize);
+            }
+            else
+            {
+                meshRend.gameObject.transform.localScale = originalScale;
+                growing = false;
+            }
+        }
+
+    }
+    float currentTime;
+    bool growing;
 
 
     public void ReconfigureMats()
     {
+        meshRend.gameObject.transform.localScale = originalScale;
+
         if (carryingNode.IsAttackable)
         {
+            CallAnimateTile();
             SetAuxTileMaterial(5);
             return;
         }
 
         if (carryingNode.IsOnPath)
         {
+            growing = false;
+            meshRend.gameObject.transform.localScale = originalScale;
             SetAuxTileMaterial(4);
             return;
         }
 
         if (carryingNode.IsOccupied)
         {
+            if(currentMat != tileMatArray[3])
+            {
+                CallAnimateTile();
+            }
             SetAuxTileMaterial(3);
             return;
         }
 
         if (carryingNode.IsSelectable)
         {
+            if (currentMat != tileMatArray[4])
+            {
+                CallAnimateTile();
+            }
             SetAuxTileMaterial(2);
             return;
         }
@@ -46,12 +95,14 @@ public class Tile : MonoBehaviour {
     public void SetAuxTileMaterial(int materialIndex)
     {
         meshRend.sharedMaterial = tileMatArray[materialIndex];
+        currentMat = tileMatArray[materialIndex];
         //Debug.Log(gameObject.name + ": Color Changed to - " + tileArray[materialIndex].name);
     }
 
     public void SetBaseTileMaterial (int materialIndex)
     {
         baseMaterial = tileMatArray[materialIndex];
+        currentMat = tileMatArray[materialIndex];
     }
 
     public void ResetTileMatToBase()
@@ -59,11 +110,20 @@ public class Tile : MonoBehaviour {
         if(baseMaterial != null)
         {
             meshRend.sharedMaterial = baseMaterial;
+            currentMat = baseMaterial;
         }
         else
         {
             tileMatArray[0] = baseMaterial;
             meshRend.sharedMaterial = baseMaterial;
+            currentMat = baseMaterial;
         }
+    }
+
+    private void CallAnimateTile()
+    {
+        currentTime = 0;
+        growing = true;
+        meshRend.gameObject.transform.localScale = Vector3.zero;
     }
 }
